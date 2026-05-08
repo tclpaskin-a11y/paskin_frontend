@@ -3,13 +3,16 @@ import { ArrowRight, Sparkles } from "lucide-react";
 import hero1 from "@/assets/hero-1.png";
 import hero2 from "@/assets/hero-2.png";
 import hero3 from "@/assets/hero-3.png";
+import heroBerries from "@/assets/hero-berries.png";
 
 type Slide = { type: "image"; src: string };
 
 const slides: Slide[] = [
+  { type: "image", src: heroBerries },
   { type: "image", src: hero1 },
   { type: "image", src: hero2 },
-  { type: "image", src: hero3 },
+
+
 ];
 
 export function Hero() {
@@ -21,17 +24,18 @@ export function Hero() {
   }, []);
 
   return (
-    <section className="relative h-[50vh] min-h-[500px] w-full overflow-hidden mt-[76px]">
+    <section className="relative h-[60vh] min-h-[600px] w-full overflow-hidden mt-[76px]">
       {slides.map((slide, i) => (
         <div
           key={i}
-          className={`absolute inset-0 transition-opacity duration-[500ms] ease-in-out ${i === active ? "opacity-100" : "opacity-0"
+          className={`absolute inset-0 transition-opacity duration-[700ms] ease-in-out ${i === active ? "opacity-100" : "opacity-0"
             }`}
         >
           <img
             src={slide.src}
             alt=""
-            className="h-full w-full object-cover scale-105"
+            className="h-full w-full object-cover scale-100 transition-transform duration-[10s] ease-linear"
+            style={{ transform: i === active ? 'scale(1.1)' : 'scale(1)' }}
             width={1920}
             height={1080}
           />

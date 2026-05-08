@@ -44,7 +44,7 @@ export function Sidebar({ onClose }: SidebarProps) {
           onClick={onClose}
         >
           <img src={logo} alt="PASKIN" className="h-10 w-auto transition-transform group-hover:scale-105" />
-          <span className="font-display text-xl font-bold tracking-tight"></span>
+          <span className="font-display text-xl font-bold tracking-tight">to</span>
         </Link>
         {onClose && (
           <Button variant="ghost" size="icon" onClick={onClose} className="lg:hidden">
