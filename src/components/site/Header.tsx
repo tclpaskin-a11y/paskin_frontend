@@ -27,10 +27,16 @@ export function Header() {
   const { isLoggedIn, logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
-    setUserMenuOpen(false);
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      await logout();
+      setUserMenuOpen(false);
+      navigate("/");
+    } catch (error) {
+      // Logout anyway
+      setUserMenuOpen(false);
+      navigate("/");
+    }
   };
 
   useEffect(() => {

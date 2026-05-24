@@ -17,5 +17,13 @@ export default defineConfig({
   server: {
     host: "::",
     port: 8080,
+    proxy: {
+      "/api": {
+        target: "https://api.paskin.co.in/api",
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/api/, ""),
+      },
+    },
   },
 });

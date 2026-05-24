@@ -65,7 +65,7 @@ export default function PartnerPage() {
                     <Globe className="h-6 w-6" />
                   </div>
                   <h3 className="text-xl font-bold mb-2">Global Distribution</h3>
-                  <p className="text-sm text-muted-foreground">Logistics support for import and export across 50+ countries.</p>
+                  <p className="text-sm text-muted-foreground">Logistics support for import and export across 10+ countries.</p>
                 </div>
               </div>
 

@@ -74,7 +74,7 @@ export default function AboutUsPage() {
                </div>
                <div className="grid grid-cols-2 gap-8 pt-8">
                   <div className="space-y-2">
-                    <span className="text-4xl font-display font-bold text-primary">50+</span>
+                    <span className="text-4xl font-display font-bold text-primary">10+</span>
                     <p className="text-sm text-muted-foreground uppercase tracking-widest">Countries Served</p>
                   </div>
                   <div className="space-y-2">

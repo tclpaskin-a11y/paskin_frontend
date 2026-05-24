@@ -13,6 +13,8 @@ import logo from "@/assets/logo.png";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
+const API_BASE_URL = "https://api.paskin.co.in/api";
+
 const adminMenuItems = [
   { icon: LayoutDashboard, label: "Dashboard", to: "/admin/dashboard" },
   { icon: Layers, label: "Categories", to: "/admin/category" },
@@ -28,10 +30,29 @@ interface AdminSidebarProps {
 export function AdminSidebar({ onClose }: AdminSidebarProps) {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.removeItem("admin-auth");
-    toast.success("Logged out successfully");
-    navigate("/admin");
+  const handleLogout = async () => {
+    try {
+      const refreshToken = localStorage.getItem("admin-refreshToken");
+      if (refreshToken) {
+        await fetch(`${API_BASE_URL}/auth/logout`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ refreshToken }),
+        });
+      }
+    } catch (error) {
+      // Ignore logout errors
+    } finally {
+      localStorage.removeItem("admin-auth");
+      localStorage.removeItem("admin-accessToken");
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("admin-refreshToken");
+      localStorage.removeItem("admin-user");
+      toast.success("Logged out successfully");
+      navigate("/admin");
+    }
   };
 
   return (

@@ -6,9 +6,11 @@ import {
   Clock 
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function DashboardIndex() {
-  const username = "Abhishek"; // Dummy username
+  const { user } = useAuth();
+  const username = user?.name || "User";
 
   const stats = [
     { icon: Package, count: 12, label: "Total Orders", color: "blue" },

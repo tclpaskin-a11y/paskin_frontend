@@ -1,82 +1,153 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Plus, 
   Search, 
-  Edit2, 
   Trash2, 
   Layers,
   X,
-  AlertCircle
+  AlertCircle,
+  Loader2
 } from "lucide-react";
 import { toast } from "sonner";
 
+const API_BASE_URL = "https://api.paskin.co.in/api";
+
 interface Category {
-  id: string;
+  _id: string;
   name: string;
-  productCount: number;
+  createdAt: string;
+  __v: number;
 }
 
-const INITIAL_CATEGORIES: Category[] = [
-  { id: "1", name: "Antibiotics", productCount: 45 },
-  { id: "2", name: "Ayurvedic Care", productCount: 32 },
-  { id: "3", name: "Skin Care", productCount: 28 },
-  { id: "4", name: "Vitamins & Supplements", productCount: 56 },
-  { id: "5", name: "Dental Health", productCount: 15 },
-];
+interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  message?: string;
+}
+
+// API functions
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("accessToken") || localStorage.getItem("admin-accessToken");
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  return headers;
+};
+
+const fetchCategories = async (): Promise<Category[]> => {
+  const response = await fetch(`${API_BASE_URL}/admin/categories`, {
+    headers: getAuthHeaders(),
+  });
+  const data: ApiResponse<Category[]> = await response.json();
+  if (!data.success) {
+    throw new Error("Failed to fetch categories");
+  }
+  return data.data || [];
+};
+
+const addCategory = async (name: string): Promise<Category> => {
+  const response = await fetch(`${API_BASE_URL}/admin/categories`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ name }),
+  });
+  const data: ApiResponse<Category> = await response.json();
+  if (!data.success) {
+    throw new Error("Failed to add category");
+  }
+  return data.data!;
+};
+
+const deleteCategory = async (id: string): Promise<void> => {
+  const response = await fetch(`${API_BASE_URL}/admin/categories/${id}`, {
+    method: "DELETE",
+    headers: getAuthHeaders(),
+  });
+  const data: ApiResponse<void> = await response.json();
+  if (!data.success) {
+    throw new Error(data.message || "Failed to delete category");
+  }
+};
 
 export default function AdminCategories() {
-  const [categories, setCategories] = useState<Category[]>(INITIAL_CATEGORIES);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [categoryName, setCategoryName] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSave = () => {
-    if (!categoryName) {
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const data = await fetchCategories();
+        setCategories(data);
+      } catch (error) {
+        toast.error("Failed to load categories");
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadCategories();
+  }, []);
+
+  const handleSave = async () => {
+    if (!categoryName.trim()) {
       toast.error("Please enter a category name");
       return;
     }
 
-    if (editingCategory) {
-      setCategories(categories.map(c => 
-        c.id === editingCategory.id ? { ...c, name: categoryName } : c
-      ));
-      toast.success("Category updated");
-    } else {
-      const newCat: Category = {
-        id: Date.now().toString(),
-        name: categoryName,
-        productCount: 0
-      };
-      setCategories([...categories, newCat]);
-      toast.success("Category added");
+    setSubmitting(true);
+    try {
+      const newCategory = await addCategory(categoryName.trim());
+      setCategories(prev => [...prev, newCategory]);
+      toast.success("Category added successfully");
+      closeModal();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to add category");
+    } finally {
+      setSubmitting(false);
     }
-    closeModal();
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setEditingCategory(null);
     setCategoryName("");
   };
 
-  const openEditModal = (cat: Category) => {
-    setEditingCategory(cat);
-    setCategoryName(cat.name);
-    setIsModalOpen(true);
-  };
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this category?")) {
+      return;
+    }
 
-  const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to delete this category?")) {
-      setCategories(categories.filter(c => c.id !== id));
-      toast.success("Category deleted");
+    try {
+      await deleteCategory(id);
+      setCategories(prev => prev.filter(c => c._id !== id));
+      toast.success("Category deleted successfully");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to delete category");
     }
   };
 
   const filteredCategories = categories.filter(c => 
     c.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="ml-2 text-slate-600">Loading categories...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -113,7 +184,7 @@ export default function AdminCategories() {
             <thead>
               <tr className="text-[10px] font-bold uppercase tracking-widest text-slate-400 border-b border-slate-50">
                 <th className="px-8 py-5">Category Name</th>
-                <th className="px-8 py-5">Product Count</th>
+                <th className="px-8 py-5">Created At</th>
                 <th className="px-8 py-5 text-right">Actions</th>
               </tr>
             </thead>
@@ -121,7 +192,7 @@ export default function AdminCategories() {
               <AnimatePresence mode="popLayout">
                 {filteredCategories.map((cat) => (
                   <motion.tr 
-                    key={cat.id}
+                    key={cat._id}
                     layout
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -138,19 +209,13 @@ export default function AdminCategories() {
                     </td>
                     <td className="px-8 py-6">
                       <span className="px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold">
-                        {cat.productCount} Products
+                        {new Date(cat.createdAt).toLocaleDateString()}
                       </span>
                     </td>
                     <td className="px-8 py-6 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <button 
-                          onClick={() => openEditModal(cat)}
-                          className="p-2.5 hover:bg-primary/5 text-slate-400 hover:text-primary rounded-xl transition-all"
-                        >
-                          <Edit2 className="h-4 w-4" />
-                        </button>
-                        <button 
-                          onClick={() => handleDelete(cat.id)}
+                          onClick={() => handleDelete(cat._id)}
                           className="p-2.5 hover:bg-rose-50 text-slate-400 hover:text-rose-500 rounded-xl transition-all"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -191,7 +256,7 @@ export default function AdminCategories() {
               <div className="p-8 sm:p-10">
                 <div className="flex items-center justify-between mb-8">
                   <h3 className="text-2xl font-bold text-slate-800">
-                    {editingCategory ? "Edit Category" : "Add New Category"}
+                    Add New Category
                   </h3>
                   <button onClick={closeModal} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
                     <X className="h-6 w-6 text-slate-400" />
@@ -214,15 +279,24 @@ export default function AdminCategories() {
                   <div className="pt-4 flex gap-4">
                     <button 
                       onClick={closeModal}
-                      className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-4 rounded-2xl transition-all"
+                      disabled={submitting}
+                      className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-4 rounded-2xl transition-all disabled:opacity-50"
                     >
                       Cancel
                     </button>
                     <button 
                       onClick={handleSave}
-                      className="flex-1 bg-primary hover:bg-primary-glow text-white font-bold py-4 rounded-2xl shadow-lg shadow-primary/20 transition-all"
+                      disabled={submitting || !categoryName.trim()}
+                      className="flex-1 bg-primary hover:bg-primary-glow text-white font-bold py-4 rounded-2xl shadow-lg shadow-primary/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                     >
-                      Save Changes
+                      {submitting ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Adding...
+                        </>
+                      ) : (
+                        "Add Category"
+                      )}
                     </button>
                   </div>
                 </div>

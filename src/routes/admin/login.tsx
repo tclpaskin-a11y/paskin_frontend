@@ -1,9 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import logo from "@/assets/logo.png";
 import { toast } from "sonner";
+
+const API_BASE_URL = "https://api.paskin.co.in/api";
+
+function getSimpleErrorMessage(error: string): string {
+  const errorMap: Record<string, string> = {
+    "User not found": "No admin account found with this email.",
+    "Invalid password": "The password you entered is incorrect.",
+    "Invalid credentials": "Please check your email and password.",
+    "Network error": "Unable to connect. Please check your internet connection.",
+  };
+  return errorMap[error] || "Something went wrong. Please try again.";
+}
 
 export default function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false);
@@ -13,30 +25,55 @@ export default function AdminLogin() {
   const navigate = useNavigate();
 
   // Redirect if already logged in
-  useState(() => {
+  useEffect(() => {
     const isAuth = localStorage.getItem("admin-auth") === "true";
     if (isAuth) {
       navigate("/admin/dashboard");
     }
-  });
+  }, [navigate]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email || !password) {
+      toast.error("Please enter both email and password");
+      return;
+    }
+
     setLoading(true);
-    
-    const normalizedEmail = email.trim().toLowerCase();
-    
-    // Mock admin login
-    setTimeout(() => {
-      if (normalizedEmail === "admin@paskin.com" && password === "admin123") {
-        toast.success("Admin access granted");
-        localStorage.setItem("admin-auth", "true");
-        navigate("/admin/dashboard");
-      } else {
-        toast.error("Invalid admin credentials");
-        setLoading(false);
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ identifier: email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Login failed");
       }
-    }, 1500);
+
+      if (data.success && data.user.role === "admin") {
+        localStorage.setItem("admin-auth", "true");
+        localStorage.setItem("admin-accessToken", data.accessToken);
+        localStorage.setItem("accessToken", data.accessToken);
+        localStorage.setItem("admin-refreshToken", data.refreshToken);
+        localStorage.setItem("admin-user", JSON.stringify(data.user));
+        toast.success("Admin access granted");
+        navigate("/admin/dashboard");
+      } else if (data.success && data.user.role !== "admin") {
+        toast.error("Access denied. Admin privileges required.");
+      } else {
+        throw new Error("Login failed");
+      }
+    } catch (error: any) {
+      const message = error.message || "Network error occurred";
+      toast.error(getSimpleErrorMessage(message));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
