@@ -224,3 +224,81 @@ export async function deleteProduct(productId: string): Promise<void> {
     throw new Error(errorData.message || "Failed to delete product");
   }
 }
+
+// Get public products (GET)
+export async function getPublicProducts(): Promise<Product[]> {
+  const response = await fetch(`${API_BASE_URL}/products`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || "Failed to fetch products");
+  }
+
+  const result = await response.json() as ProductResponse;
+  if (result.success) {
+    if (result.data && Array.isArray(result.data)) {
+      return result.data;
+    }
+    if (result.products) {
+      return result.products;
+    }
+  }
+  throw new Error("Invalid response from server");
+}
+
+// Get single public product (GET)
+export async function getPublicProduct(productId: string): Promise<Product> {
+  const response = await fetch(`${API_BASE_URL}/products/${productId}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || "Failed to fetch product details");
+  }
+
+  const result = await response.json() as ProductResponse;
+  if (result.success) {
+    if (result.data && !Array.isArray(result.data)) {
+      return result.data;
+    }
+    if (result.product) {
+      return result.product;
+    }
+  }
+  throw new Error("Invalid response from server");
+}
+
+// Search public products (GET)
+export async function searchPublicProducts(q: string): Promise<Product[]> {
+  const response = await fetch(`${API_BASE_URL}/products/search?q=${encodeURIComponent(q)}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || "Failed to search products");
+  }
+
+  const result = await response.json() as ProductResponse;
+  if (result.success) {
+    if (result.data && Array.isArray(result.data)) {
+      return result.data;
+    }
+    if (result.products) {
+      return result.products;
+    }
+  }
+  throw new Error("Invalid response from server");
+}

@@ -106,7 +106,12 @@ export async function updatePassword(currentPassword: string, newPassword: strin
 }
 
 // Add address
-export async function addAddress(address: Partial<UserProfile["addresses"][0]>): Promise<UserProfile> {
+export async function addAddress(address: {
+  fullAddress: string;
+  city: string;
+  pincode: string;
+  country: string;
+}): Promise<any> {
   const token = getAccessToken();
   const headers: HeadersInit = {
     "Content-Type": "application/json",
@@ -116,20 +121,48 @@ export async function addAddress(address: Partial<UserProfile["addresses"][0]>):
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE_URL}/profile/addresses`, {
+  const response = await fetch(`${API_BASE_URL}/address`, {
     method: "POST",
     headers,
     body: JSON.stringify(address),
   });
 
   if (!response.ok) {
-    const errorData = await response.json();
+    const errorData = await response.json().catch(() => ({}));
     throw new Error(errorData.message || "Failed to add address");
   }
 
-  const result = await response.json() as ProfileResponse;
-  if (result.success && result.user) {
-    return result.user;
+  const result = await response.json() as any;
+  if (result.success && result.data) {
+    return result.data;
+  }
+  throw new Error("Invalid response from server");
+}
+
+// Get addresses: GET /address
+export async function getUserAddresses(): Promise<any[]> {
+  const token = getAccessToken();
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+  };
+  
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  const response = await fetch(`${API_BASE_URL}/address`, {
+    method: "GET",
+    headers,
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || "Failed to fetch addresses");
+  }
+
+  const result = await response.json() as any;
+  if (result.success && result.data) {
+    return Array.isArray(result.data) ? result.data : [result.data];
   }
   throw new Error("Invalid response from server");
 }

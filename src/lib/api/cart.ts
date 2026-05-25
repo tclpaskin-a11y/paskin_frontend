@@ -1,29 +1,27 @@
 import { getAccessToken, API_BASE_URL } from "./client";
 
 export interface CartItem {
-  productId: string;
+  productId: any; // Can be string or populated object { _id, name, sellPrice, images }
   quantity: number;
-  price: number;
-  name?: string;
-  image?: string;
+  _id?: string;
 }
 
 export interface Cart {
   _id: string;
   userId: string;
-  items: CartItem[];
-  totalPrice: number;
+  products: CartItem[];
   createdAt?: string;
   updatedAt?: string;
+  __v?: number;
 }
 
 export interface CartResponse {
   success: boolean;
-  cart?: Cart;
+  data?: Cart;
   message?: string;
 }
 
-// Get cart
+// Get cart: GET /cart
 export async function getCart(): Promise<Cart> {
   const token = getAccessToken();
   const headers: HeadersInit = {
@@ -40,18 +38,18 @@ export async function getCart(): Promise<Cart> {
   });
 
   if (!response.ok) {
-    const errorData = await response.json();
+    const errorData = await response.json().catch(() => ({}));
     throw new Error(errorData.message || "Failed to fetch cart");
   }
 
   const result = await response.json() as CartResponse;
-  if (result.success && result.cart) {
-    return result.cart;
+  if (result.success && result.data) {
+    return result.data;
   }
   throw new Error("Invalid response from server");
 }
 
-// Add to cart
+// Add to cart: POST /cart/add
 export async function addToCart(productId: string, quantity: number): Promise<Cart> {
   const token = getAccessToken();
   const headers: HeadersInit = {
@@ -62,25 +60,25 @@ export async function addToCart(productId: string, quantity: number): Promise<Ca
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE_URL}/cart/items`, {
+  const response = await fetch(`${API_BASE_URL}/cart/add`, {
     method: "POST",
     headers,
     body: JSON.stringify({ productId, quantity }),
   });
 
   if (!response.ok) {
-    const errorData = await response.json();
+    const errorData = await response.json().catch(() => ({}));
     throw new Error(errorData.message || "Failed to add to cart");
   }
 
   const result = await response.json() as CartResponse;
-  if (result.success && result.cart) {
-    return result.cart;
+  if (result.success && result.data) {
+    return result.data;
   }
   throw new Error("Invalid response from server");
 }
 
-// Update cart item quantity
+// Update cart: PATCH /cart/update
 export async function updateCartItem(productId: string, quantity: number): Promise<Cart> {
   const token = getAccessToken();
   const headers: HeadersInit = {
@@ -91,26 +89,26 @@ export async function updateCartItem(productId: string, quantity: number): Promi
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE_URL}/cart/items/${productId}`, {
-    method: "PUT",
+  const response = await fetch(`${API_BASE_URL}/cart/update`, {
+    method: "PATCH",
     headers,
-    body: JSON.stringify({ quantity }),
+    body: JSON.stringify({ productId, quantity }),
   });
 
   if (!response.ok) {
-    const errorData = await response.json();
+    const errorData = await response.json().catch(() => ({}));
     throw new Error(errorData.message || "Failed to update cart");
   }
 
   const result = await response.json() as CartResponse;
-  if (result.success && result.cart) {
-    return result.cart;
+  if (result.success && result.data) {
+    return result.data;
   }
   throw new Error("Invalid response from server");
 }
 
-// Remove from cart
-export async function removeFromCart(productId: string): Promise<Cart> {
+// Remove from cart: DELETE /cart/remove/:cartId
+export async function removeFromCart(cartId: string): Promise<Cart> {
   const token = getAccessToken();
   const headers: HeadersInit = {
     "Content-Type": "application/json",
@@ -120,24 +118,24 @@ export async function removeFromCart(productId: string): Promise<Cart> {
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE_URL}/cart/items/${productId}`, {
+  const response = await fetch(`${API_BASE_URL}/cart/remove/${cartId}`, {
     method: "DELETE",
     headers,
   });
 
   if (!response.ok) {
-    const errorData = await response.json();
+    const errorData = await response.json().catch(() => ({}));
     throw new Error(errorData.message || "Failed to remove from cart");
   }
 
   const result = await response.json() as CartResponse;
-  if (result.success && result.cart) {
-    return result.cart;
+  if (result.success && result.data) {
+    return result.data;
   }
   throw new Error("Invalid response from server");
 }
 
-// Clear cart
+// Clear cart (helper local fallback)
 export async function clearCart(): Promise<void> {
   const token = getAccessToken();
   const headers: HeadersInit = {
@@ -154,7 +152,7 @@ export async function clearCart(): Promise<void> {
   });
 
   if (!response.ok) {
-    const errorData = await response.json();
+    const errorData = await response.json().catch(() => ({}));
     throw new Error(errorData.message || "Failed to clear cart");
   }
 }

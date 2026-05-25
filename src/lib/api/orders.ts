@@ -44,9 +44,47 @@ export async function getAllOrders(): Promise<Order[]> {
     throw new Error(errorData.message || "Failed to fetch orders");
   }
 
-  const result = await response.json() as OrderResponse;
-  if (result.success && result.orders) {
-    return result.orders;
+  const result = await response.json() as any;
+  if (result.success) {
+    if (result.data && Array.isArray(result.data)) {
+      return result.data;
+    }
+    if (result.orders && Array.isArray(result.orders)) {
+      return result.orders;
+    }
+  }
+  throw new Error("Invalid response from server");
+}
+
+// Get pending orders (admin)
+export async function getPendingOrders(): Promise<Order[]> {
+  const token = getAccessToken();
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+  };
+  
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  const response = await fetch(`${API_BASE_URL}/admin/orders/pending`, {
+    method: "GET",
+    headers,
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to fetch pending orders");
+  }
+
+  const result = await response.json() as any;
+  if (result.success) {
+    if (result.data && Array.isArray(result.data)) {
+      return result.data;
+    }
+    if (result.orders && Array.isArray(result.orders)) {
+      return result.orders;
+    }
   }
   throw new Error("Invalid response from server");
 }
@@ -82,9 +120,9 @@ export async function getOrder(orderId: string): Promise<Order> {
 // Update order status
 export async function updateOrderStatus(
   orderId: string,
-  status: Order["status"],
+  status: string,
   trackingNumber?: string
-): Promise<Order> {
+): Promise<any> {
   const token = getAccessToken();
   const headers: HeadersInit = {
     "Content-Type": "application/json",
@@ -99,20 +137,26 @@ export async function updateOrderStatus(
     body.trackingNumber = trackingNumber;
   }
 
-  const response = await fetch(`${API_BASE_URL}/admin/orders/${orderId}`, {
-    method: "PUT",
+  // Calls the updated endpoint /admin/orders/:id/status using PATCH method
+  const response = await fetch(`${API_BASE_URL}/admin/orders/${orderId}/status`, {
+    method: "PATCH",
     headers,
     body: JSON.stringify(body),
   });
 
   if (!response.ok) {
     const errorData = await response.json();
-    throw new Error(errorData.message || "Failed to update order");
+    throw new Error(errorData.message || "Failed to update order status");
   }
 
-  const result = await response.json() as OrderResponse;
-  if (result.success && result.order) {
-    return result.order;
+  const result = await response.json() as any;
+  if (result.success) {
+    if (result.data && !Array.isArray(result.data)) {
+      return result.data;
+    }
+    if (result.order) {
+      return result.order;
+    }
   }
   throw new Error("Invalid response from server");
 }

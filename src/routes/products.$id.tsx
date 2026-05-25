@@ -1,10 +1,29 @@
 import { Link, useParams } from "react-router-dom";
-import { useState, useMemo } from "react";
-import { products, DetailedProduct } from "@/data/products";
-import { Star, ShoppingBag, Zap, Heart, ShieldCheck, Truck, RotateCcw, ChevronLeft, CheckCircle2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Star, ShoppingBag, Zap, Heart, ShieldCheck, Truck, RotateCcw, ChevronLeft, CheckCircle2, Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
 import { ProductCard } from "@/components/site/ProductCard";
+import { getPublicProduct, getPublicProducts } from "@/lib/api";
+import { toast } from "sonner";
+
+const mapBackendProduct = (p: any): any => {
+  return {
+    id: p._id,
+    name: p.name || "",
+    price: p.sellPrice || 0,
+    oldPrice: p.basePrice || undefined,
+    rating: p.rating || 4.8,
+    reviews: p.reviews || 120,
+    image: p.images?.[0] || "https://images.unsplash.com/photo-1611073103901-09605d8f6cc9?auto=format&fit=crop&q=80&w=300",
+    badge: p.isPaused ? "Paused" : undefined,
+    category: typeof p.category === "object" && p.category ? p.category.name : (p.category || ""),
+    description: p.description || "",
+    benefits: p.benefits || ["Safe & Effective", "Clinically Proven", "Supports Overall Health"],
+    usage: p.usage || "Take as prescribed by your doctor or follow generic instructions.",
+    ingredients: p.ingredients || "Active Pharmaceutical Ingredients."
+  };
+};
 
 export default function ProductDetailsPage() {
   const { id } = useParams();
@@ -12,28 +31,71 @@ export default function ProductDetailsPage() {
   const [activeTab, setActiveTab] = useState("description");
   const { addToCart } = useCart();
   
-  const product = useMemo(() => 
-    (products.find((p) => p.id === id) || products[0]) as DetailedProduct,
-  [id]);
+  const [product, setProduct] = useState<any>(null);
+  const [similarProducts, setSimilarProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const similarProducts = useMemo(() => {
-    return products
-      .filter((p) => p.category === product.category && p.id !== product.id)
-      .slice(0, 4);
-  }, [product]);
+  useEffect(() => {
+    async function loadProductDetails() {
+      if (!id) return;
+      try {
+        setLoading(true);
+        // Fetch detailed product from public API
+        const data = await getPublicProduct(id);
+        const mappedProduct = mapBackendProduct(data);
+        setProduct(mappedProduct);
+
+        // Fetch all products for recommendations
+        const allProducts = await getPublicProducts();
+        const mappedAll = allProducts.map(mapBackendProduct);
+        const recommendations = mappedAll
+          .filter((p) => p.category === mappedProduct.category && p.id !== mappedProduct.id)
+          .slice(0, 4);
+        setSimilarProducts(recommendations);
+      } catch (error: any) {
+        toast.error(error.message || "Failed to load product details");
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadProductDetails();
+  }, [id]);
 
   const handleAddToCart = () => {
+    if (!product) return;
     for(let i = 0; i < quantity; i++) {
        addToCart(product);
     }
+    toast.success(`${quantity} x ${product.name} added to cart!`);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <Loader className="h-10 w-10 text-primary animate-spin" />
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white text-center p-6">
+        <ChevronLeft className="h-12 w-12 text-slate-300 mb-4 stroke-1" />
+        <h2 className="text-2xl font-bold text-slate-800 mb-2">Product Not Found</h2>
+        <p className="text-slate-500 mb-6 max-w-sm">We couldn't retrieve the details for this item. It may have been removed or is temporarily unavailable.</p>
+        <Link to="/products" className="inline-flex items-center gap-2 bg-primary text-white rounded-full px-6 py-3 font-bold transition-all shadow-lg hover:bg-primary-glow">
+          Back to Shop
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="pt-24 lg:pt-32 pb-24 bg-white min-h-screen">
       <div className="container mx-auto px-4 md:px-6">
-        <Link to="/" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary mb-6 lg:mb-8 transition-colors">
+        <Link to="/products" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary mb-6 lg:mb-8 transition-colors">
           <ChevronLeft className="h-4 w-4" />
-          Back to Home
+          Back to Products
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-20">
@@ -107,7 +169,7 @@ export default function ProductDetailsPage() {
                   {activeTab === "description" && <p className="text-sm lg:text-base text-muted-foreground leading-relaxed">{product.description}</p>}
                   {activeTab === "benefits" && (
                     <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
-                      {product.benefits.map((b, i) => (
+                      {product.benefits.map((b: string, i: number) => (
                         <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground font-medium">
                           <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
                           <span>{b}</span>
@@ -178,13 +240,13 @@ export default function ProductDetailsPage() {
 
         {/* Similar Products */}
         {similarProducts.length > 0 && (
-          <section className="mt-32">
+          <section className="mt-32 animate-in fade-in duration-700">
              <div className="flex items-end justify-between mb-12">
                <div>
                   <p className="text-primary text-sm font-bold uppercase tracking-widest mb-3">Recommendations</p>
                   <h2 className="font-display text-4xl font-bold">Similar Products</h2>
                </div>
-               <Link to="/" className="text-primary font-bold hover:underline">View All</Link>
+               <Link to="/products" className="text-primary font-bold hover:underline">View All</Link>
              </div>
              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
                 {similarProducts.map((p) => (

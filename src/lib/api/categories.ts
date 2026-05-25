@@ -193,3 +193,29 @@ export async function deleteCategory(categoryId: string): Promise<void> {
     throw new Error(errorData.message || "Failed to delete category");
   }
 }
+
+// Get public categories
+export async function getPublicCategories(): Promise<Category[]> {
+  const response = await fetch(`${API_BASE_URL}/categories`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || "Failed to fetch categories");
+  }
+
+  const result = await response.json() as CategoryResponse;
+  if (result.success) {
+    if (result.data && Array.isArray(result.data)) {
+      return result.data;
+    }
+    if (result.categories) {
+      return result.categories;
+    }
+  }
+  throw new Error("Invalid response from server");
+}

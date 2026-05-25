@@ -181,3 +181,55 @@ export async function deleteBlog(blogId: string): Promise<void> {
     throw new Error(errorData.message || "Failed to delete blog");
   }
 }
+
+// Get public blogs (GET)
+export async function getPublicBlogs(): Promise<Blog[]> {
+  const response = await fetch(`${API_BASE_URL}/blogs`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || "Failed to fetch blogs");
+  }
+
+  const result = await response.json() as BlogResponse;
+  if (result.success) {
+    if (result.blog && Array.isArray(result.blog)) {
+      return result.blog;
+    }
+    if (result.data && Array.isArray(result.data)) {
+      return result.data;
+    }
+  }
+  throw new Error("Invalid response from server");
+}
+
+// Get single public blog (GET)
+export async function getPublicBlog(blogId: string): Promise<Blog> {
+  const response = await fetch(`${API_BASE_URL}/blogs/${blogId}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || "Failed to fetch blog details");
+  }
+
+  const result = await response.json() as BlogResponse;
+  if (result.success) {
+    if (result.blog && !Array.isArray(result.blog)) {
+      return result.blog;
+    }
+    if (result.data && !Array.isArray(result.data)) {
+      return result.data;
+    }
+  }
+  throw new Error("Invalid response from server");
+}
