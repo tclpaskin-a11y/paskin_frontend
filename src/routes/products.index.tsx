@@ -36,8 +36,8 @@ export default function ProductsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // Fetch categories dynamically from products
-  const fetchCategoriesList = (currentProducts: any[]) => {
+  // Fetch categories dynamically from products (as fallback)
+  const extractCategoriesFromProducts = (currentProducts: any[]) => {
     if (currentProducts && currentProducts.length > 0) {
       const uniqueCatsMap = new Map<string, string>(); // name -> _id
       currentProducts.forEach(p => {
@@ -62,35 +62,58 @@ export default function ProductsPage() {
     }
   };
 
-  // Fetch products based on search query
-  const fetchProductsList = async (query = "") => {
+  // Fetch products and categories dynamically
+  const fetchData = async (query = "", fetchCats = true) => {
     try {
       setLoading(true);
-      let data;
-      if (query.trim()) {
-        data = await searchPublicProducts(query);
+      
+      // Concurrently fetch products and (optionally) categories
+      const [productsRes, categoriesRes] = await Promise.allSettled([
+        query.trim() ? searchPublicProducts(query) : getPublicProducts(),
+        fetchCats ? getPublicCategories() : Promise.resolve(null)
+      ]);
+
+      let productsResult: any[] = [];
+      if (productsRes.status === "fulfilled") {
+        productsResult = productsRes.value.map(mapBackendProduct);
+        setProductsList(productsResult);
       } else {
-        data = await getPublicProducts();
+        toast.error("Failed to fetch products");
       }
-      const mapped = data.map(mapBackendProduct);
-      setProductsList(mapped);
-      fetchCategoriesList(mapped);
+
+      if (fetchCats) {
+        if (
+          categoriesRes.status === "fulfilled" && 
+          categoriesRes.value && 
+          Array.isArray(categoriesRes.value) && 
+          categoriesRes.value.length > 0
+        ) {
+          const dynamicCats = categoriesRes.value.map((cat: any) => ({
+            _id: cat._id,
+            name: cat.name
+          }));
+          setCategoriesList([{ _id: "All", name: "All Products" }, ...dynamicCats]);
+        } else {
+          // If public categories endpoint fails or is empty, fallback to extracting from products
+          extractCategoriesFromProducts(productsResult);
+        }
+      }
     } catch (error: any) {
-      toast.error(error.message || "Failed to fetch products");
+      toast.error(error.message || "Failed to load data");
     } finally {
       setLoading(false);
     }
   };
 
-  // Load products on mount
+  // Load products and categories on mount
   useEffect(() => {
-    fetchProductsList();
+    fetchData("", true);
   }, []);
 
-  // Debounced search on query change (auto search)
+  // Debounced search on query change (auto search products, don't re-fetch categories)
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
-      fetchProductsList(searchQuery);
+      fetchData(searchQuery, false);
     }, 450); // 450ms debounce delay
 
     return () => clearTimeout(delayDebounceFn);
