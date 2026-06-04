@@ -17,7 +17,7 @@ export function ContactCTA() {
           <ul className="mt-8 space-y-4">
             <li className="flex items-center gap-4">
               <span className="grid place-items-center h-10 w-10 rounded-full bg-secondary text-primary"><Phone className="h-4 w-4" /></span>
-              <span className="text-sm">+91 7763</span>
+              <span className="text-sm">+91 9582824383</span>
             </li>
             <li className="flex items-center gap-4">
               <span className="grid place-items-center h-10 w-10 rounded-full bg-secondary text-primary"><Mail className="h-4 w-4" /></span>

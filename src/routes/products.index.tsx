@@ -18,6 +18,7 @@ const mapBackendProduct = (p: any): any => {
     image: p.images?.[0] || "https://images.unsplash.com/photo-1611073103901-09605d8f6cc9?auto=format&fit=crop&q=80&w=300",
     badge: p.isPaused ? "Paused" : undefined,
     category: typeof p.category === "object" && p.category ? p.category.name : (p.category || ""),
+    categoryRawId: typeof p.category === "object" && p.category ? p.category._id : undefined,
     description: p.description || "",
     benefits: p.benefits || ["Safe & Effective", "Clinically Proven"],
     usage: p.usage || "Use as directed by physician.",
@@ -35,6 +36,32 @@ export default function ProductsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
 
+  // Fetch categories dynamically from products
+  const fetchCategoriesList = (currentProducts: any[]) => {
+    if (currentProducts && currentProducts.length > 0) {
+      const uniqueCatsMap = new Map<string, string>(); // name -> _id
+      currentProducts.forEach(p => {
+        if (p.category) {
+          uniqueCatsMap.set(p.category, p.categoryRawId || p.category);
+        }
+      });
+      const dynamicCats = Array.from(uniqueCatsMap.entries()).map(([name, _id]) => ({
+        _id,
+        name
+      }));
+      setCategoriesList([{ _id: "All", name: "All Products" }, ...dynamicCats]);
+    } else {
+      // Static fallback if no products are returned
+      setCategoriesList([
+        { _id: "All", name: "All Products" },
+        { _id: "Antibiotics", name: "Antibiotics" },
+        { _id: "Derma", name: "Derma" },
+        { _id: "Dental", name: "Dental" },
+        { _id: "Vitamins", name: "Vitamins & Supplements" },
+      ]);
+    }
+  };
+
   // Fetch products based on search query
   const fetchProductsList = async (query = "") => {
     try {
@@ -45,7 +72,9 @@ export default function ProductsPage() {
       } else {
         data = await getPublicProducts();
       }
-      setProductsList(data.map(mapBackendProduct));
+      const mapped = data.map(mapBackendProduct);
+      setProductsList(mapped);
+      fetchCategoriesList(mapped);
     } catch (error: any) {
       toast.error(error.message || "Failed to fetch products");
     } finally {
@@ -53,31 +82,9 @@ export default function ProductsPage() {
     }
   };
 
-  // Fetch categories dynamically
-  const fetchCategoriesList = async () => {
-    try {
-      const data = await getPublicCategories();
-      setCategoriesList([{ _id: "All", name: "All Products" }, ...data]);
-    } catch (error) {
-      // Fallback to admin categories or static defaults
-      const data = await getAllCategories().catch(() => []);
-      if (data.length > 0) {
-        setCategoriesList([{ _id: "All", name: "All Products" }, ...data]);
-      } else {
-        setCategoriesList([
-          { _id: "All", name: "All Products" },
-          { _id: "Antibiotics", name: "Antibiotics" },
-          { _id: "Derma", name: "Derma" },
-          { _id: "Dental", name: "Dental" },
-          { _id: "Vitamins", name: "Vitamins & Supplements" },
-        ]);
-      }
-    }
-  };
-
-  // Load categories once on mount
+  // Load products on mount
   useEffect(() => {
-    fetchCategoriesList();
+    fetchProductsList();
   }, []);
 
   // Debounced search on query change (auto search)
