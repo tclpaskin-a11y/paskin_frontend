@@ -21,6 +21,7 @@ import ShippingPolicyPage from "./routes/shipping-policy";
 import PrivacyPolicyPage from "./routes/privacy-policy";
 import TermsConditionsPage from "./routes/terms-and-conditions";
 import ReturnsPolicyPage from "./routes/returns-policy";
+import OrderDetailsPage from "./routes/orders.$id";
 
 
 // Dashboard
@@ -90,19 +91,21 @@ export default function App() {
             <Route path="/returns-policy" element={<ReturnsPolicyPage />} />
 
             
+            <Route path="/orders/:id" element={<OrderDetailsPage />} />
+
             <Route path="/products" element={<ProductsLayout />}>
               <Route index element={<ProductsPage />} />
               <Route path=":id" element={<ProductDetailsPage />} />
             </Route>
 
-            <Route path="*" element={<NotFound />} />
-          </Route>
+            <Route path="/dashboard" element={<DashboardLayout />}>
+              <Route index element={<DashboardIndex />} />
+              <Route path="cart" element={<DashboardCart />} />
+              <Route path="orders" element={<DashboardOrders />} />
+              <Route path="address" element={<DashboardAddress />} />
+            </Route>
 
-          <Route path="/dashboard" element={<DashboardLayout />}>
-            <Route index element={<DashboardIndex />} />
-            <Route path="cart" element={<DashboardCart />} />
-            <Route path="orders" element={<DashboardOrders />} />
-            <Route path="address" element={<DashboardAddress />} />
+            <Route path="*" element={<NotFound />} />
           </Route>
 
           {/* Admin Panel */}

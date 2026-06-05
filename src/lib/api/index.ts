@@ -14,7 +14,7 @@ export { getAllCategories, getCategory, createCategory, updateCategory, deleteCa
 export type { Category, CategoryResponse } from "./categories";
 
 // Orders API
-export { getAllOrders, getOrder, updateOrderStatus, deleteOrder, getUserOrders, getPendingOrders } from "./orders";
+export { getAllOrders, getOrder, updateOrderStatus, deleteOrder, getUserOrders, getUserOrder, getPendingOrders, createOrder } from "./orders";
 export type { Order, OrderResponse } from "./orders";
 
 // Profile API

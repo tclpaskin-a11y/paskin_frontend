@@ -20,13 +20,15 @@ export function ProductCard({ product }: { product: Product }) {
 
   return (
     <article className="group relative bg-white rounded-3xl overflow-hidden border border-border/50 hover:border-primary/20 transition-all duration-500 hover:shadow-elegant">
-      <Link to={`/products/${product.id}`} className="relative block aspect-[4/5] overflow-hidden bg-slate-50">
-        <img
-          src={product.image}
-          alt={product.name}
-          loading="lazy"
-          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-        />
+      <div className="relative aspect-[4/5] overflow-hidden bg-slate-50">
+        <Link to={`/products/${product.id}`} className="block h-full w-full">
+          <img
+            src={product.image}
+            alt={product.name}
+            loading="lazy"
+            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+          />
+        </Link>
         {product.badge && (
           <span className="absolute top-4 left-4 bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full shadow-lg">
             {product.badge}
@@ -34,7 +36,7 @@ export function ProductCard({ product }: { product: Product }) {
         )}
         <button
           aria-label="Wishlist"
-          className="absolute top-4 right-4 h-10 w-10 grid place-items-center rounded-full bg-white/90 backdrop-blur opacity-0 -translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all hover:bg-primary hover:text-primary-foreground shadow-md"
+          className="absolute top-4 right-4 h-10 w-10 grid place-items-center rounded-full bg-white/90 backdrop-blur opacity-0 -translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all hover:bg-primary hover:text-primary-foreground shadow-md z-10"
         >
           <Heart className="h-4 w-4" />
         </button>
@@ -62,7 +64,7 @@ export function ProductCard({ product }: { product: Product }) {
             Buy Now
           </Link>
         </div>
-      </Link>
+      </div>
 
       <div className="p-6">
         <div className="flex justify-between items-start mb-2">

@@ -1,22 +1,119 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { CreditCard, Truck, ShieldCheck, MapPin, Building, CreditCard as CardIcon, CheckCircle2, PackageCheck } from "lucide-react";
+import { CreditCard, Truck, ShieldCheck, MapPin, Building, CreditCard as CardIcon, CheckCircle2, PackageCheck, Loader, User, X, Edit2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/use-auth";
+import { getUserAddresses, addAddress, createOrder, updateUserProfile, updateAddress } from "@/lib/api";
+import { toast } from "sonner";
 
 export default function CheckoutPage() {
-  const [step, setStep] = useState(1);
   const [orderSuccess, setOrderSuccess] = useState(false);
   const { items, totalPrice, clearCart } = useCart();
+  const { user } = useAuth();
+
+  // Personal details states
+  const [personalDetails, setPersonalDetails] = useState({
+    name: "",
+    mobile: "",
+    email: "",
+  });
+
+  // Address and payment states
+  const [addresses, setAddresses] = useState<any[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string>("");
+  const [isAddAddressOpen, setIsAddAddressOpen] = useState(false);
+  const [editingAddress, setEditingAddress] = useState<any | null>(null);
+  const [loadingAddresses, setLoadingAddresses] = useState(true);
+  const [paymentMethod, setPaymentMethod] = useState<"COD" | "UPI">("COD");
+  const [addressForm, setAddressForm] = useState({
+    fullAddress: "",
+    city: "",
+    pincode: "",
+    country: "India",
+  });
+
+  const fetchAddresses = async () => {
+    try {
+      setLoadingAddresses(true);
+      const data = await getUserAddresses();
+      setAddresses(data);
+      if (data.length > 0) {
+        setSelectedAddressId(data[0]._id);
+      }
+    } catch (err) {
+      console.error("Failed to load addresses:", err);
+    } finally {
+      setLoadingAddresses(false);
+    }
+  };
 
   useEffect(() => {
     document.title = "Checkout — PaskinCare";
+    fetchAddresses();
   }, []);
 
-  const handlePlaceOrder = () => {
-    setOrderSuccess(true);
-    clearCart();
+
+
+  const handleSaveAddress = async () => {
+    if (!addressForm.fullAddress || !addressForm.city || !addressForm.pincode) {
+      toast.error("Please fill all required fields");
+      return;
+    }
+
+    try {
+      if (editingAddress) {
+        await updateAddress(editingAddress._id, addressForm);
+        toast.success("Address updated successfully!");
+      } else {
+        const newAddr = await addAddress(addressForm);
+        toast.success("Address added successfully!");
+        if (newAddr && newAddr._id) {
+          setSelectedAddressId(newAddr._id);
+        }
+      }
+      setIsAddAddressOpen(false);
+      setAddressForm({
+        fullAddress: "",
+        city: "",
+        pincode: "",
+        country: "India",
+      });
+      setEditingAddress(null);
+      await fetchAddresses();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to save address");
+    }
+  };
+
+  const handlePlaceOrder = async () => {
+    if (!personalDetails.name || !personalDetails.mobile || !personalDetails.email) {
+      toast.error("Please fill in all personal details");
+      return;
+    }
+    if (!selectedAddressId) {
+      toast.error("Please select a shipping address");
+      return;
+    }
+
+    try {
+
+
+      await createOrder({
+        contact: {
+          name: personalDetails.name,
+          mobile: personalDetails.mobile,
+          email: personalDetails.email,
+        },
+        addressId: selectedAddressId,
+        paymentMethod: paymentMethod,
+      });
+      setOrderSuccess(true);
+      clearCart();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to place order");
+    }
   };
 
   if (items.length === 0 && !orderSuccess) {
@@ -49,119 +146,238 @@ export default function CheckoutPage() {
           </div>
           
           <div className="grid lg:grid-cols-[1fr_400px] gap-8 items-start">
-            {/* Form */}
             <div className="space-y-6">
-              {/* Progress */}
-              <div className="bg-white rounded-3xl p-6 shadow-sm border border-border/50 flex items-center gap-8">
-                <div className={cn("flex items-center gap-3 transition-colors", step >= 1 ? "text-primary" : "text-muted-foreground")}>
-                   <span className={cn("w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-sm transition-all", step >= 1 ? "bg-primary text-white shadow-lg shadow-primary/20" : "bg-slate-100")}>1</span>
-                   <span className="font-bold">Shipping</span>
-                </div>
-                <div className="h-px flex-1 bg-slate-100" />
-                <div className={cn("flex items-center gap-3 transition-colors", step >= 2 ? "text-primary" : "text-muted-foreground")}>
-                   <span className={cn("w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-sm transition-all", step >= 2 ? "bg-primary text-white shadow-lg shadow-primary/20" : "bg-slate-100")}>2</span>
-                   <span className="font-bold">Payment</span>
+              {/* Personal Details */}
+              <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-border/50 space-y-6 text-left">
+                <h3 className="text-xl font-bold flex items-center gap-3">
+                  <User className="h-5 w-5 text-primary" />
+                  Personal Details
+                </h3>
+                <div className="grid sm:grid-cols-2 gap-6 bg-slate-50/50 p-6 rounded-2xl border border-slate-100">
+                  <div className="text-left space-y-2">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Full Name *</label>
+                    <input
+                      type="text"
+                      placeholder="Full Name"
+                      value={personalDetails.name}
+                      onChange={(e) => setPersonalDetails({ ...personalDetails, name: e.target.value })}
+                      className="w-full bg-white rounded-xl h-12 px-4 border border-slate-200 focus:border-primary focus:outline-none text-sm font-bold text-slate-800 focus:ring-2 focus:ring-primary/20"
+                    />
+                  </div>
+                  <div className="text-left space-y-2">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Contact Number *</label>
+                    <input
+                      type="text"
+                      placeholder="Contact Number"
+                      value={personalDetails.mobile}
+                      onChange={(e) => setPersonalDetails({ ...personalDetails, mobile: e.target.value })}
+                      className="w-full bg-white rounded-xl h-12 px-4 border border-slate-200 focus:border-primary focus:outline-none text-sm font-bold text-slate-800 focus:ring-2 focus:ring-primary/20"
+                    />
+                  </div>
+                  <div className="text-left space-y-2 sm:col-span-2">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Email ID *</label>
+                    <input
+                      type="email"
+                      placeholder="Email ID"
+                      value={personalDetails.email}
+                      onChange={(e) => setPersonalDetails({ ...personalDetails, email: e.target.value })}
+                      className="w-full bg-white rounded-xl h-12 px-4 border border-slate-200 focus:border-primary focus:outline-none text-sm font-bold text-slate-800 focus:ring-2 focus:ring-primary/20"
+                    />
+                  </div>
                 </div>
               </div>
 
-              {step === 1 && (
-                <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-border/50 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-xl font-bold flex items-center gap-3">
-                      <MapPin className="h-5 w-5 text-primary" />
-                      Shipping Address
-                    </h3>
-                  </div>
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                       <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">First Name</label>
-                       <input className="w-full h-14 px-5 rounded-2xl bg-slate-50 border border-transparent focus:border-primary/30 focus:bg-white focus:outline-none transition-all" placeholder="Enter first name" />
-                    </div>
-                    <div className="space-y-2">
-                       <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Last Name</label>
-                       <input className="w-full h-14 px-5 rounded-2xl bg-slate-50 border border-transparent focus:border-primary/30 focus:bg-white focus:outline-none transition-all" placeholder="Enter last name" />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                     <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Street Address</label>
-                     <input className="w-full h-14 px-5 rounded-2xl bg-slate-50 border border-transparent focus:border-primary/30 focus:bg-white focus:outline-none transition-all" placeholder="House no, Building, Street name" />
-                  </div>
-                  <div className="grid sm:grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                       <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">City</label>
-                       <input className="w-full h-14 px-5 rounded-2xl bg-slate-50 border border-transparent focus:border-primary/30 focus:bg-white focus:outline-none transition-all" placeholder="City" />
-                    </div>
-                    <div className="space-y-2">
-                       <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">State</label>
-                       <input className="w-full h-14 px-5 rounded-2xl bg-slate-50 border border-transparent focus:border-primary/30 focus:bg-white focus:outline-none transition-all" placeholder="State" />
-                    </div>
-                    <div className="space-y-2">
-                       <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Pincode</label>
-                       <input className="w-full h-14 px-5 rounded-2xl bg-slate-50 border border-transparent focus:border-primary/30 focus:bg-white focus:outline-none transition-all" placeholder="Zip code" />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                     <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Phone Number</label>
-                     <input className="w-full h-14 px-5 rounded-2xl bg-slate-50 border border-transparent focus:border-primary/30 focus:bg-white focus:outline-none transition-all" placeholder="+91 00000 00000" />
-                  </div>
-                  <Button onClick={() => setStep(2)} className="w-full h-16 rounded-2xl text-lg font-bold mt-4 bg-primary hover:bg-primary-glow shadow-xl shadow-primary/20">
-                    Continue to Payment
-                  </Button>
-                </div>
-              )}
-
-              {step === 2 && (
-                <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-border/50 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              {/* Shipping Address */}
+              <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-border/50 space-y-6 text-left">
+                <div className="flex items-center justify-between">
                   <h3 className="text-xl font-bold flex items-center gap-3">
-                    <CardIcon className="h-5 w-5 text-primary" />
-                    Payment Method
+                    <MapPin className="h-5 w-5 text-primary" />
+                    Shipping Address
                   </h3>
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div className="p-5 rounded-2xl border-2 border-primary bg-primary/5 flex items-center justify-between cursor-pointer">
-                       <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm">
-                            <CreditCard className="h-5 w-5 text-primary" />
-                          </div>
-                          <span className="font-bold text-sm">Card</span>
-                       </div>
-                       <div className="w-5 h-5 rounded-full border-4 border-primary" />
-                    </div>
-                    <div className="p-5 rounded-2xl border border-border hover:border-primary/50 transition-colors flex items-center justify-between cursor-pointer group">
-                       <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center group-hover:bg-white transition-colors">
-                            <Building className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
-                          </div>
-                          <span className="font-bold text-sm text-muted-foreground group-hover:text-foreground">UPI / Net Banking</span>
-                       </div>
-                       <div className="w-5 h-5 rounded-full border border-border" />
-                    </div>
-                  </div>
-                  
-                  <div className="pt-4 space-y-4">
-                     <div className="space-y-2">
-                       <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Card Number</label>
-                       <input className="w-full h-14 px-5 rounded-2xl bg-slate-50 border border-transparent focus:border-primary/30 focus:bg-white focus:outline-none transition-all" placeholder="0000 0000 0000 0000" />
-                     </div>
-                     <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                           <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Expiry Date</label>
-                           <input className="w-full h-14 px-5 rounded-2xl bg-slate-50 border border-transparent focus:border-primary/30 focus:bg-white focus:outline-none transition-all" placeholder="MM/YY" />
-                        </div>
-                        <div className="space-y-2">
-                           <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">CVV</label>
-                           <input className="w-full h-14 px-5 rounded-2xl bg-slate-50 border border-transparent focus:border-primary/30 focus:bg-white focus:outline-none transition-all" placeholder="123" />
-                        </div>
-                     </div>
-                  </div>
-
-                  <Button onClick={handlePlaceOrder} className="w-full h-16 rounded-2xl text-lg font-bold mt-4 bg-primary hover:bg-primary-glow shadow-xl shadow-primary/20">
-                    Place Order
-                  </Button>
-                  <button onClick={() => setStep(1)} className="w-full text-center text-sm font-bold text-muted-foreground hover:text-primary transition-colors">
-                    Back to Shipping
+                  <button
+                    onClick={() => {
+                      setEditingAddress(null);
+                      setAddressForm({
+                        fullAddress: "",
+                        city: "",
+                        pincode: "",
+                        country: "India",
+                      });
+                      setIsAddAddressOpen(true);
+                    }}
+                    className="text-xs font-bold text-primary hover:text-primary-glow flex items-center gap-1 bg-primary/5 hover:bg-primary/10 px-3.5 py-2 rounded-full transition-all"
+                  >
+                    + Add New Address
                   </button>
                 </div>
-              )}
+
+                {loadingAddresses ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader className="animate-spin text-primary h-6 w-6" />
+                  </div>
+                ) : addresses.length === 0 ? (
+                  <div className="text-center py-12 bg-slate-50/50 rounded-2xl border-2 border-dashed border-slate-100 flex flex-col items-center">
+                    <MapPin className="h-10 w-10 text-muted-foreground/30 mb-3" />
+                    <p className="text-sm font-medium text-muted-foreground">No saved addresses found.</p>
+                    <button
+                      onClick={() => {
+                        setEditingAddress(null);
+                        setAddressForm({
+                          fullAddress: "",
+                          city: "",
+                          pincode: "",
+                          country: "India",
+                        });
+                        setIsAddAddressOpen(true);
+                      }}
+                      className="mt-4 px-5 py-2.5 bg-primary text-white font-bold text-sm rounded-xl hover:bg-primary-glow transition"
+                    >
+                      Add Address
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    {addresses.map((addr) => (
+                      <div
+                        key={addr._id}
+                        onClick={() => setSelectedAddressId(addr._id)}
+                        className={cn(
+                          "p-5 rounded-2xl border-2 cursor-pointer transition-all flex flex-col justify-between h-full relative group pr-14",
+                          selectedAddressId === addr._id 
+                            ? "border-primary bg-primary/5 shadow-md shadow-primary/5" 
+                            : "border-slate-100 bg-white hover:border-slate-200"
+                        )}
+                      >
+                        <div className="space-y-3 text-left">
+                          <div>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Address</p>
+                            <p className="font-semibold text-slate-800 text-sm leading-relaxed">{addr.fullAddress}</p>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">City</p>
+                              <p className="text-xs font-medium text-slate-700">{addr.city}</p>
+                            </div>
+                            <div>
+                              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Pincode</p>
+                              <p className="text-xs font-medium text-slate-700">{addr.pincode}</p>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="absolute top-4 right-4 flex flex-col gap-2">
+                          <div className={cn(
+                            "w-5 h-5 rounded-full border flex items-center justify-center transition-all",
+                            selectedAddressId === addr._id 
+                              ? "border-primary bg-primary text-white" 
+                              : "border-slate-200 bg-white"
+                          )}>
+                            {selectedAddressId === addr._id && <CheckCircle2 className="h-3.5 w-3.5 fill-white text-primary" />}
+                          </div>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditingAddress(addr);
+                              setAddressForm({
+                                fullAddress: addr.fullAddress,
+                                city: addr.city,
+                                pincode: addr.pincode,
+                                country: addr.country || "India",
+                              });
+                              setIsAddAddressOpen(true);
+                            }}
+                            className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-300 flex items-center justify-center text-slate-800 hover:text-primary transition-all"
+                            title="Edit Address"
+                          >
+                            <Edit2 className="h-3.5 w-3.5 stroke-[2.5]" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Payment Method */}
+              <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-border/50 space-y-6 text-left">
+                <h3 className="text-xl font-bold flex items-center gap-3">
+                  <CardIcon className="h-5 w-5 text-primary" />
+                  Payment Method
+                </h3>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {/* COD Option */}
+                  <div 
+                    onClick={() => setPaymentMethod("COD")}
+                    className={cn(
+                      "p-5 rounded-2xl border-2 flex items-center justify-between cursor-pointer transition-all",
+                      paymentMethod === "COD" 
+                        ? "border-primary bg-primary/5 shadow-md shadow-primary/5" 
+                        : "border-slate-100 bg-white hover:border-slate-200"
+                    )}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className={cn(
+                        "w-10 h-10 rounded-xl flex items-center justify-center transition-colors",
+                        paymentMethod === "COD" ? "bg-white shadow-sm text-primary" : "bg-slate-50 text-slate-600"
+                      )}>
+                        <Truck className="h-5 w-5" />
+                      </div>
+                      <div className="text-left">
+                        <span className="font-bold text-sm block">Cash on Delivery (COD)</span>
+                        <span className="text-[10px] text-muted-foreground font-medium">Pay upon delivery</span>
+                      </div>
+                    </div>
+                    <div className={cn(
+                      "w-5 h-5 rounded-full border flex items-center justify-center transition-all",
+                      paymentMethod === "COD" ? "border-primary bg-primary text-white" : "border-slate-200 bg-white"
+                    )}>
+                      {paymentMethod === "COD" && <CheckCircle2 className="h-3.5 w-3.5 fill-white text-primary" />}
+                    </div>
+                  </div>
+
+                  {/* UPI Option */}
+                  <div 
+                    onClick={() => setPaymentMethod("UPI")}
+                    className={cn(
+                      "p-5 rounded-2xl border-2 flex items-center justify-between cursor-pointer transition-all",
+                      paymentMethod === "UPI" 
+                        ? "border-primary bg-primary/5 shadow-md shadow-primary/5" 
+                        : "border-slate-100 bg-white hover:border-slate-200"
+                    )}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className={cn(
+                        "w-10 h-10 rounded-xl flex items-center justify-center transition-colors",
+                        paymentMethod === "UPI" ? "bg-white shadow-sm text-primary" : "bg-slate-50 text-slate-600"
+                      )}>
+                        <CreditCard className="h-5 w-5" />
+                      </div>
+                      <div className="text-left">
+                        <span className="font-bold text-sm block">Pay via UPI</span>
+                        <span className="text-[10px] text-muted-foreground font-medium">GPay, PhonePe, Paytm</span>
+                      </div>
+                    </div>
+                    <div className={cn(
+                      "w-5 h-5 rounded-full border flex items-center justify-center transition-all",
+                      paymentMethod === "UPI" ? "border-primary bg-primary text-white" : "border-slate-200 bg-white"
+                    )}>
+                      {paymentMethod === "UPI" && <CheckCircle2 className="h-3.5 w-3.5 fill-white text-primary" />}
+                    </div>
+                  </div>
+                </div>
+
+                {paymentMethod === "UPI" && (
+                  <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100 text-left animate-in fade-in duration-300">
+                    <p className="text-xs font-semibold text-slate-500 leading-relaxed">
+                      Pay instantly using any UPI app. We will display a QR code and payment address on the next screen after placing the order.
+                    </p>
+                  </div>
+                )}
+
+                <Button onClick={handlePlaceOrder} className="w-full h-16 rounded-2xl text-lg font-bold mt-4 bg-primary hover:bg-primary-glow shadow-xl shadow-primary/20">
+                  Place Order
+                </Button>
+              </div>
             </div>
 
             {/* Summary */}
@@ -242,6 +458,116 @@ export default function CheckoutPage() {
                 <p className="text-xs text-muted-foreground font-medium pt-4">Order ID: #PASKIN-{Math.floor(Math.random() * 1000000)}</p>
               </div>
            </div>
+        </div>
+      )}
+
+      {/* Add Address Popup Modal */}
+      {isAddAddressOpen && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 animate-in fade-in duration-200">
+          <div 
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => {
+              setIsAddAddressOpen(false);
+              setAddressForm({
+                fullAddress: "",
+                city: "",
+                pincode: "",
+                country: "India",
+              });
+              setEditingAddress(null);
+            }}
+          />
+          <div className="relative w-full max-w-md bg-white rounded-[2.5rem] p-8 shadow-2xl animate-in zoom-in duration-300">
+            <button
+              onClick={() => {
+                setIsAddAddressOpen(false);
+                setAddressForm({
+                  fullAddress: "",
+                  city: "",
+                  pincode: "",
+                  country: "India",
+                });
+                setEditingAddress(null);
+              }}
+              className="absolute top-6 right-6 p-2 rounded-full hover:bg-slate-100 transition-colors"
+            >
+              <X className="h-5 w-5 text-slate-400" />
+            </button>
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold">{editingAddress ? "Edit Address" : "Add New Address"}</h2>
+              <p className="text-sm text-muted-foreground">
+                {editingAddress ? "Update your shipping details." : "Please fill in your shipping details."}
+              </p>
+            </div>
+            <div className="space-y-4">
+              <div className="space-y-2 text-left">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Full Address *</label>
+                <input
+                  type="text"
+                  placeholder="e.g. 123 Street, Area"
+                  value={addressForm.fullAddress}
+                  onChange={(e) => setAddressForm({ ...addressForm, fullAddress: e.target.value })}
+                  className="w-full rounded-2xl h-14 px-4 border border-slate-200 focus:border-primary focus:ring-primary/20 focus:outline-none bg-slate-50/50 text-slate-800"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2 text-left">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">City *</label>
+                  <input
+                    type="text"
+                    placeholder="Delhi"
+                    value={addressForm.city}
+                    onChange={(e) => setAddressForm({ ...addressForm, city: e.target.value })}
+                    className="w-full rounded-2xl h-14 px-4 border border-slate-200 focus:border-primary focus:ring-primary/20 focus:outline-none bg-slate-50/50 text-slate-800"
+                  />
+                </div>
+                <div className="space-y-2 text-left">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Pincode *</label>
+                  <input
+                    type="text"
+                    placeholder="110001"
+                    value={addressForm.pincode}
+                    onChange={(e) => setAddressForm({ ...addressForm, pincode: e.target.value })}
+                    className="w-full rounded-2xl h-14 px-4 border border-slate-200 focus:border-primary focus:ring-primary/20 focus:outline-none bg-slate-50/50 text-slate-800"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2 text-left">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Country</label>
+                <input
+                  type="text"
+                  placeholder="India"
+                  value={addressForm.country}
+                  onChange={(e) => setAddressForm({ ...addressForm, country: e.target.value })}
+                  className="w-full rounded-2xl h-14 px-4 border border-slate-200 focus:border-primary focus:ring-primary/20 focus:outline-none bg-slate-50/50 text-slate-800"
+                />
+              </div>
+              <div className="flex flex-col gap-3 pt-4">
+                <Button
+                  onClick={handleSaveAddress}
+                  className="w-full h-14 rounded-2xl text-base font-bold bg-primary hover:bg-primary-glow shadow-lg shadow-primary/20"
+                >
+                  Save Address
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    setIsAddAddressOpen(false);
+                    setAddressForm({
+                      fullAddress: "",
+                      city: "",
+                      pincode: "",
+                      country: "India",
+                    });
+                    setEditingAddress(null);
+                  }}
+                  className="w-full h-14 rounded-2xl text-sm font-bold text-muted-foreground hover:bg-slate-50"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { ProductCard } from "@/components/site/ProductCard";
 import { Leaf, SlidersHorizontal, ChevronDown, X, Search, Loader } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -27,13 +28,16 @@ const mapBackendProduct = (p: any): any => {
 };
 
 export default function ProductsPage() {
+  const [searchParams] = useSearchParams();
+  const initialSearch = searchParams.get("q") || "";
+
   const [selectedCat, setSelectedCat] = useState("All");
   const [sortBy, setSortBy] = useState<SortOption>("Recommended");
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
   const [productsList, setProductsList] = useState<any[]>([]);
   const [categoriesList, setCategoriesList] = useState<any[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [loading, setLoading] = useState(true);
 
   // Fetch categories dynamically from products (as fallback)
@@ -105,13 +109,24 @@ export default function ProductsPage() {
     }
   };
 
+  // Sync search query from URL search params
+  useEffect(() => {
+    const q = searchParams.get("q") || "";
+    setSearchQuery(q);
+  }, [searchParams]);
+
   // Load products and categories on mount
   useEffect(() => {
-    fetchData("", true);
+    fetchData(searchParams.get("q") || "", true);
   }, []);
 
   // Debounced search on query change (auto search products, don't re-fetch categories)
+  const [isInit, setIsInit] = useState(true);
   useEffect(() => {
+    if (isInit) {
+      setIsInit(false);
+      return;
+    }
     const delayDebounceFn = setTimeout(() => {
       fetchData(searchQuery, false);
     }, 450); // 450ms debounce delay
@@ -181,15 +196,16 @@ export default function ProductsPage() {
       </section>
 
       {/* Toolbar & Search Bar */}
-      <section className="sticky top-[76px] z-30 bg-white/80 backdrop-blur-md border-b border-border/50 py-5 shadow-sm">
-        <div className="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center justify-between w-full md:w-auto gap-4">
+      <section className="sticky top-[76px] z-30 bg-white/80 backdrop-blur-md border-b border-border/50 py-3 md:py-5 shadow-sm">
+        <div className="container mx-auto px-4 sm:px-6 flex flex-row items-center gap-2 md:gap-4 justify-between w-full">
+          {/* Filters Button */}
+          <div className="flex-shrink-0">
             <button
               onClick={() => setIsMobileFiltersOpen(true)}
-              className="lg:hidden flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-bold hover:bg-slate-50"
+              className="lg:hidden flex items-center gap-1.5 px-3 py-2 border border-border rounded-xl text-xs font-bold hover:bg-slate-50 transition-colors"
             >
-              <SlidersHorizontal className="h-4 w-4" />
-              Filters
+              <SlidersHorizontal className="h-3.5 w-3.5" />
+              <span className="hidden min-[480px]:inline">Filters</span>
             </button>
             <div className="hidden lg:flex items-center gap-2 text-sm font-bold text-muted-foreground">
               <SlidersHorizontal className="h-4 w-4 text-primary" />
@@ -198,50 +214,53 @@ export default function ProductsPage() {
           </div>
 
           {/* Elegant Search Input */}
-          <div className="relative w-full max-w-md group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
+          <div className="relative flex-1 max-w-[150px] sm:max-w-xs md:max-w-md group">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 group-focus-within:text-primary transition-colors" />
             <input 
               type="text" 
-              placeholder="Search products dynamically..." 
+              placeholder="Search..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200/60 rounded-full py-2.5 pl-11 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all font-medium"
+              className="w-full bg-slate-50 border border-slate-200/60 rounded-full py-2 pl-9 pr-8 text-xs focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all font-medium"
             />
             {searchQuery && (
               <button 
                 type="button"
                 onClick={handleClearSearch}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-slate-100 transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-slate-100 transition-colors"
               >
-                <X className="h-3.5 w-3.5 text-slate-400 hover:text-slate-600" />
+                <X className="h-3 w-3 text-slate-400 hover:text-slate-600" />
               </button>
             )}
           </div>
 
-          <div className="flex items-center gap-4 w-full md:w-auto justify-end">
-            <div className="relative group">
-              <button className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:border-primary transition-colors min-w-[180px] justify-between">
-                <span>Sort by: <span className="font-bold">{sortBy}</span></span>
-                <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-              </button>
-              <div className="absolute right-0 top-full mt-1 w-full bg-white border border-border rounded-xl shadow-elegant opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 p-1">
-                {(["Recommended", "Newest", "Price: Low to High", "Price: High to Low", "Rating"] as SortOption[]).map((opt) => (
-                  <button
-                    key={opt}
-                    onClick={() => setSortBy(opt)}
-                    className={cn(
-                      "w-full text-left px-4 py-2.5 rounded-lg text-sm transition-colors",
-                      sortBy === opt ? "bg-primary/5 text-primary font-bold" : "hover:bg-slate-50"
-                    )}
-                  >
-                    {opt}
-                  </button>
-                ))}
-              </div>
+          {/* Sort By Dropdown */}
+          <div className="flex-shrink-0 relative group">
+            <button className="flex items-center gap-1.5 px-3 py-2 border border-border rounded-xl text-xs font-medium hover:border-primary transition-colors justify-between min-w-[95px] min-[360px]:min-w-[120px] md:min-w-[180px]">
+              <span className="truncate">
+                <span className="hidden min-[360px]:inline">Sort: </span>
+                <span className="font-bold">{sortBy}</span>
+              </span>
+              <ChevronDown className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
+            </button>
+            <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-border rounded-xl shadow-elegant opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 p-1">
+              {(["Recommended", "Newest", "Price: Low to High", "Price: High to Low", "Rating"] as SortOption[]).map((opt) => (
+                <button
+                  key={opt}
+                  onClick={() => setSortBy(opt)}
+                  className={cn(
+                    "w-full text-left px-4 py-2 rounded-lg text-xs transition-colors",
+                    sortBy === opt ? "bg-primary/5 text-primary font-bold" : "hover:bg-slate-50"
+                  )}
+                >
+                  {opt}
+                </button>
+              ))}
             </div>
           </div>
         </div>
       </section>
+
 
       {/* Main Content */}
       <section className="container mx-auto px-6 mt-10">

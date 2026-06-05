@@ -1,10 +1,14 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Instagram, Facebook, Twitter, Youtube } from "lucide-react";
 import logo from "@/assets/logo.png";
 
 export function Footer() {
+  const location = useLocation();
+  const isDashboard = location.pathname.startsWith("/dashboard");
+  if (isDashboard) return null;
+
   return (
-    <footer className="bg-foreground text-background mt-24">
+    <footer className="bg-foreground text-background mt-24 pb-20 md:pb-0">
       <div className="container mx-auto px-6 py-16 grid gap-12 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
         <div className="lg:col-span-2 max-w-sm">
           <div className="flex items-center gap-2 mb-4">

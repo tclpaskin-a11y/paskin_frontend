@@ -146,13 +146,28 @@ export async function clearCart(): Promise<void> {
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE_URL}/cart`, {
-    method: "DELETE",
-    headers,
-  });
+  try {
+    const response = await fetch(`${API_BASE_URL}/cart`, {
+      method: "DELETE",
+      headers,
+    });
 
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.message || "Failed to clear cart");
+    if (!response.ok) {
+      if (response.status === 404) {
+        // If the endpoint is not found (404), it indicates the backend either automatically
+        // clears the cart when an order is placed or doesn't expose a manual clear endpoint.
+        // We return successfully to allow the local cart state to clear.
+        console.warn("DELETE /cart returned 404. Treating as success to clear local cart state.");
+        return;
+      }
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || "Failed to clear cart");
+    }
+  } catch (err: any) {
+    // If it's a 404 error, ignore it
+    if (err.message && (err.message.includes("404") || err.message.includes("Not Found"))) {
+      return;
+    }
+    throw err;
   }
 }
