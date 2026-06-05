@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import type { Product } from "@/components/site/ProductCard";
 import { useAuth } from "@/hooks/use-auth";
-import { getCart, addToCart, updateCartItem, removeFromCart } from "@/lib/api";
+import { getCart, addToCart, updateCartItem, removeFromCart, clearCart } from "@/lib/api";
 import { toast } from "sonner";
 
 interface CartItem extends Product {
@@ -100,12 +100,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
-      // If we have cartId, we can remove the cart item or entire cart
-      if (cartId) {
-        await removeFromCart(cartId);
-        setItems([]);
-        toast.success("Item removed from cart!");
-      }
+      const updatedCart = await removeFromCart(productId);
+      setCartId(updatedCart._id);
+      await syncCart();
+      toast.success("Item removed from cart!");
     } catch (error: any) {
       toast.error(error.message || "Failed to remove item");
     }
@@ -139,10 +137,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     try {
-      if (cartId) {
-        await removeFromCart(cartId);
-        setItems([]);
-      }
+      await clearCart();
+      setItems([]);
+      toast.success("Cart cleared!");
     } catch (error: any) {
       toast.error(error.message || "Failed to clear cart");
     }

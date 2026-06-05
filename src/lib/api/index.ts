@@ -26,5 +26,5 @@ export { getCart, addToCart, updateCartItem, removeFromCart, clearCart } from ".
 export type { Cart, CartItem, CartResponse } from "./cart";
 
 // Dashboard API
-export { getDashboardStats } from "./dashboard";
-export type { DashboardData, DashboardResponse } from "./dashboard";
+export { getDashboardStats, getUserDashboardStats } from "./dashboard";
+export type { DashboardData, DashboardResponse, UserDashboardData, UserDashboardResponse } from "./dashboard";

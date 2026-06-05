@@ -22,3 +22,25 @@ export async function getDashboardStats(): Promise<DashboardData> {
   }
   throw new Error("Failed to load dashboard statistics");
 }
+
+export interface UserDashboardData {
+  totalOrders: number;
+  deliveredOrders: number;
+  pendingOrders: number;
+  totalCartItems: number;
+}
+
+export interface UserDashboardResponse {
+  success: boolean;
+  data: UserDashboardData;
+}
+
+export async function getUserDashboardStats(): Promise<UserDashboardData> {
+  const result = await apiCall<UserDashboardResponse>("/user/dashboard", {
+    method: "GET",
+  });
+  if (result.success && result.data) {
+    return result.data;
+  }
+  throw new Error("Failed to load user dashboard statistics");
+}

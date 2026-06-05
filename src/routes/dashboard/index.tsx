@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { 
   ShoppingBag, 
@@ -7,16 +8,35 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/use-auth";
+import { getUserDashboardStats } from "@/lib/api";
 
 export default function DashboardIndex() {
   const { user } = useAuth();
   const username = user?.name || "User";
+  const [statsData, setStatsData] = useState({
+    totalOrders: 0,
+    deliveredOrders: 0,
+    pendingOrders: 0,
+    totalCartItems: 0,
+  });
+
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        const data = await getUserDashboardStats();
+        setStatsData(data);
+      } catch (err) {
+        console.error("Failed to fetch dashboard stats", err);
+      }
+    }
+    fetchStats();
+  }, []);
 
   const stats = [
-    { icon: Package, count: 12, label: "Total Orders", color: "blue" },
-    { icon: CheckCircle2, count: 8, label: "Delivered Orders", color: "emerald" },
-    { icon: Clock, count: 3, label: "Pending Orders", color: "amber" },
-    { icon: ShoppingBag, count: 5, label: "Cart Items", color: "primary" },
+    { icon: Package, count: statsData.totalOrders, label: "Total Orders", color: "blue" },
+    { icon: CheckCircle2, count: statsData.deliveredOrders, label: "Delivered Orders", color: "emerald" },
+    { icon: Clock, count: statsData.pendingOrders, label: "Pending Orders", color: "amber" },
+    { icon: ShoppingBag, count: statsData.totalCartItems, label: "Cart Items", color: "primary" },
   ];
 
   return (

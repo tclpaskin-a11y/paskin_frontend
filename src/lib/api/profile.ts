@@ -170,8 +170,14 @@ export async function getUserAddresses(): Promise<any[]> {
 // Update address
 export async function updateAddress(
   addressId: string,
-  address: Partial<UserProfile["addresses"][0]>
-): Promise<UserProfile> {
+  address: Partial<{
+    fullAddress: string;
+    city: string;
+    pincode: string;
+    country: string;
+    type?: string;
+  }>
+): Promise<any> {
   const token = getAccessToken();
   const headers: HeadersInit = {
     "Content-Type": "application/json",
@@ -181,26 +187,26 @@ export async function updateAddress(
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE_URL}/profile/addresses/${addressId}`, {
-    method: "PUT",
+  const response = await fetch(`${API_BASE_URL}/address/${addressId}`, {
+    method: "PATCH",
     headers,
     body: JSON.stringify(address),
   });
 
   if (!response.ok) {
-    const errorData = await response.json();
+    const errorData = await response.json().catch(() => ({}));
     throw new Error(errorData.message || "Failed to update address");
   }
 
-  const result = await response.json() as ProfileResponse;
-  if (result.success && result.user) {
-    return result.user;
+  const result = await response.json() as any;
+  if (result.success && result.data) {
+    return result.data;
   }
   throw new Error("Invalid response from server");
 }
 
 // Delete address
-export async function deleteAddress(addressId: string): Promise<UserProfile> {
+export async function deleteAddress(addressId: string): Promise<any> {
   const token = getAccessToken();
   const headers: HeadersInit = {
     "Content-Type": "application/json",
@@ -210,19 +216,19 @@ export async function deleteAddress(addressId: string): Promise<UserProfile> {
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE_URL}/profile/addresses/${addressId}`, {
+  const response = await fetch(`${API_BASE_URL}/address/${addressId}`, {
     method: "DELETE",
     headers,
   });
 
   if (!response.ok) {
-    const errorData = await response.json();
+    const errorData = await response.json().catch(() => ({}));
     throw new Error(errorData.message || "Failed to delete address");
   }
 
-  const result = await response.json() as ProfileResponse;
-  if (result.success && result.user) {
-    return result.user;
+  const result = await response.json() as any;
+  if (result.success && result.data) {
+    return result.data;
   }
   throw new Error("Invalid response from server");
 }

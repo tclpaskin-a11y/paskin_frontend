@@ -33,7 +33,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { addAddress, getUserAddresses } from "@/lib/api";
+import { addAddress, getUserAddresses, updateAddress, deleteAddress } from "@/lib/api";
 
 interface Address {
   id: string;
@@ -98,9 +98,14 @@ export default function DashboardAddress() {
     }
 
     try {
-      // Add address to backend
-      await addAddress(formData);
-      toast.success("Address added successfully");
+      if (editingAddress) {
+        await updateAddress(editingAddress.id, formData);
+        toast.success("Address updated successfully");
+      } else {
+        // Add address to backend
+        await addAddress(formData);
+        toast.success("Address added successfully");
+      }
       await fetchAddressesList();
       resetForm();
       setIsAddModalOpen(false);
@@ -109,11 +114,14 @@ export default function DashboardAddress() {
     }
   };
 
-  const handleDeleteAddress = (id: string) => {
-    // Currently, local delete fallback, or if backend delete address exists, call it.
-    // In this app, we simply filter out locally if no explicit backend delete was requested.
-    setAddresses(prev => prev.filter(addr => addr.id !== id));
-    toast.success("Address deleted successfully");
+  const handleDeleteAddress = async (id: string) => {
+    try {
+      await deleteAddress(id);
+      toast.success("Address deleted successfully");
+      await fetchAddressesList();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to delete address");
+    }
   };
 
   const resetForm = () => {

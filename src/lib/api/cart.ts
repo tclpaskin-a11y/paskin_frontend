@@ -107,8 +107,8 @@ export async function updateCartItem(productId: string, quantity: number): Promi
   throw new Error("Invalid response from server");
 }
 
-// Remove from cart: DELETE /cart/remove/:cartId
-export async function removeFromCart(cartId: string): Promise<Cart> {
+// Remove from cart: DELETE /cart/remove/:productId
+export async function removeFromCart(productId: string): Promise<Cart> {
   const token = getAccessToken();
   const headers: HeadersInit = {
     "Content-Type": "application/json",
@@ -118,7 +118,7 @@ export async function removeFromCart(cartId: string): Promise<Cart> {
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE_URL}/cart/remove/${cartId}`, {
+  const response = await fetch(`${API_BASE_URL}/cart/remove/${productId}`, {
     method: "DELETE",
     headers,
   });
