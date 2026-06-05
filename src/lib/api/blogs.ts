@@ -1,4 +1,5 @@
 import { getAccessToken, API_BASE_URL } from "./client";
+import { fallbackBlogs } from "../../data/blogs";
 
 export interface BlogData {
   title: string;
@@ -184,52 +185,72 @@ export async function deleteBlog(blogId: string): Promise<void> {
 
 // Get public blogs (GET)
 export async function getPublicBlogs(): Promise<Blog[]> {
-  const response = await fetch(`${API_BASE_URL}/blogs`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+  let apiBlogs: Blog[] = [];
+  try {
+    const response = await fetch(`${API_BASE_URL}/blogs`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.message || "Failed to fetch blogs");
+    if (response.ok) {
+      const result = await response.json() as BlogResponse;
+      if (result.success) {
+        if (result.blog && Array.isArray(result.blog)) {
+          apiBlogs = result.blog;
+        } else if (result.data && Array.isArray(result.data)) {
+          apiBlogs = result.data;
+        }
+      }
+    }
+  } catch (error) {
+    console.error("Failed to fetch public blogs from API, using fallbacks:", error);
   }
 
-  const result = await response.json() as BlogResponse;
-  if (result.success) {
-    if (result.blog && Array.isArray(result.blog)) {
-      return result.blog;
-    }
-    if (result.data && Array.isArray(result.data)) {
-      return result.data;
+  // Merge apiBlogs and fallbackBlogs (by _id to prevent duplicates)
+  const merged = [...apiBlogs];
+  for (const fb of fallbackBlogs) {
+    if (!merged.some(b => b._id === fb._id)) {
+      merged.unshift(fb as any);
     }
   }
-  throw new Error("Invalid response from server");
+  return merged;
 }
 
 // Get single public blog (GET)
 export async function getPublicBlog(blogId: string): Promise<Blog> {
-  const response = await fetch(`${API_BASE_URL}/blogs/${blogId}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.message || "Failed to fetch blog details");
+  if (blogId === "6a227afceb0607fc889f622c") {
+    const fb = fallbackBlogs.find(b => b._id === blogId);
+    if (fb) return fb as any;
   }
 
-  const result = await response.json() as BlogResponse;
-  if (result.success) {
-    if (result.blog && !Array.isArray(result.blog)) {
-      return result.blog;
+  try {
+    const response = await fetch(`${API_BASE_URL}/blogs/${blogId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.ok) {
+      const result = await response.json() as BlogResponse;
+      if (result.success) {
+        if (result.blog && !Array.isArray(result.blog)) {
+          return result.blog;
+        }
+        if (result.data && !Array.isArray(result.data)) {
+          return result.data;
+        }
+      }
     }
-    if (result.data && !Array.isArray(result.data)) {
-      return result.data;
-    }
+  } catch (error) {
+    console.error(`Failed to fetch public blog ${blogId} from API, checking fallbacks:`, error);
   }
-  throw new Error("Invalid response from server");
+
+  const fb = fallbackBlogs.find(b => b._id === blogId);
+  if (fb) return fb as any;
+
+  throw new Error("Failed to fetch blog details");
 }
+

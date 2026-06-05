@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import herbs from "@/assets/hero-herbs.jpg";
 import lifestyle from "@/assets/hero-lifestyle.jpg";
 import prep from "@/assets/hero-prep.jpg";
@@ -73,22 +74,24 @@ export function Blog() {
         <div className="grid md:grid-cols-3 gap-6 animate-in fade-in duration-500">
           {posts.map((post) => (
             <article key={post.id} className="group rounded-2xl overflow-hidden bg-card border border-border hover-lift flex flex-col h-full">
-              <div className="aspect-[4/3] overflow-hidden bg-slate-50">
+              <Link to={`/blog/${post.id}`} className="aspect-[4/3] overflow-hidden bg-slate-50 block">
                 <img src={post.image} alt={post.title} loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
-              </div>
+              </Link>
               <div className="p-6 flex flex-col flex-1">
                 <div className="flex items-center gap-3 text-xs text-muted-foreground mb-3">
                   <span className="px-2.5 py-0.5 rounded-full bg-accent/30 text-primary font-medium">{post.tag}</span>
                   <span>{post.date}</span>
                 </div>
-                <h3 className="font-display text-xl font-medium leading-snug group-hover:text-primary transition line-clamp-2 mb-3">
-                  {post.title}
-                </h3>
+                <Link to={`/blog/${post.id}`}>
+                  <h3 className="font-display text-xl font-medium leading-snug group-hover:text-primary transition line-clamp-2 mb-3">
+                    {post.title}
+                  </h3>
+                </Link>
                 <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3 mb-4">{post.excerpt}</p>
                 <div className="mt-auto pt-4 border-t border-border/50">
-                  <a href={`/blog`} className="inline-block text-sm font-semibold text-primary">
+                  <Link to={`/blog/${post.id}`} className="inline-block text-sm font-semibold text-primary">
                     Read article →
-                  </a>
+                  </Link>
                 </div>
               </div>
             </article>

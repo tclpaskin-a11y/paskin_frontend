@@ -287,10 +287,15 @@ export default function AdminBlog() {
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
                       <div className="flex gap-2 w-full">
-                        <button className="flex-1 bg-white hover:bg-slate-50 text-slate-800 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition-all">
+                        <a 
+                          href={`/blog/${blog._id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 bg-white hover:bg-slate-50 text-slate-800 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition-all text-center"
+                        >
                           <Eye className="h-4 w-4" />
                           Preview
-                        </button>
+                        </a>
                         <button 
                           onClick={() => handleDelete(blog._id)}
                           className="p-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl transition-all"

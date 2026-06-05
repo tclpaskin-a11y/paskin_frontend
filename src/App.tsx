@@ -9,6 +9,7 @@ import Index from "./routes/index";
 import AboutPage from "./routes/about";
 import AboutUsPage from "./routes/about-us";
 import BlogPage from "./routes/blog";
+import BlogDetailsPage from "./routes/blog.$id";
 import CheckoutPage from "./routes/checkout";
 import ContactPage from "./routes/contact";
 import LoginPage from "./routes/login";
@@ -80,6 +81,7 @@ export default function App() {
             <Route path="/about" element={<AboutPage />} />
             <Route path="/about-us" element={<AboutUsPage />} />
             <Route path="/blog" element={<BlogPage />} />
+            <Route path="/blog/:id" element={<BlogDetailsPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/login" element={<LoginPage />} />
