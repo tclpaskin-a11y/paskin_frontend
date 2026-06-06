@@ -23,7 +23,9 @@ const mapBackendProduct = (p: any): any => {
     description: p.description || "",
     benefits: p.benefits || ["Safe & Effective", "Clinically Proven"],
     usage: p.usage || "Use as directed by physician.",
-    ingredients: p.ingredients || "Active Pharma Ingredients."
+    ingredients: p.ingredients || "Active Pharma Ingredients.",
+    stock: p.stock !== undefined ? p.stock : 0,
+    inStock: p.inStock !== undefined ? p.inStock : (p.stock > 0),
   };
 };
 

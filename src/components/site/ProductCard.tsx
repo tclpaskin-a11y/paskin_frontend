@@ -13,6 +13,8 @@ export type Product = {
   image: string;
   badge?: string;
   category?: string;
+  stock?: number;
+  inStock?: boolean;
 };
 
 export function ProductCard({ product }: { product: Product }) {
@@ -29,11 +31,15 @@ export function ProductCard({ product }: { product: Product }) {
             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
           />
         </Link>
-        {product.badge && (
+        {product.stock === 0 ? (
+          <span className="absolute top-4 left-4 bg-rose-600 text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full shadow-lg z-10">
+            Out Of Stock
+          </span>
+        ) : product.badge ? (
           <span className="absolute top-4 left-4 bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full shadow-lg">
             {product.badge}
           </span>
-        )}
+        ) : null}
         <button
           aria-label="Wishlist"
           className="absolute top-4 right-4 h-10 w-10 grid place-items-center rounded-full bg-white/90 backdrop-blur opacity-0 -translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all hover:bg-primary hover:text-primary-foreground shadow-md z-10"
@@ -41,29 +47,40 @@ export function ProductCard({ product }: { product: Product }) {
           <Heart className="h-4 w-4" />
         </button>
 
-        <div className="absolute inset-x-4 bottom-4 flex flex-col gap-2 opacity-100 translate-y-0 lg:opacity-0 lg:translate-y-4 lg:group-hover:opacity-100 lg:group-hover:translate-y-0 transition-all z-10">
-          <button 
-            onClick={(e) => {
-              e.preventDefault();
-              addToCart(product);
-            }}
-            className="inline-flex items-center justify-center gap-2 bg-foreground text-background py-3 rounded-2xl text-xs font-bold hover:bg-primary transition-colors shadow-xl"
-          >
-            <ShoppingBag className="h-3.5 w-3.5" />
-            Add to Bag
-          </button>
-          <Link 
-            to="/checkout" 
-            onClick={(e) => {
-              e.stopPropagation();
-              addToCart(product);
-            }}
-            className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground py-3 rounded-2xl text-xs font-bold hover:bg-primary-glow transition-colors shadow-xl"
-          >
-            <Zap className="h-3.5 w-3.5" />
-            Buy Now
-          </Link>
-        </div>
+        {product.stock === 0 ? (
+          <div className="absolute inset-x-4 bottom-4 z-10">
+            <button 
+              disabled
+              className="w-full inline-flex items-center justify-center gap-2 bg-slate-100 text-slate-400 py-3 rounded-2xl text-xs font-bold cursor-not-allowed border border-slate-200"
+            >
+              Out Of Stock
+            </button>
+          </div>
+        ) : (
+          <div className="absolute inset-x-4 bottom-4 flex flex-col gap-2 opacity-100 translate-y-0 lg:opacity-0 lg:translate-y-4 lg:group-hover:opacity-100 lg:group-hover:translate-y-0 transition-all z-10">
+            <button 
+              onClick={(e) => {
+                e.preventDefault();
+                addToCart(product);
+              }}
+              className="inline-flex items-center justify-center gap-2 bg-foreground text-background py-3 rounded-2xl text-xs font-bold hover:bg-primary transition-colors shadow-xl"
+            >
+              <ShoppingBag className="h-3.5 w-3.5" />
+              Add to Bag
+            </button>
+            <Link 
+              to="/checkout" 
+              onClick={(e) => {
+                e.stopPropagation();
+                addToCart(product);
+              }}
+              className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground py-3 rounded-2xl text-xs font-bold hover:bg-primary-glow transition-colors shadow-xl"
+            >
+              <Zap className="h-3.5 w-3.5" />
+              Buy Now
+            </Link>
+          </div>
+        )}
       </div>
 
       <div className="p-6">

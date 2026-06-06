@@ -8,7 +8,7 @@ export function ContactCTA() {
           <p className="text-primary text-sm uppercase tracking-[0.2em] mb-3">Get in touch</p>
           <h2 className="font-display text-4xl md:text-5xl font-medium leading-tight text-balance">
             We'd love to hear from you.
-          </h2>
+          </h2> 
           <p className="text-muted-foreground mt-5 leading-relaxed">
             Questions about a product, an order, or our herbal philosophy? Our
             care team replies within 24 hours.
@@ -26,7 +26,7 @@ export function ContactCTA() {
 
           </ul>
         </div>
-
+                
         <form className="space-y-4">
           <div>
             <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Name</label>

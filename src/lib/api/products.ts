@@ -14,6 +14,11 @@ export interface Product {
   images?: string[];
   color?: string;
   size?: string;
+  stock?: number;
+  inStock?: boolean;
+  benefits?: string;
+  usage?: string;
+  ingredients?: string;
   isPaused?: boolean;
   createdAt?: string;
   updatedAt?: string;

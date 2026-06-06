@@ -2,6 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Star, ShoppingBag, Zap, Heart, ShieldCheck, Truck, RotateCcw, ChevronLeft, CheckCircle2, Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { useCart } from "@/hooks/use-cart";
 import { ProductCard } from "@/components/site/ProductCard";
 import { getPublicProduct, getPublicProducts } from "@/lib/api";
@@ -21,7 +22,9 @@ const mapBackendProduct = (p: any): any => {
     description: p.description || "",
     benefits: p.benefits || ["Safe & Effective", "Clinically Proven", "Supports Overall Health"],
     usage: p.usage || "Take as prescribed by your doctor or follow generic instructions.",
-    ingredients: p.ingredients || "Active Pharmaceutical Ingredients."
+    ingredients: p.ingredients || "Active Pharmaceutical Ingredients.",
+    stock: p.stock !== undefined ? p.stock : 0,
+    inStock: p.inStock !== undefined ? p.inStock : (p.stock > 0),
   };
 };
 
@@ -184,11 +187,28 @@ export default function ProductDetailsPage() {
 
             {/* Actions */}
             <div className="space-y-4 lg:space-y-6">
+              {product.stock === 0 && (
+                <div className="p-4 bg-rose-50 border border-rose-100 rounded-xl lg:rounded-2xl text-rose-600 font-bold text-center text-sm animate-in fade-in">
+                  Currently Out Of Stock
+                </div>
+              )}
+
               <div className="flex items-center gap-3 lg:gap-4">
-                <div className="flex items-center border border-border rounded-xl lg:rounded-2xl p-1 bg-slate-50 h-12 lg:h-14">
-                   <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="w-10 lg:w-12 h-full flex items-center justify-center rounded-lg lg:rounded-xl hover:bg-white hover:shadow-sm transition-all text-xl font-medium">-</button>
-                   <span className="w-10 lg:w-14 text-center font-bold text-lg lg:text-xl">{quantity}</span>
-                   <button onClick={() => setQuantity(q => q + 1)} className="w-10 lg:w-12 h-full flex items-center justify-center rounded-lg lg:rounded-xl hover:bg-white hover:shadow-sm transition-all text-xl font-medium">+</button>
+                <div className={cn(
+                  "flex items-center border border-border rounded-xl lg:rounded-2xl p-1 bg-slate-50 h-12 lg:h-14",
+                  product.stock === 0 && "opacity-50 pointer-events-none"
+                )}>
+                   <button 
+                     disabled={product.stock === 0}
+                     onClick={() => setQuantity(q => Math.max(1, q - 1))} 
+                     className="w-10 lg:w-12 h-full flex items-center justify-center rounded-lg lg:rounded-xl hover:bg-white hover:shadow-sm transition-all text-xl font-medium"
+                   >-</button>
+                   <span className="w-10 lg:w-14 text-center font-bold text-lg lg:text-xl">{product.stock === 0 ? 0 : quantity}</span>
+                   <button 
+                     disabled={product.stock === 0}
+                     onClick={() => setQuantity(q => q + 1)} 
+                     className="w-10 lg:w-12 h-full flex items-center justify-center rounded-lg lg:rounded-xl hover:bg-white hover:shadow-sm transition-all text-xl font-medium"
+                   >+</button>
                 </div>
                 <button className="flex-1 h-12 lg:h-14 rounded-xl lg:rounded-2xl border border-border flex items-center justify-center gap-2 hover:bg-slate-50 transition-all text-sm font-bold group">
                   <Heart className="h-4 w-4 lg:h-5 lg:w-5 group-hover:fill-primary group-hover:text-primary transition-colors" />
@@ -197,20 +217,34 @@ export default function ProductDetailsPage() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
-                <Button onClick={handleAddToCart} className="h-14 lg:h-16 rounded-xl lg:rounded-2xl bg-primary hover:bg-primary-glow text-white text-base lg:text-lg font-bold gap-3 border-none shadow-lg active:scale-[0.98] transition-all">
+                <Button 
+                  disabled={product.stock === 0}
+                  onClick={handleAddToCart} 
+                  className="h-14 lg:h-16 rounded-xl lg:rounded-2xl bg-primary hover:bg-primary-glow text-white text-base lg:text-lg font-bold gap-3 border-none shadow-lg active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
                   <ShoppingBag className="h-5 w-5" />
                   Add to Bag
                 </Button>
-                <Link 
-                  to="/checkout" 
-                  onClick={() => addToCart(product)}
-                  className="w-full"
-                >
-                  <Button variant="outline" className="h-14 lg:h-16 w-full rounded-xl lg:rounded-2xl border-2 border-primary text-primary hover:bg-primary hover:text-white text-base lg:text-lg font-bold gap-3 shadow-sm transition-all active:scale-[0.98]">
+                {product.stock === 0 ? (
+                  <Button 
+                    disabled 
+                    className="h-14 lg:h-16 w-full rounded-xl lg:rounded-2xl border-2 border-slate-200 text-slate-400 bg-slate-100 text-base lg:text-lg font-bold gap-3 cursor-not-allowed"
+                  >
                     <Zap className="h-5 w-5" />
                     Buy Now
                   </Button>
-                </Link>
+                ) : (
+                  <Link 
+                    to="/checkout" 
+                    onClick={() => addToCart(product)}
+                    className="w-full"
+                  >
+                    <Button variant="outline" className="h-14 lg:h-16 w-full rounded-xl lg:rounded-2xl border-2 border-primary text-primary hover:bg-primary hover:text-white text-base lg:text-lg font-bold gap-3 shadow-sm transition-all active:scale-[0.98]">
+                      <Zap className="h-5 w-5" />
+                      Buy Now
+                    </Button>
+                  </Link>
+                )}
               </div>
             </div>
 

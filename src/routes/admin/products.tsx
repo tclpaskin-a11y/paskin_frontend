@@ -44,6 +44,10 @@ export default function AdminProducts() {
   const [category, setCategory] = useState("");
   const [color, setColor] = useState("");
   const [size, setSize] = useState("");
+  const [stock, setStock] = useState<number>(0);
+  const [benefits, setBenefits] = useState("");
+  const [usage, setUsage] = useState("");
+  const [ingredients, setIngredients] = useState("");
   
   // Image Upload / Preview States
   const [images, setImages] = useState<string[]>([]); // New uploads previews (ObjectURLs)
@@ -176,6 +180,10 @@ export default function AdminProducts() {
     setCategory(typeof p.category === "object" ? p.category._id : p.category);
     setColor(p.color ?? "");
     setSize(p.size ?? "");
+    setStock(p.stock ?? 0);
+    setBenefits(p.benefits ?? "");
+    setUsage(p.usage ?? "");
+    setIngredients(p.ingredients ?? "");
     setExistingImages(p.images || []);
     setImages([]);
     setUploadedFiles([]);
@@ -192,6 +200,10 @@ export default function AdminProducts() {
     setCategory(categories[0]?._id || "");
     setColor("");
     setSize("");
+    setStock(0);
+    setBenefits("");
+    setUsage("");
+    setIngredients("");
     setExistingImages([]);
     setImages([]);
     setUploadedFiles([]);
@@ -217,12 +229,17 @@ export default function AdminProducts() {
 
     try {
       const productPayload: any = {
+        productName: name,
         name,
         category,
         description,
         basePrice,
         sellPrice,
         gst,
+        stock,
+        benefits,
+        usage,
+        ingredients,
         color,
         size,
       };
@@ -361,6 +378,17 @@ export default function AdminProducts() {
                     {typeof p.category === "object" ? p.category.name : "Uncategorized"}
                   </p>
                   <h3 className="text-lg font-bold text-slate-800 line-clamp-1 group-hover:text-primary transition-colors">{p.name}</h3>
+                  <div className="flex items-center gap-1.5 text-xs font-semibold mt-1">
+                    {p.stock !== undefined && p.stock > 0 ? (
+                      <span className="text-emerald-600 flex items-center gap-1">
+                        <span>🟢</span> In Stock ({p.stock})
+                      </span>
+                    ) : (
+                      <span className="text-rose-600 flex items-center gap-1">
+                        <span>🔴</span> Out Of Stock
+                      </span>
+                    )}
+                  </div>
                   
                   <div className="flex items-center justify-between pt-2">
                     <div className="flex items-baseline gap-2">
@@ -418,138 +446,176 @@ export default function AdminProducts() {
                 </div>
 
                 <form className="space-y-8" onSubmit={handleSubmit}>
-                  {/* Basic Info */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Product Name *</label>
-                      <input 
-                        type="text" 
-                        required
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium" 
-                        placeholder="Amoxicillin..." 
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Category *</label>
-                      <select 
-                        required
-                        value={category}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          if (val === "ADD_NEW") {
-                            setShowQuickAddCategory(true);
-                            setNewCategoryName("");
-                          } else {
-                            setCategory(val);
-                          }
-                        }}
-                        className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium"
-                      >
-                        <option value="">Select Category</option>
-                        {categories.map((cat) => (
-                          <option key={cat._id} value={cat._id}>{cat.name}</option>
-                        ))}
-                        <option value="ADD_NEW" className="text-primary font-bold">+ Add New Category</option>
-                      </select>
-
-                      {showQuickAddCategory && (
-                        <motion.div 
-                          initial={{ opacity: 0, y: -10 }} 
-                          animate={{ opacity: 1, y: 0 }} 
-                          className="mt-3 p-4 bg-slate-50 border border-slate-100 rounded-2xl space-y-3"
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-bold text-slate-800 uppercase tracking-widest border-b pb-2">Product Information</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Product Name *</label>
+                        <input 
+                          type="text" 
+                          required
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium" 
+                          placeholder="Amoxicillin..." 
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Category *</label>
+                        <select 
+                          required
+                          value={category}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (val === "ADD_NEW") {
+                              setShowQuickAddCategory(true);
+                              setNewCategoryName("");
+                            } else {
+                              setCategory(val);
+                            }
+                          }}
+                          className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium"
                         >
-                          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Create New Category</p>
-                          <div className="flex gap-2">
-                            <input 
-                              type="text" 
-                              placeholder="Category name..." 
-                              value={newCategoryName}
-                              onChange={(e) => setNewCategoryName(e.target.value)}
-                              className="flex-1 bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 transition-all"
-                            />
-                            <button
-                              type="button"
-                              disabled={isAddingCategory}
-                              onClick={handleQuickAddCategorySubmit}
-                              className="bg-primary hover:bg-primary-glow text-white px-4 py-2 rounded-xl text-xs font-bold transition-all disabled:opacity-50"
-                            >
-                              {isAddingCategory ? "Saving..." : "Save"}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setShowQuickAddCategory(false);
-                                setNewCategoryName("");
-                              }}
-                              className="bg-slate-200 hover:bg-slate-300 text-slate-600 px-4 py-2 rounded-xl text-xs font-bold transition-all"
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        </motion.div>
-                      )}
-                    </div>
-                  </div>
+                          <option value="">Select Category</option>
+                          {categories.map((cat) => (
+                            <option key={cat._id} value={cat._id}>{cat.name}</option>
+                          ))}
+                          <option value="ADD_NEW" className="text-primary font-bold">+ Add New Category</option>
+                        </select>
 
-                  {/* Attributes Color and Size */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Color</label>
-                      <input 
-                        type="text" 
-                        value={color}
-                        onChange={(e) => setColor(e.target.value)}
-                        className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium" 
-                        placeholder="e.g. blue, red" 
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Size</label>
-                      <input 
-                        type="text" 
-                        value={size}
-                        onChange={(e) => setSize(e.target.value)}
-                        className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium" 
-                        placeholder="e.g. 6-12 months, 500mg" 
-                      />
+                        {showQuickAddCategory && (
+                          <motion.div 
+                            initial={{ opacity: 0, y: -10 }} 
+                            animate={{ opacity: 1, y: 0 }} 
+                            className="mt-3 p-4 bg-slate-50 border border-slate-100 rounded-2xl space-y-3"
+                          >
+                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Create New Category</p>
+                            <div className="flex gap-2">
+                              <input 
+                                type="text" 
+                                placeholder="Category name..." 
+                                value={newCategoryName}
+                                onChange={(e) => setNewCategoryName(e.target.value)}
+                                className="flex-1 bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 transition-all"
+                              />
+                              <button
+                                type="button"
+                                disabled={isAddingCategory}
+                                onClick={handleQuickAddCategorySubmit}
+                                className="bg-primary hover:bg-primary-glow text-white px-4 py-2 rounded-xl text-xs font-bold transition-all disabled:opacity-50"
+                              >
+                                {isAddingCategory ? "Saving..." : "Save"}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setShowQuickAddCategory(false);
+                                  setNewCategoryName("");
+                                }}
+                                className="bg-slate-200 hover:bg-slate-300 text-slate-600 px-4 py-2 rounded-xl text-xs font-bold transition-all"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </motion.div>
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Stock *</label>
+                        <input 
+                          type="number" 
+                          required
+                          min="0"
+                          value={stock}
+                          onChange={(e) => setStock(Number(e.target.value))}
+                          className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium" 
+                          placeholder="e.g. 250" 
+                        />
+                      </div>
                     </div>
                   </div>
 
                   {/* Pricing */}
-                  <div className="grid grid-cols-3 gap-6">
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Base Price *</label>
-                      <input 
-                        type="number" 
-                        required
-                        value={basePrice}
-                        onChange={(e) => setBasePrice(Number(e.target.value))}
-                        className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium" 
-                        placeholder="₹" 
-                      />
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-bold text-slate-800 uppercase tracking-widest border-b pb-2">Pricing</h4>
+                    <div className="grid grid-cols-3 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Base Price *</label>
+                        <input 
+                          type="number" 
+                          required
+                          value={basePrice}
+                          onChange={(e) => setBasePrice(Number(e.target.value))}
+                          className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium" 
+                          placeholder="₹" 
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Sell Price *</label>
+                        <input 
+                          type="number" 
+                          required
+                          value={sellPrice}
+                          onChange={(e) => setSellPrice(Number(e.target.value))}
+                          className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium" 
+                          placeholder="₹" 
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">GST %</label>
+                        <input 
+                          type="number" 
+                          value={gst}
+                          onChange={(e) => setGst(Number(e.target.value))}
+                          className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium" 
+                          placeholder="10%" 
+                        />
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Sell Price *</label>
-                      <input 
-                        type="number" 
-                        required
-                        value={sellPrice}
-                        onChange={(e) => setSellPrice(Number(e.target.value))}
-                        className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium" 
-                        placeholder="₹" 
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">GST %</label>
-                      <input 
-                        type="number" 
-                        value={gst}
-                        onChange={(e) => setGst(Number(e.target.value))}
-                        className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium" 
-                        placeholder="10%" 
-                      />
+                  </div>
+
+                  {/* Product Details */}
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-bold text-slate-800 uppercase tracking-widest border-b pb-2">Product Details</h4>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Description</label>
+                        <textarea 
+                          value={description}
+                          onChange={(e) => setDescription(e.target.value)}
+                          className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium h-24 resize-none" 
+                          placeholder="Tell us about the product..."
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Benefits</label>
+                        <textarea 
+                          value={benefits}
+                          onChange={(e) => setBenefits(e.target.value)}
+                          className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium h-24 resize-none" 
+                          placeholder="e.g. Boosts immune system, Promotes skin elasticity..."
+                        />
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Usage</label>
+                          <textarea 
+                            value={usage}
+                            onChange={(e) => setUsage(e.target.value)}
+                            className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium h-24 resize-none" 
+                            placeholder="e.g. Take 1-2 capsules daily with a meal..."
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Ingredients</label>
+                          <textarea 
+                            value={ingredients}
+                            onChange={(e) => setIngredients(e.target.value)}
+                            className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium h-24 resize-none" 
+                            placeholder="e.g. Pure Sea Buckthorn Oil Extract..."
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -611,17 +677,6 @@ export default function AdminProducts() {
                         </div>
                       ))}
                     </div>
-                  </div>
-
-                  {/* Description */}
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Description</label>
-                    <textarea 
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium h-32" 
-                      placeholder="Tell us about the product..."
-                    />
                   </div>
 
                   <div className="pt-6 flex gap-4">
