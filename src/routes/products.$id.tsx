@@ -172,7 +172,12 @@ export default function ProductDetailsPage() {
                   {activeTab === "description" && <p className="text-sm lg:text-base text-muted-foreground leading-relaxed">{product.description}</p>}
                   {activeTab === "benefits" && (
                     <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
-                      {product.benefits.map((b: string, i: number) => (
+                      {(Array.isArray(product.benefits)
+                        ? product.benefits
+                        : typeof product.benefits === "string" && product.benefits.trim()
+                          ? product.benefits.split(/[,\n]/).map(b => b.trim()).filter(Boolean)
+                          : ["Safe & Effective", "Clinically Proven"]
+                      ).map((b: string, i: number) => (
                         <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground font-medium">
                           <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
                           <span>{b}</span>
