@@ -177,7 +177,7 @@ export default function AdminProducts() {
     setBasePrice(p.basePrice);
     setSellPrice(p.sellPrice);
     setGst(p.gst ?? 10);
-    setCategory(typeof p.category === "object" ? p.category._id : p.category);
+    setCategory(typeof p.category === "object" && p.category ? p.category._id : (p.category || ""));
     setColor(p.color ?? "");
     setSize(p.size ?? "");
     setStock(p.stock ?? 0);
@@ -274,7 +274,7 @@ export default function AdminProducts() {
   // Filters logic
   const filteredProducts = products.filter(p => {
     const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const catId = typeof p.category === "object" ? p.category._id : p.category;
+    const catId = typeof p.category === "object" && p.category ? p.category._id : p.category;
     const matchesCategory = selectedCategory === "All" || catId === selectedCategory;
     return matchesSearch && matchesCategory;
   });
@@ -375,7 +375,7 @@ export default function AdminProducts() {
                 {/* Product Info */}
                 <div className="space-y-3 px-1">
                   <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">
-                    {typeof p.category === "object" ? p.category.name : "Uncategorized"}
+                    {typeof p.category === "object" && p.category ? p.category.name : "Uncategorized"}
                   </p>
                   <h3 className="text-lg font-bold text-slate-800 line-clamp-1 group-hover:text-primary transition-colors">{p.name}</h3>
                   <div className="flex items-center gap-1.5 text-xs font-semibold mt-1">
