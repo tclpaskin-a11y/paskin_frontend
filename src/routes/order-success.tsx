@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { CheckCircle2, ShoppingBag, Loader, AlertTriangle } from "lucide-react";
-import { getUserOrder } from "@/lib/api";
+import { getUserOrder, resolveOrder } from "@/lib/api";
 
 export default function OrderSuccessPage() {
   const [searchParams] = useSearchParams();
@@ -24,8 +24,9 @@ export default function OrderSuccessPage() {
       try {
         setLoading(true);
         const data = await getUserOrder(orderId);
-        if (data) {
-          setOrder(data);
+        const resolved = resolveOrder(data);
+        if (resolved) {
+          setOrder(resolved);
         } else {
           setError("Order not found.");
         }
@@ -83,8 +84,9 @@ export default function OrderSuccessPage() {
     );
   }
 
-  const isCod = order.paymentMethod === "COD";
-  const displayId = `#PASKIN-${order._id.slice(-6).toUpperCase()}`;
+  const resolvedOrderId = order?._id || order?.id || "";
+  const isCod = order?.paymentMethod === "COD";
+  const displayId = resolvedOrderId ? `#PASKIN-${resolvedOrderId.slice(-6).toUpperCase()}` : "N/A";
 
   return (
     <div className="pt-36 pb-24 bg-slate-50/50 min-h-screen flex items-center justify-center animate-in fade-in duration-500">
@@ -150,7 +152,7 @@ export default function OrderSuccessPage() {
           {/* Action Buttons */}
           <div className="grid sm:grid-cols-2 gap-4 pt-2">
             <Link
-              to={`/orders/${order._id}`}
+              to={`/orders/${resolvedOrderId}`}
               className="h-14 bg-white text-slate-800 hover:bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-center font-bold text-sm transition-all shadow-sm hover:shadow-md"
             >
               Track Order

@@ -104,13 +104,18 @@ export async function verifyRazorpayPayment(
  * and verify the signature upon payment completion.
  * Resolves to the payment/verification payload if successful, or null on cancellation/failure.
  */
-export function handleRazorpayPayment(paymentData: RazorpayPaymentData): Promise<{
+export function handleRazorpayPayment(
+  paymentData: RazorpayPaymentData,
+  onStatusChange?: (status: "initiating" | "active" | "verifying") => void,
+): Promise<{
   razorpay_payment_id: string;
   razorpay_order_id: string;
   razorpay_signature: string;
 } | null> {
   return new Promise(async (resolve) => {
     try {
+      onStatusChange?.("initiating");
+
       // 1. Load Razorpay script
       const isLoaded = await loadRazorpayScript();
       if (!isLoaded) {
@@ -164,6 +169,7 @@ export function handleRazorpayPayment(paymentData: RazorpayPaymentData): Promise
           // Restore page scroll
           document.body.style.overflow = "";
           try {
+            onStatusChange?.("verifying");
             // STEP 4: PAYMENT SUCCESS & VERIFICATION
             const verifyResponse = await verifyRazorpayPayment({
               razorpay_payment_id: response.razorpay_payment_id,
@@ -220,6 +226,7 @@ export function handleRazorpayPayment(paymentData: RazorpayPaymentData): Promise
       // Prevent page scrolling while Razorpay modal is open
       document.body.style.overflow = "hidden";
       rzp.open();
+      onStatusChange?.("active");
     } catch (error: any) {
       console.error("Razorpay setup error:", error);
       toast.error(error.message || "Failed to initialize payment process.");

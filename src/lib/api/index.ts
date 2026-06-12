@@ -52,6 +52,7 @@ export {
   getUserOrder,
   getPendingOrders,
   createOrder,
+  resolveOrder,
 } from "./orders";
 export type { Order, OrderResponse } from "./orders";
 

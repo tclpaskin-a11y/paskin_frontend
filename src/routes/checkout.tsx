@@ -27,6 +27,7 @@ import {
   handleRazorpayPayment,
   loadRazorpayScript,
   getReadableErrorMessage,
+  resolveOrder,
 } from "@/lib/api";
 import { toast } from "sonner";
 
@@ -85,6 +86,9 @@ export default function CheckoutPage() {
     document.title = "Checkout — PaskinCare";
     fetchAddresses();
     loadRazorpayScript().catch((err) => console.error("Error preloading Razorpay:", err));
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, []);
 
   // Listen for ESC key to close/redirect success modal
@@ -163,15 +167,26 @@ export default function CheckoutPage() {
       let createdOrder: any = null;
 
       if (paymentMethod === "UPI") {
-        setLoadingState("Verifying Payment...");
-        const paymentResult = await handleRazorpayPayment({
-          amount: totalPrice,
-          prefill: {
-            name: personalDetails.name,
-            email: personalDetails.email,
-            contact: personalDetails.mobile,
+        setLoadingState("Connecting to Payment Gateway...");
+        const paymentResult = await handleRazorpayPayment(
+          {
+            amount: totalPrice,
+            prefill: {
+              name: personalDetails.name,
+              email: personalDetails.email,
+              contact: personalDetails.mobile,
+            },
           },
-        });
+          (status) => {
+            if (status === "initiating") {
+              setLoadingState("Connecting to Payment Gateway...");
+            } else if (status === "active") {
+              setLoadingState(""); // Hide full-page spinner during active transaction input
+            } else if (status === "verifying") {
+              setLoadingState("Verifying Payment...");
+            }
+          }
+        );
 
         if (!paymentResult) {
           setIsProcessingPayment(false);
@@ -193,8 +208,9 @@ export default function CheckoutPage() {
           razorpaySignature: paymentResult.razorpay_signature,
         });
 
+        const resolved = resolveOrder(createdOrder);
         setCreatedOrderDetails({
-          id: createdOrder._id || createdOrder.id,
+          id: resolved?._id || resolved?.id || "",
           amount: totalPrice,
           paymentId: paymentResult.razorpay_payment_id,
           paymentMethod: "UPI",
@@ -211,8 +227,9 @@ export default function CheckoutPage() {
           paymentMethod: "COD",
         });
 
+        const resolved = resolveOrder(createdOrder);
         setCreatedOrderDetails({
-          id: createdOrder._id || createdOrder.id,
+          id: resolved?._id || resolved?.id || "",
           amount: totalPrice,
           paymentId: "N/A (Cash on Delivery)",
           paymentMethod: "COD",
@@ -227,7 +244,6 @@ export default function CheckoutPage() {
       setIsProcessingPayment(false);
       setLoadingState("");
     }
-    // Keep isProcessingPayment locked upon success to block duplicate action clicks
   };
 
   if (items.length === 0 && !orderSuccess) {
@@ -547,9 +563,16 @@ export default function CheckoutPage() {
                 <Button
                   onClick={handlePlaceOrder}
                   disabled={isProcessingPayment}
-                  className="w-full h-16 rounded-2xl text-lg font-bold mt-4 bg-primary hover:bg-primary-glow shadow-xl shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full h-16 rounded-2xl text-lg font-bold mt-4 bg-primary hover:bg-primary-glow shadow-xl shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  {isProcessingPayment ? "Processing Payment..." : "Place Order"}
+                  {isProcessingPayment ? (
+                    <>
+                      <Loader className="h-5 w-5 animate-spin" />
+                      Processing Payment...
+                    </>
+                  ) : (
+                    "Place Order"
+                  )}
                 </Button>
               </div>
             </div>
@@ -666,7 +689,7 @@ export default function CheckoutPage() {
               <div className="flex justify-between items-center">
                 <span className="font-medium text-slate-500">Order ID:</span>
                 <span className="font-mono font-bold text-slate-800">
-                  #PASKIN-{createdOrderDetails.id.slice(-6).toUpperCase()}
+                  #PASKIN-{createdOrderDetails.id ? createdOrderDetails.id.slice(-6).toUpperCase() : "N/A"}
                 </span>
               </div>
               <div className="flex justify-between items-center">

@@ -121,11 +121,12 @@ export default function DashboardOrders() {
                     const orderStatus = order.orderStatus || "ordered";
                     const displayStatus =
                       orderStatus.charAt(0).toUpperCase() + orderStatus.slice(1);
-                    const displayId = `#PASKIN-${order._id.slice(-6).toUpperCase()}`;
+                    const orderIdVal = order?._id || order?.id || "";
+                    const displayId = orderIdVal ? `#PASKIN-${orderIdVal.slice(-6).toUpperCase()}` : "N/A";
 
                     return (
                       <Card
-                        key={order._id}
+                        key={orderIdVal}
                         className="border-none shadow-soft hover:shadow-elegant transition-all group overflow-hidden"
                       >
                         <CardContent className="p-0">

@@ -278,3 +278,31 @@ export async function createOrder(data: {
   }
   throw new Error("Failed to place order");
 }
+
+/**
+ * Resolves the order object from API response wrappers.
+ * Handles patterns like:
+ * - Direct order object
+ * - Nested order object: { order: { ... } }
+ * - Wrapped in data: { data: { ... } }
+ * - Wrapped in data.order: { data: { order: { ... } } }
+ */
+export function resolveOrder(obj: any): any {
+  if (!obj) return null;
+  if (obj.order && typeof obj.order === "object") {
+    return obj.order;
+  }
+  if (obj.data && typeof obj.data === "object") {
+    if (obj.data.order && typeof obj.data.order === "object") {
+      return obj.data.order;
+    }
+    if (obj.data._id || obj.data.id) {
+      return obj.data;
+    }
+  }
+  if (obj._id || obj.id) {
+    return obj;
+  }
+  return obj;
+}
+

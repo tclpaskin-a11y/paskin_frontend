@@ -138,6 +138,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   const clearCartFn = async (silent = false) => {
+    // 1. Instantly clear local state and storage keys for real-time responsiveness
+    setItems([]);
     if (typeof window !== "undefined") {
       localStorage.removeItem("paskin-cart");
       sessionStorage.removeItem("paskin-cart");
@@ -146,16 +148,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
 
     if (!isLoggedIn) {
-      setItems([]);
       return;
     }
+
+    // 2. Clear backend cart asynchronously in background
     try {
       await clearCart();
-      setItems([]);
       if (!silent) {
         toast.success("Cart cleared!");
       }
     } catch (error: any) {
+      console.warn("Silent clearCart error on backend:", error);
       if (!silent) {
         toast.error(getReadableErrorMessage(error));
       }
