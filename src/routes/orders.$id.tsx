@@ -13,7 +13,7 @@ import {
   User,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getUserOrder } from "@/lib/api";
+import { getUserOrder, getReadableErrorMessage } from "@/lib/api";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -30,7 +30,7 @@ export default function OrderDetailsPage() {
         const data = await getUserOrder(id);
         setOrder(data);
       } catch (error: any) {
-        toast.error(error.message || "Failed to load order details");
+        toast.error(getReadableErrorMessage(error));
       } finally {
         setLoading(false);
       }

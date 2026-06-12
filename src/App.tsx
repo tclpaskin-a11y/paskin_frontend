@@ -23,6 +23,7 @@ import PrivacyPolicyPage from "./routes/privacy-policy";
 import TermsConditionsPage from "./routes/terms-and-conditions";
 import ReturnsPolicyPage from "./routes/returns-policy";
 import OrderDetailsPage from "./routes/orders.$id";
+import OrderSuccessPage from "./routes/order-success";
 
 // Dashboard
 import { DashboardLayout } from "./components/dashboard/DashboardLayout";
@@ -95,6 +96,7 @@ export default function App() {
               <Route path="/returns-policy" element={<ReturnsPolicyPage />} />
 
               <Route path="/orders/:id" element={<OrderDetailsPage />} />
+              <Route path="/order-success" element={<OrderSuccessPage />} />
 
               <Route path="/products" element={<ProductsLayout />}>
                 <Route index element={<ProductsPage />} />

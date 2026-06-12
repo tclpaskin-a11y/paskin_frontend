@@ -24,7 +24,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { addAddress, getUserAddresses, updateAddress, deleteAddress } from "@/lib/api";
+import { addAddress, getUserAddresses, updateAddress, deleteAddress, getReadableErrorMessage } from "@/lib/api";
 
 interface Address {
   id: string;
@@ -83,8 +83,16 @@ export default function DashboardAddress() {
   };
 
   const handleSaveAddress = async () => {
-    if (!formData.fullAddress || !formData.city || !formData.pincode) {
-      toast.error("Please fill all required fields");
+    if (!formData.fullAddress) {
+      toast.error("Please enter your full address.");
+      return;
+    }
+    if (!formData.city) {
+      toast.error("Please enter your city.");
+      return;
+    }
+    if (!formData.pincode) {
+      toast.error("Please enter your pincode.");
       return;
     }
 
@@ -101,7 +109,7 @@ export default function DashboardAddress() {
       resetForm();
       setIsAddModalOpen(false);
     } catch (error: any) {
-      toast.error(error.message || "Failed to save address");
+      toast.error(getReadableErrorMessage(error));
     }
   };
 
@@ -111,7 +119,7 @@ export default function DashboardAddress() {
       toast.success("Address deleted successfully");
       await fetchAddressesList();
     } catch (error: any) {
-      toast.error(error.message || "Failed to delete address");
+      toast.error(getReadableErrorMessage(error));
     }
   };
 

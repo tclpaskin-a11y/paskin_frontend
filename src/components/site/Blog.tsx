@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import herbs from "@/assets/hero-herbs.jpg";
 import lifestyle from "@/assets/hero-lifestyle.jpg";
 import prep from "@/assets/hero-prep.jpg";
-import { getPublicBlogs } from "@/lib/api";
+import { getPublicBlogs, getReadableErrorMessage } from "@/lib/api";
 import { Loader } from "lucide-react";
 import { toast } from "sonner";
 
@@ -42,7 +42,7 @@ export function Blog() {
 
       setPosts(mappedPosts);
     } catch (error: any) {
-      toast.error(error.message || "Failed to load blog posts");
+      toast.error(getReadableErrorMessage(error));
     } finally {
       setLoading(false);
     }

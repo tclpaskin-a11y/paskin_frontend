@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import type { Product } from "@/components/site/ProductCard";
 import { useAuth } from "@/hooks/use-auth";
-import { getCart, addToCart, updateCartItem, removeFromCart, clearCart } from "@/lib/api";
+import { getCart, addToCart, updateCartItem, removeFromCart, clearCart, getReadableErrorMessage } from "@/lib/api";
 import { toast } from "sonner";
 
 interface CartItem extends Product {
@@ -13,7 +13,7 @@ interface CartContextType {
   addToCart: (product: Product) => void;
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
-  clearCart: () => void;
+  clearCart: (silent?: boolean) => Promise<void>;
   totalItems: number;
   totalPrice: number;
 }
@@ -95,7 +95,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       await syncCart();
       toast.success(`${product.name} added to cart!`);
     } catch (error: any) {
-      toast.error(error.message || "Failed to add to cart");
+      toast.error(getReadableErrorMessage(error));
     }
   };
 
@@ -111,7 +111,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       await syncCart();
       toast.success("Item removed from cart!");
     } catch (error: any) {
-      toast.error(error.message || "Failed to remove item");
+      toast.error(getReadableErrorMessage(error));
     }
   };
 
@@ -133,11 +133,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       setCartId(updatedCart._id);
       await syncCart();
     } catch (error: any) {
-      toast.error(error.message || "Failed to update quantity");
+      toast.error(getReadableErrorMessage(error));
     }
   };
 
-  const clearCartFn = async () => {
+  const clearCartFn = async (silent = false) => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("paskin-cart");
+      sessionStorage.removeItem("paskin-cart");
+      localStorage.removeItem("cart");
+      sessionStorage.removeItem("cart");
+    }
+
     if (!isLoggedIn) {
       setItems([]);
       return;
@@ -145,9 +152,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     try {
       await clearCart();
       setItems([]);
-      toast.success("Cart cleared!");
+      if (!silent) {
+        toast.success("Cart cleared!");
+      }
     } catch (error: any) {
-      toast.error(error.message || "Failed to clear cart");
+      if (!silent) {
+        toast.error(getReadableErrorMessage(error));
+      }
     }
   };
 

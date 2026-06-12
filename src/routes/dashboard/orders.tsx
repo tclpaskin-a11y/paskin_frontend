@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Package, ChevronRight, Calendar, CreditCard, Truck, Loader } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { getUserOrders } from "@/lib/api";
+import { getUserOrders, getReadableErrorMessage } from "@/lib/api";
+import { toast } from "sonner";
 
 export default function DashboardOrders() {
   const [activeTab, setActiveTab] = useState("all");
@@ -20,6 +21,7 @@ export default function DashboardOrders() {
       setOrders(data);
     } catch (error) {
       console.error("Failed to fetch orders:", error);
+      toast.error(getReadableErrorMessage(error));
     } finally {
       setLoading(false);
     }

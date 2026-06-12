@@ -12,7 +12,7 @@ import {
   MessageSquare,
   Sparkles,
 } from "lucide-react";
-import { getPublicBlog, Blog } from "@/lib/api";
+import { getPublicBlog, Blog, getReadableErrorMessage } from "@/lib/api";
 import { toast } from "sonner";
 
 export default function BlogDetailsPage() {
@@ -34,7 +34,7 @@ export default function BlogDetailsPage() {
         setBlog(data);
         document.title = `${data.title} — PASKIN`;
       } catch (error: any) {
-        toast.error(error.message || "Failed to load blog details");
+        toast.error(getReadableErrorMessage(error));
       } finally {
         setLoading(false);
       }

@@ -143,6 +143,8 @@ export function handleRazorpayPayment(paymentData: RazorpayPaymentData): Promise
       }
 
       // 3. Configure Razorpay options
+      const isMobile = typeof window !== "undefined" && window.innerWidth < 480;
+
       const options = {
         key: razorpayKey,
         order_id: order.order_id,
@@ -156,9 +158,11 @@ export function handleRazorpayPayment(paymentData: RazorpayPaymentData): Promise
           contact: paymentData.prefill.contact,
         },
         theme: {
-          color: "#3399cc",
+          color: "#2E7D32", // PASKIN Brand Primary Green
         },
         handler: async function (response: any) {
+          // Restore page scroll
+          document.body.style.overflow = "";
           try {
             // STEP 4: PAYMENT SUCCESS & VERIFICATION
             const verifyResponse = await verifyRazorpayPayment({
@@ -185,7 +189,11 @@ export function handleRazorpayPayment(paymentData: RazorpayPaymentData): Promise
           }
         },
         modal: {
+          backdropclose: !isMobile, // Prevents closing on backdrop click for mobile to avoid accidental cancellation
+          escape: true,
           ondismiss: function () {
+            // Restore page scroll
+            document.body.style.overflow = "";
             // STEP 6: USER CANCELLED PAYMENT
             toast.info("Payment cancelled by user.");
             resolve(null);
@@ -204,13 +212,19 @@ export function handleRazorpayPayment(paymentData: RazorpayPaymentData): Promise
           reason: response.error.reason,
         });
         toast.error("Payment Failed. Please try again.");
+        // Restore page scroll
+        document.body.style.overflow = "";
         resolve(null);
       });
 
+      // Prevent page scrolling while Razorpay modal is open
+      document.body.style.overflow = "hidden";
       rzp.open();
     } catch (error: any) {
       console.error("Razorpay setup error:", error);
       toast.error(error.message || "Failed to initialize payment process.");
+      // Restore page scroll in case it was set
+      document.body.style.overflow = "";
       resolve(null);
     }
   });

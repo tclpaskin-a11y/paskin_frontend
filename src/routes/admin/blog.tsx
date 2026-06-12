@@ -18,6 +18,7 @@ import {
 import { toast } from "sonner";
 import { createBlog, getAllBlogs, updateBlog, deleteBlog, Blog } from "@/lib/api/blogs";
 import ImageCropper from "@/components/admin/ImageCropper";
+import { getReadableErrorMessage } from "@/lib/api";
 
 interface BlogFormData {
   title: string;
@@ -74,7 +75,7 @@ export default function AdminBlog() {
       const data = await getAllBlogs();
       setBlogs(data);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to fetch blogs");
+      toast.error(getReadableErrorMessage(error));
     } finally {
       setIsFetching(false);
     }
@@ -131,8 +132,12 @@ export default function AdminBlog() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.title.trim() || !formData.description.trim()) {
-      toast.error("Please fill in all required fields");
+    if (!formData.title.trim()) {
+      toast.error("Please enter a blog post title.");
+      return;
+    }
+    if (!formData.description.trim()) {
+      toast.error("Please enter the blog post content.");
       return;
     }
 
@@ -180,7 +185,7 @@ export default function AdminBlog() {
       resetForm();
       await fetchBlogs();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to save blog");
+      toast.error(getReadableErrorMessage(error));
     } finally {
       setIsLoading(false);
     }
@@ -207,7 +212,7 @@ export default function AdminBlog() {
         toast.success("Blog post deleted");
         await fetchBlogs();
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : "Failed to delete blog");
+        toast.error(getReadableErrorMessage(error));
       }
     }
   };

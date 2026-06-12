@@ -94,3 +94,6 @@ export type {
   RazorpayVerificationResponse,
   RazorpayPaymentData,
 } from "./razorpay";
+
+// Error Mapper API
+export { getReadableErrorMessage } from "./error-mapper";

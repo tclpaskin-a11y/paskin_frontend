@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Search, Trash2, Layers, X, AlertCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { getReadableErrorMessage } from "@/lib/api";
 
 const API_BASE_URL = "https://api.paskin.co.in/api";
 
@@ -81,7 +82,7 @@ export default function AdminCategories() {
         const data = await fetchCategories();
         setCategories(data);
       } catch (error) {
-        toast.error("Failed to load categories");
+        toast.error(getReadableErrorMessage(error));
         console.error(error);
       } finally {
         setLoading(false);
@@ -92,7 +93,7 @@ export default function AdminCategories() {
 
   const handleSave = async () => {
     if (!categoryName.trim()) {
-      toast.error("Please enter a category name");
+      toast.error("Please enter a category name.");
       return;
     }
 
@@ -103,7 +104,7 @@ export default function AdminCategories() {
       toast.success("Category added successfully");
       closeModal();
     } catch (error: any) {
-      toast.error(error.message || "Failed to add category");
+      toast.error(getReadableErrorMessage(error));
     } finally {
       setSubmitting(false);
     }
@@ -124,7 +125,7 @@ export default function AdminCategories() {
       setCategories((prev) => prev.filter((c) => c._id !== id));
       toast.success("Category deleted successfully");
     } catch (error: any) {
-      toast.error(error.message || "Failed to delete category");
+      toast.error(getReadableErrorMessage(error));
     }
   };
 

@@ -1,9 +1,10 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Mail, Lock, User, Phone, ArrowRight, AlertCircle } from "lucide-react";
+import { Mail, Lock, User, Phone, ArrowRight, AlertCircle, Eye, EyeOff, Loader } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
+import { getReadableErrorMessage } from "@/lib/api";
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<{
     name?: string;
     email?: string;
@@ -27,27 +29,27 @@ export default function SignupPage() {
     const newErrors: { name?: string; email?: string; mobile?: string; password?: string } = {};
 
     if (!name) {
-      newErrors.name = "Full name is required";
+      newErrors.name = "Please enter your full name.";
     } else if (name.length < 2) {
-      newErrors.name = "Name must be at least 2 characters";
+      newErrors.name = "Name must be at least 2 characters.";
     }
 
     if (!email) {
-      newErrors.email = "Email is required";
+      newErrors.email = "Please enter your email address.";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = "Please enter a valid email address";
+      newErrors.email = "Please enter a valid email address.";
     }
 
     if (!mobile) {
-      newErrors.mobile = "Mobile number is required";
+      newErrors.mobile = "Please enter your mobile number.";
     } else if (!/^\d{10}$/.test(mobile.replace(/\D/g, ""))) {
-      newErrors.mobile = "Please enter a valid 10-digit mobile number";
+      newErrors.mobile = "Please enter a valid 10-digit mobile number.";
     }
 
     if (!password) {
-      newErrors.password = "Password is required";
-    } else if (password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
+      newErrors.password = "Please enter your password.";
+    } else if (password.length < 8) {
+      newErrors.password = "Password must be at least 8 characters.";
     }
 
     return newErrors;
@@ -59,7 +61,7 @@ export default function SignupPage() {
     const newErrors = validateForm();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      toast.error("Please check your input fields");
+      toast.error("Please check your input fields.");
       return;
     }
 
@@ -70,15 +72,15 @@ export default function SignupPage() {
       toast.success("Account created successfully! Please login.");
       navigate("/login");
     } catch (error: any) {
-      const errorMessage = error.message;
-      toast.error(errorMessage);
+      const friendlyMessage = getReadableErrorMessage(error);
+      toast.error(friendlyMessage);
 
       // Show specific field errors
-      if (errorMessage.includes("already exists")) {
-        if (errorMessage.includes("email")) {
-          setErrors({ email: "This email is already registered" });
-        } else if (errorMessage.includes("mobile")) {
-          setErrors({ mobile: "This mobile number is already registered" });
+      if (friendlyMessage.includes("exists") || friendlyMessage.includes("registered")) {
+        if (friendlyMessage.includes("email")) {
+          setErrors({ email: "An account with this email already exists." });
+        } else if (friendlyMessage.includes("mobile")) {
+          setErrors({ mobile: "This mobile number is already registered." });
         }
       }
     }
@@ -191,19 +193,27 @@ export default function SignupPage() {
               <div className="relative">
                 <Lock className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => {
                     setPassword(e.target.value);
                     if (errors.password) setErrors({ ...errors, password: undefined });
                   }}
                   placeholder="••••••••"
-                  className={`w-full h-14 pl-14 pr-6 rounded-2xl bg-slate-50 border transition-all font-medium focus:bg-white focus:outline-none ${
+                  className={`w-full h-14 pl-14 pr-14 rounded-2xl bg-slate-50 border transition-all font-medium focus:bg-white focus:outline-none ${
                     errors.password
                       ? "border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-200"
                       : "border-transparent focus:border-primary/30 focus:ring-0"
                   }`}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-slate-700 transition-colors focus:outline-none"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
               </div>
               {errors.password && (
                 <div className="flex items-center gap-2 text-sm text-red-600 ml-1">
@@ -215,12 +225,20 @@ export default function SignupPage() {
 
             <div className="pt-2">
               <button
+                type="submit"
                 disabled={loading}
                 className="w-full h-14 bg-primary text-white rounded-2xl font-bold text-lg hover:bg-primary-glow transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-2 group disabled:opacity-70"
               >
-                {loading ? "Creating Account..." : "Sign Up"}
-                {!loading && (
-                  <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                {loading ? (
+                  <>
+                    <Loader className="h-5 w-5 animate-spin" />
+                    Creating Account...
+                  </>
+                ) : (
+                  <>
+                    Sign Up
+                    <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  </>
                 )}
               </button>
             </div>

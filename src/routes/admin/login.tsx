@@ -4,18 +4,9 @@ import { Mail, Lock, Eye, EyeOff, ArrowRight, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import logo from "@/assets/logo.png";
 import { toast } from "sonner";
+import { getReadableErrorMessage } from "@/lib/api";
 
 const API_BASE_URL = "https://api.paskin.co.in/api";
-
-function getSimpleErrorMessage(error: string): string {
-  const errorMap: Record<string, string> = {
-    "User not found": "No admin account found with this email.",
-    "Invalid password": "The password you entered is incorrect.",
-    "Invalid credentials": "Please check your email and password.",
-    "Network error": "Unable to connect. Please check your internet connection.",
-  };
-  return errorMap[error] || "Something went wrong. Please try again.";
-}
 
 export default function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false);
@@ -34,8 +25,12 @@ export default function AdminLogin() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
-      toast.error("Please enter both email and password");
+    if (!email) {
+      toast.error("Please enter your email address.");
+      return;
+    }
+    if (!password) {
+      toast.error("Please enter your password.");
       return;
     }
 
@@ -69,8 +64,7 @@ export default function AdminLogin() {
         throw new Error("Login failed");
       }
     } catch (error: any) {
-      const message = error.message || "Network error occurred";
-      toast.error(getSimpleErrorMessage(message));
+      toast.error(getReadableErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -145,7 +139,8 @@ export default function AdminLogin() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-500 hover:text-white transition-colors"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-500 hover:text-white transition-colors focus:outline-none"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>

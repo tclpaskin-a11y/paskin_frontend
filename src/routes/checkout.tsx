@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import {
   CreditCard,
@@ -25,6 +25,8 @@ import {
   updateUserProfile,
   updateAddress,
   handleRazorpayPayment,
+  loadRazorpayScript,
+  getReadableErrorMessage,
 } from "@/lib/api";
 import { toast } from "sonner";
 
@@ -32,6 +34,15 @@ export default function CheckoutPage() {
   const [orderSuccess, setOrderSuccess] = useState(false);
   const { items, totalPrice, clearCart } = useCart();
   const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const [loadingState, setLoadingState] = useState<string>("");
+  const [createdOrderDetails, setCreatedOrderDetails] = useState<{
+    id: string;
+    amount: number;
+    paymentId: string;
+    paymentMethod: string;
+  } | null>(null);
 
   // Personal details states
   const [personalDetails, setPersonalDetails] = useState({
@@ -73,11 +84,31 @@ export default function CheckoutPage() {
   useEffect(() => {
     document.title = "Checkout — PaskinCare";
     fetchAddresses();
+    loadRazorpayScript().catch((err) => console.error("Error preloading Razorpay:", err));
   }, []);
 
+  // Listen for ESC key to close/redirect success modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && orderSuccess && createdOrderDetails) {
+        navigate(`/order-success?orderId=${createdOrderDetails.id}`);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [orderSuccess, createdOrderDetails, navigate]);
+
   const handleSaveAddress = async () => {
-    if (!addressForm.fullAddress || !addressForm.city || !addressForm.pincode) {
-      toast.error("Please fill all required fields");
+    if (!addressForm.fullAddress) {
+      toast.error("Please enter your full address.");
+      return;
+    }
+    if (!addressForm.city) {
+      toast.error("Please enter your city.");
+      return;
+    }
+    if (!addressForm.pincode) {
+      toast.error("Please enter your pincode.");
       return;
     }
 
@@ -102,24 +133,37 @@ export default function CheckoutPage() {
       setEditingAddress(null);
       await fetchAddresses();
     } catch (err: any) {
-      toast.error(err.message || "Failed to save address");
+      toast.error(getReadableErrorMessage(err));
     }
   };
 
   const handlePlaceOrder = async () => {
-    if (!personalDetails.name || !personalDetails.mobile || !personalDetails.email) {
-      toast.error("Please fill in all personal details");
+    if (isProcessingPayment) return; // Prevent duplicate clicks
+
+    if (!personalDetails.name) {
+      toast.error("Please enter your full name.");
+      return;
+    }
+    if (!personalDetails.mobile) {
+      toast.error("Please enter your contact number.");
+      return;
+    }
+    if (!personalDetails.email) {
+      toast.error("Please enter your email address.");
       return;
     }
     if (!selectedAddressId) {
-      toast.error("Please select a shipping address");
+      toast.error("Please select a shipping address.");
       return;
     }
 
     try {
       setIsProcessingPayment(true);
 
+      let createdOrder: any = null;
+
       if (paymentMethod === "UPI") {
+        setLoadingState("Verifying Payment...");
         const paymentResult = await handleRazorpayPayment({
           amount: totalPrice,
           prefill: {
@@ -131,10 +175,12 @@ export default function CheckoutPage() {
 
         if (!paymentResult) {
           setIsProcessingPayment(false);
+          setLoadingState("");
           return;
         }
 
-        await createOrder({
+        setLoadingState("Creating Order...");
+        createdOrder = await createOrder({
           contact: {
             name: personalDetails.name,
             mobile: personalDetails.mobile,
@@ -146,8 +192,16 @@ export default function CheckoutPage() {
           razorpayOrderId: paymentResult.razorpay_order_id,
           razorpaySignature: paymentResult.razorpay_signature,
         });
+
+        setCreatedOrderDetails({
+          id: createdOrder._id || createdOrder.id,
+          amount: totalPrice,
+          paymentId: paymentResult.razorpay_payment_id,
+          paymentMethod: "UPI",
+        });
       } else {
-        await createOrder({
+        setLoadingState("Creating Order...");
+        createdOrder = await createOrder({
           contact: {
             name: personalDetails.name,
             mobile: personalDetails.mobile,
@@ -156,15 +210,24 @@ export default function CheckoutPage() {
           addressId: selectedAddressId,
           paymentMethod: "COD",
         });
+
+        setCreatedOrderDetails({
+          id: createdOrder._id || createdOrder.id,
+          amount: totalPrice,
+          paymentId: "N/A (Cash on Delivery)",
+          paymentMethod: "COD",
+        });
       }
 
+      setLoadingState("Finalizing Checkout...");
+      await clearCart(true); // Clear silently
       setOrderSuccess(true);
-      clearCart();
     } catch (error: any) {
-      toast.error(error.message || "Failed to place order");
-    } finally {
+      toast.error(getReadableErrorMessage(error));
       setIsProcessingPayment(false);
+      setLoadingState("");
     }
+    // Keep isProcessingPayment locked upon success to block duplicate action clicks
   };
 
   if (items.length === 0 && !orderSuccess) {
@@ -310,7 +373,7 @@ export default function CheckoutPage() {
                     {addresses.map((addr) => (
                       <div
                         key={addr._id}
-                        onClick={() => setSelectedAddressId(addr._id)}
+                        onClick={() => !isProcessingPayment && setSelectedAddressId(addr._id)}
                         className={cn(
                           "p-5 rounded-2xl border-2 cursor-pointer transition-all flex flex-col justify-between h-full relative group pr-14",
                           selectedAddressId === addr._id
@@ -389,7 +452,7 @@ export default function CheckoutPage() {
                 <div className="grid sm:grid-cols-2 gap-4">
                   {/* COD Option */}
                   <div
-                    onClick={() => setPaymentMethod("COD")}
+                    onClick={() => !isProcessingPayment && setPaymentMethod("COD")}
                     className={cn(
                       "p-5 rounded-2xl border-2 flex items-center justify-between cursor-pointer transition-all",
                       paymentMethod === "COD"
@@ -431,7 +494,7 @@ export default function CheckoutPage() {
 
                   {/* UPI Option */}
                   <div
-                    onClick={() => setPaymentMethod("UPI")}
+                    onClick={() => !isProcessingPayment && setPaymentMethod("UPI")}
                     className={cn(
                       "p-5 rounded-2xl border-2 flex items-center justify-between cursor-pointer transition-all",
                       paymentMethod === "UPI"
@@ -566,28 +629,86 @@ export default function CheckoutPage() {
       </div>
 
       {/* Success Modal */}
-      {orderSuccess && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-          <div className="relative w-full max-w-md bg-white rounded-[2.5rem] p-10 text-center shadow-2xl animate-in zoom-in duration-300">
-            <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-8 animate-bounce">
-              <CheckCircle2 className="h-12 w-12 text-primary" />
+      {orderSuccess && createdOrderDetails && (
+        <div 
+          className="fixed inset-0 z-[200] flex items-center justify-center p-6"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="success-modal-title"
+        >
+          <div 
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300"
+            onClick={() => navigate(`/order-success?orderId=${createdOrderDetails.id}`)}
+          />
+          <div className="relative w-full max-w-md bg-white rounded-[2.5rem] p-10 text-center shadow-2xl animate-in zoom-in-95 duration-300 border border-slate-100">
+            {/* Close Button */}
+            <button
+              onClick={() => navigate(`/order-success?orderId=${createdOrderDetails.id}`)}
+              className="absolute top-6 right-6 p-2 rounded-full hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-colors"
+              aria-label="Close modal"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            {/* Check Icon */}
+            <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 text-primary animate-bounce">
+              <CheckCircle2 className="h-12 w-12 fill-primary/10 stroke-[2.5]" />
             </div>
-            <h2 className="text-3xl font-bold mb-4">Order Placed!</h2>
-            <p className="text-muted-foreground mb-10 leading-relaxed">
-              Thank you for your purchase. We've sent an order confirmation to your email.
+
+            {/* Header */}
+            <h2 id="success-modal-title" className="font-display text-3xl font-bold mb-2 text-slate-800">✓ Order Confirmed</h2>
+            <p className="text-sm text-muted-foreground mb-8 max-w-xs mx-auto leading-relaxed">
+              Thank you for your purchase.
             </p>
+
+            {/* Details Box */}
+            <div className="bg-slate-50 rounded-2xl p-6 mb-8 text-left space-y-3.5 border border-slate-100 text-sm">
+              <div className="flex justify-between items-center">
+                <span className="font-medium text-slate-500">Order ID:</span>
+                <span className="font-mono font-bold text-slate-800">
+                  #PASKIN-{createdOrderDetails.id.slice(-6).toUpperCase()}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="font-medium text-slate-500">Payment Status:</span>
+                <span className="font-bold text-emerald-600">
+                  {createdOrderDetails.paymentMethod === "COD" ? "Pending (Cash on Delivery)" : "Paid Successfully"}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="font-medium text-slate-500">Estimated Delivery:</span>
+                <span className="font-semibold text-slate-700">3-5 Business Days</span>
+              </div>
+            </div>
+
+            {/* Buttons */}
             <div className="space-y-3">
               <Link
-                to="/"
-                className="block w-full h-14 bg-primary text-white rounded-2xl flex items-center justify-center font-bold text-lg hover:bg-primary-glow transition-all shadow-xl shadow-primary/20"
+                to={`/orders/${createdOrderDetails.id}`}
+                className="w-full h-14 bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 rounded-2xl flex items-center justify-center font-bold text-base transition-all shadow-sm hover:shadow-md"
+              >
+                Track Order
+              </Link>
+              <button
+                onClick={() => navigate(`/order-success?orderId=${createdOrderDetails.id}`)}
+                className="w-full h-14 bg-primary text-white hover:bg-primary-glow rounded-2xl flex items-center justify-center font-bold text-base transition-all shadow-xl shadow-primary/20 hover:shadow-2xl"
               >
                 Continue Shopping
-              </Link>
-              <p className="text-xs text-muted-foreground font-medium pt-4">
-                Order ID: #PASKIN-{Math.floor(Math.random() * 1000000)}
-              </p>
+              </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Transaction Loading Overlay */}
+      {isProcessingPayment && loadingState && (
+        <div className="fixed inset-0 z-[300] flex flex-col items-center justify-center p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-white rounded-3xl p-8 flex flex-col items-center max-w-xs w-full shadow-2xl text-center border border-slate-100">
+            <Loader className="animate-spin text-primary h-12 w-12 mb-6" />
+            <h3 className="text-xl font-bold text-slate-800 mb-2">{loadingState}</h3>
+            <p className="text-xs text-muted-foreground">
+              Please do not close this window or refresh the page.
+            </p>
           </div>
         </div>
       )}

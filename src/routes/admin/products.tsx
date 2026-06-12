@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Search, Edit3, Trash2, Upload, X, Check, ChevronDown, Crop } from "lucide-react";
+import { Plus, Search, Edit3, Trash2, Upload, X, Check, ChevronDown, Crop, Loader } from "lucide-react";
 import { toast } from "sonner";
 import {
   getAllProducts,
@@ -11,6 +11,7 @@ import {
   createCategory,
   Product,
   Category,
+  getReadableErrorMessage,
 } from "@/lib/api";
 import ImageCropper from "@/components/admin/ImageCropper";
 
@@ -19,6 +20,7 @@ export default function AdminProducts() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
@@ -199,8 +201,22 @@ export default function AdminProducts() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !category || basePrice <= 0 || sellPrice <= 0) {
-      toast.error("Please fill in all required fields (Name, Category, Prices)");
+    if (isSaving) return;
+
+    if (!name) {
+      toast.error("Please enter the product name.");
+      return;
+    }
+    if (!category) {
+      toast.error("Please select a product category.");
+      return;
+    }
+    if (basePrice <= 0) {
+      toast.error("Please enter a valid base price.");
+      return;
+    }
+    if (sellPrice <= 0) {
+      toast.error("Please enter a valid sell price.");
       return;
     }
 
@@ -215,6 +231,7 @@ export default function AdminProducts() {
     }
 
     try {
+      setIsSaving(true);
       const productPayload: any = {
         productName: name,
         name,
@@ -251,10 +268,12 @@ export default function AdminProducts() {
         toast.success("Product published successfully");
       }
 
+      setIsSaving(false);
       setIsFormOpen(false);
       fetchInventoryData();
     } catch (error: any) {
-      toast.error(error.message || "Failed to save product details");
+      toast.error(getReadableErrorMessage(error));
+      setIsSaving(false);
     }
   };
 
@@ -738,17 +757,23 @@ export default function AdminProducts() {
                   <div className="pt-6 flex gap-4">
                     <button
                       type="button"
+                      disabled={isSaving}
                       onClick={() => setIsFormOpen(false)}
-                      className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-5 rounded-2xl transition-all"
+                      className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-5 rounded-2xl transition-all disabled:opacity-50"
                     >
                       Discard
                     </button>
                     <button
                       type="submit"
-                      className="flex-1 bg-primary hover:bg-primary-glow text-white font-bold py-5 rounded-2xl shadow-xl shadow-primary/20 transition-all flex items-center justify-center gap-2"
+                      disabled={isSaving}
+                      className="flex-1 bg-primary hover:bg-primary-glow text-white font-bold py-5 rounded-2xl shadow-xl shadow-primary/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                     >
-                      <Check className="h-5 w-5" />
-                      {editingProduct ? "Save Changes" : "Publish Product"}
+                      {isSaving ? (
+                        <Loader className="h-5 w-5 animate-spin" />
+                      ) : (
+                        <Check className="h-5 w-5" />
+                      )}
+                      {isSaving ? "Saving..." : (editingProduct ? "Save Changes" : "Publish Product")}
                     </button>
                   </div>
                 </form>
