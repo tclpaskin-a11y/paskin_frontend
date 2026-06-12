@@ -17,7 +17,8 @@ export function PartnerBanner() {
           </p>
           <br />
           <p className="text-white/80 text-lg">
-            <span className="font-bold">Email:</span> Paskin.info@gmail.com<br />
+            <span className="font-bold">Email:</span> Paskin.info@gmail.com
+            <br />
             <span className="font-bold">Phone:</span> +91 9582824383
           </p>
         </div>
@@ -44,7 +45,10 @@ export function PartnerBanner() {
             <span className="text-sm font-medium">Pan India Network</span>
           </div>
 
-          <Link to="/partner" className="flex items-center gap-3 bg-[#D4A373] hover:bg-[#C08E5F] text-[#1B4332] px-8 py-4 rounded-2xl font-bold transition-all duration-300 shadow-lg hover:scale-105 active:scale-95">
+          <Link
+            to="/partner"
+            className="flex items-center gap-3 bg-[#D4A373] hover:bg-[#C08E5F] text-[#1B4332] px-8 py-4 rounded-2xl font-bold transition-all duration-300 shadow-lg hover:scale-105 active:scale-95"
+          >
             <Handshake className="h-5 w-5" />
             Partner With Us
           </Link>

@@ -1,11 +1,6 @@
 import { useState, useEffect } from "react";
 import { StatCard } from "@/components/dashboard/StatCard";
-import { 
-  ShoppingBag, 
-  Package, 
-  CheckCircle2, 
-  Clock 
-} from "lucide-react";
+import { ShoppingBag, Package, CheckCircle2, Clock } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/use-auth";
 import { getUserDashboardStats } from "@/lib/api";
@@ -34,7 +29,12 @@ export default function DashboardIndex() {
 
   const stats = [
     { icon: Package, count: statsData.totalOrders, label: "Total Orders", color: "blue" },
-    { icon: CheckCircle2, count: statsData.deliveredOrders, label: "Delivered Orders", color: "emerald" },
+    {
+      icon: CheckCircle2,
+      count: statsData.deliveredOrders,
+      label: "Delivered Orders",
+      color: "emerald",
+    },
     { icon: Clock, count: statsData.pendingOrders, label: "Pending Orders", color: "amber" },
     { icon: ShoppingBag, count: statsData.totalCartItems, label: "Cart Items", color: "primary" },
   ];
@@ -42,7 +42,7 @@ export default function DashboardIndex() {
   return (
     <div className="space-y-10">
       {/* Welcome Section */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5 }}
@@ -58,10 +58,7 @@ export default function DashboardIndex() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, i) => (
-          <StatCard 
-            key={stat.label} 
-            {...stat} 
-          />
+          <StatCard key={stat.label} {...stat} />
         ))}
       </div>
 

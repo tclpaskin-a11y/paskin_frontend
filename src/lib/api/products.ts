@@ -7,10 +7,12 @@ export interface Product {
   basePrice: number;
   sellPrice: number;
   gst: number;
-  category: {
-    _id: string;
-    name: string;
-  } | string;
+  category:
+    | {
+        _id: string;
+        name: string;
+      }
+    | string;
   images?: string[];
   color?: string;
   size?: string;
@@ -39,7 +41,7 @@ export async function getAllProducts(): Promise<Product[]> {
   const headers: HeadersInit = {
     "Content-Type": "application/json",
   };
-  
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -54,7 +56,7 @@ export async function getAllProducts(): Promise<Product[]> {
     throw new Error(errorData.message || "Failed to fetch products");
   }
 
-  const result = await response.json() as ProductResponse;
+  const result = (await response.json()) as ProductResponse;
   if (result.success) {
     if (result.data && Array.isArray(result.data)) {
       return result.data;
@@ -72,7 +74,7 @@ export async function getProduct(productId: string): Promise<Product> {
   const headers: HeadersInit = {
     "Content-Type": "application/json",
   };
-  
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -87,7 +89,7 @@ export async function getProduct(productId: string): Promise<Product> {
     throw new Error(errorData.message || "Failed to fetch product");
   }
 
-  const result = await response.json() as ProductResponse;
+  const result = (await response.json()) as ProductResponse;
   if (result.success) {
     if (result.data && !Array.isArray(result.data)) {
       return result.data;
@@ -102,7 +104,7 @@ export async function getProduct(productId: string): Promise<Product> {
 // Create product using FormData (multer)
 export async function createProduct(data: any): Promise<Product> {
   const formData = new FormData();
-  
+
   Object.entries(data).forEach(([key, value]) => {
     if (value !== undefined && value !== null) {
       if (Array.isArray(value)) {
@@ -124,7 +126,7 @@ export async function createProduct(data: any): Promise<Product> {
 
   const token = getAccessToken();
   const headers: HeadersInit = {};
-  
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -140,7 +142,7 @@ export async function createProduct(data: any): Promise<Product> {
     throw new Error(errorData.message || "Failed to create product");
   }
 
-  const result = await response.json() as ProductResponse;
+  const result = (await response.json()) as ProductResponse;
   if (result.success) {
     if (result.data && !Array.isArray(result.data)) {
       return result.data;
@@ -156,7 +158,7 @@ export async function createProduct(data: any): Promise<Product> {
 export async function updateProduct(productId: string, data: any): Promise<Product> {
   const getFormData = () => {
     const formData = new FormData();
-    
+
     Object.entries(data).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
         if (Array.isArray(value)) {
@@ -179,7 +181,7 @@ export async function updateProduct(productId: string, data: any): Promise<Produ
 
   const token = getAccessToken();
   const headers: HeadersInit = {};
-  
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -196,7 +198,7 @@ export async function updateProduct(productId: string, data: any): Promise<Produ
     throw new Error(errorData.message || "Failed to update product");
   }
 
-  const result = await response.json() as ProductResponse;
+  const result = (await response.json()) as ProductResponse;
   if (result.success) {
     if (result.data && !Array.isArray(result.data)) {
       return result.data;
@@ -214,7 +216,7 @@ export async function deleteProduct(productId: string): Promise<void> {
   const headers: HeadersInit = {
     "Content-Type": "application/json",
   };
-  
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -244,7 +246,7 @@ export async function getPublicProducts(): Promise<Product[]> {
     throw new Error(errorData.message || "Failed to fetch products");
   }
 
-  const result = await response.json() as ProductResponse;
+  const result = (await response.json()) as ProductResponse;
   if (result.success) {
     if (result.data && Array.isArray(result.data)) {
       return result.data;
@@ -270,7 +272,7 @@ export async function getPublicProduct(productId: string): Promise<Product> {
     throw new Error(errorData.message || "Failed to fetch product details");
   }
 
-  const result = await response.json() as ProductResponse;
+  const result = (await response.json()) as ProductResponse;
   if (result.success) {
     if (result.data && !Array.isArray(result.data)) {
       return result.data;
@@ -296,7 +298,7 @@ export async function searchPublicProducts(q: string): Promise<Product[]> {
     throw new Error(errorData.message || "Failed to search products");
   }
 
-  const result = await response.json() as ProductResponse;
+  const result = (await response.json()) as ProductResponse;
   if (result.success) {
     if (result.data && Array.isArray(result.data)) {
       return result.data;

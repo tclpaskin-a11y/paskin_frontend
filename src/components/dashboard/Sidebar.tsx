@@ -1,13 +1,5 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import {
-  LayoutDashboard,
-  ShoppingBag,
-  Package,
-  MapPin,
-  Store,
-  LogOut,
-  X
-} from "lucide-react";
+import { LayoutDashboard, ShoppingBag, Package, MapPin, Store, LogOut, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import logo from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
@@ -38,12 +30,12 @@ export function Sidebar({ onClose }: SidebarProps) {
     <div className="flex flex-col h-full bg-white border-r border-border">
       {/* Header */}
       <div className="p-6 flex items-center justify-between">
-        <Link
-          to="/"
-          className="flex items-center gap-3 group"
-          onClick={onClose}
-        >
-          <img src={logo} alt="PASKIN" className="h-10 w-auto transition-transform group-hover:scale-105" />
+        <Link to="/" className="flex items-center gap-3 group" onClick={onClose}>
+          <img
+            src={logo}
+            alt="PASKIN"
+            className="h-10 w-auto transition-transform group-hover:scale-105"
+          />
           <span className="font-display text-xl font-bold tracking-tight">to</span>
         </Link>
         {onClose && (
@@ -66,14 +58,16 @@ export function Sidebar({ onClose }: SidebarProps) {
                 "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group",
                 isActive
                   ? "bg-primary text-primary-foreground shadow-elegant"
-                  : "text-foreground/70 hover:bg-slate-50 hover:text-foreground"
+                  : "text-foreground/70 hover:bg-slate-50 hover:text-foreground",
               )
             }
           >
-            <item.icon className={cn(
-              "h-5 w-5 transition-transform group-hover:scale-110",
-              "group-[.active]:scale-100"
-            )} />
+            <item.icon
+              className={cn(
+                "h-5 w-5 transition-transform group-hover:scale-110",
+                "group-[.active]:scale-100",
+              )}
+            />
             {item.label}
           </NavLink>
         ))}

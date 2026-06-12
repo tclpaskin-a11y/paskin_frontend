@@ -21,7 +21,9 @@ export default function DashboardCart() {
         </motion.div>
         <div>
           <h2 className="text-2xl font-bold">Your cart is empty</h2>
-          <p className="text-muted-foreground mt-2">Looks like you haven't added anything to your cart yet.</p>
+          <p className="text-muted-foreground mt-2">
+            Looks like you haven't added anything to your cart yet.
+          </p>
         </div>
         <Link to="/products">
           <Button size="lg" className="rounded-full px-8 gap-2">
@@ -58,18 +60,22 @@ export default function DashboardCart() {
                     <div className="flex flex-col sm:flex-row gap-6 items-center">
                       {/* Image */}
                       <div className="w-24 h-24 sm:w-32 sm:h-32 bg-slate-50 rounded-2xl overflow-hidden flex-shrink-0 border border-border">
-                        <img 
-                          src={item.image} 
-                          alt={item.name} 
-                          className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500" 
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="w-full h-full object-cover transition-transform group-hover:scale-110 duration-500"
                         />
                       </div>
 
                       {/* Details */}
                       <div className="flex-1 text-center sm:text-left">
-                        <h3 className="text-lg font-bold group-hover:text-primary transition-colors">{item.name}</h3>
+                        <h3 className="text-lg font-bold group-hover:text-primary transition-colors">
+                          {item.name}
+                        </h3>
                         <p className="text-sm text-muted-foreground mt-1">{item.category}</p>
-                        <p className="text-primary font-bold mt-2">₹{item.price.toLocaleString()}</p>
+                        <p className="text-primary font-bold mt-2">
+                          ₹{item.price.toLocaleString()}
+                        </p>
                       </div>
 
                       {/* Controls */}
@@ -93,9 +99,9 @@ export default function DashboardCart() {
                             <Plus className="h-4 w-4" />
                           </Button>
                         </div>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           className="text-destructive hover:text-destructive hover:bg-destructive/5 gap-2"
                           onClick={() => removeFromCart(item.id)}
                         >
@@ -116,11 +122,13 @@ export default function DashboardCart() {
           <Card className="border-none shadow-elegant sticky top-24">
             <CardContent className="p-8 space-y-6">
               <h2 className="text-xl font-bold">Order Summary</h2>
-              
+
               <div className="space-y-4">
                 <div className="flex justify-between text-muted-foreground">
                   <span>Subtotal</span>
-                  <span className="font-medium text-foreground">₹{totalPrice.toLocaleString()}</span>
+                  <span className="font-medium text-foreground">
+                    ₹{totalPrice.toLocaleString()}
+                  </span>
                 </div>
                 <div className="flex justify-between text-muted-foreground">
                   <span>Shipping</span>
@@ -142,7 +150,7 @@ export default function DashboardCart() {
                   Proceed to Checkout
                 </Button>
               </Link>
-              
+
               <p className="text-center text-xs text-muted-foreground">
                 Secure checkout with 256-bit SSL encryption.
               </p>

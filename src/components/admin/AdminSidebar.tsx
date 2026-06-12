@@ -1,13 +1,13 @@
 import { NavLink, Link, useNavigate } from "react-router-dom";
-import { 
-  LayoutDashboard, 
-  Layers, 
-  Package, 
-  ShoppingBag, 
-  BookOpen, 
-  LogOut, 
+import {
+  LayoutDashboard,
+  Layers,
+  Package,
+  ShoppingBag,
+  BookOpen,
+  LogOut,
   X,
-  ChevronRight
+  ChevronRight,
 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { cn } from "@/lib/utils";
@@ -59,18 +59,17 @@ export function AdminSidebar({ onClose }: AdminSidebarProps) {
     <div className="flex flex-col h-full bg-[#1e293b] text-slate-300 border-r border-white/5">
       {/* Brand Header */}
       <div className="p-8 flex items-center justify-between">
-        <Link 
-          to="/" 
-          className="flex items-center gap-3 group"
-          onClick={onClose}
-        >
+        <Link to="/" className="flex items-center gap-3 group" onClick={onClose}>
           <div className="bg-white/10 p-2 rounded-xl group-hover:bg-white/20 transition-all">
             <img src={logo} alt="PASKIN" className="h-8 w-auto" />
           </div>
           <span className="font-display text-xl font-bold tracking-tight text-white">Admin</span>
         </Link>
         {onClose && (
-          <button onClick={onClose} className="lg:hidden p-2 hover:bg-white/10 rounded-lg transition-colors">
+          <button
+            onClick={onClose}
+            className="lg:hidden p-2 hover:bg-white/10 rounded-lg transition-colors"
+          >
             <X className="h-5 w-5" />
           </button>
         )}
@@ -78,18 +77,20 @@ export function AdminSidebar({ onClose }: AdminSidebarProps) {
 
       {/* Navigation */}
       <nav className="flex-1 px-4 py-6 space-y-2">
-        <p className="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 mb-4">Main Menu</p>
+        <p className="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 mb-4">
+          Main Menu
+        </p>
         {adminMenuItems.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
             onClick={onClose}
-            className={({ isActive }) => 
+            className={({ isActive }) =>
               cn(
                 "flex items-center justify-between px-4 py-3.5 rounded-2xl text-sm font-medium transition-all duration-300 group",
-                isActive 
-                  ? "bg-primary text-white shadow-lg shadow-primary/20" 
-                  : "hover:bg-white/5 hover:text-white"
+                isActive
+                  ? "bg-primary text-white shadow-lg shadow-primary/20"
+                  : "hover:bg-white/5 hover:text-white",
               )
             }
           >

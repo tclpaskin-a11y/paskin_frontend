@@ -11,8 +11,6 @@ const slides: Slide[] = [
   { type: "image", src: heroBerries },
   { type: "image", src: hero1 },
   { type: "image", src: hero2 },
-
-
 ];
 
 export function Hero() {
@@ -28,14 +26,15 @@ export function Hero() {
       {slides.map((slide, i) => (
         <div
           key={i}
-          className={`absolute inset-0 transition-opacity duration-[700ms] ease-in-out ${i === active ? "opacity-100" : "opacity-0"
-            }`}
+          className={`absolute inset-0 transition-opacity duration-[700ms] ease-in-out ${
+            i === active ? "opacity-100" : "opacity-0"
+          }`}
         >
           <img
             src={slide.src}
             alt=""
             className="h-full w-full object-cover scale-100 transition-transform duration-[10s] ease-linear"
-            style={{ transform: i === active ? 'scale(1.1)' : 'scale(1)' }}
+            style={{ transform: i === active ? "scale(1.1)" : "scale(1)" }}
             width={1920}
             height={1080}
           />
@@ -47,16 +46,14 @@ export function Hero() {
 
       {/* Content */}
       <div className="relative z-10 h-full container mx-auto px-6 flex flex-col justify-center max-w-4xl">
-
-
         <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-medium text-background mt-6 leading-[1.05] text-balance animate-fade-up">
           Pure Herbal Wellness
           <span className="block italic font-light text-accent"> for a better life.</span>
         </h1>
 
         <p className="text-background/85 text-lg md:text-xl mt-6 max-w-xl animate-fade-up [animation-delay:120ms]">
-          100% Organic. Trusted Ayurvedic care, hand-crafted from the purest
-          botanicals nature has to offer.
+          100% Organic. Trusted Ayurvedic care, hand-crafted from the purest botanicals nature has
+          to offer.
         </p>
 
         <div className="flex flex-wrap gap-3 mt-10 animate-fade-up [animation-delay:240ms]">
@@ -67,7 +64,6 @@ export function Hero() {
             Shop Now
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </a>
-
         </div>
 
         {/* Slide indicators */}
@@ -77,12 +73,13 @@ export function Hero() {
               key={i}
               onClick={() => setActive(i)}
               aria-label={`Slide ${i + 1}`}
-              className={`h-1 rounded-full transition-all duration-500 ${i === active ? "w-12 bg-background" : "w-6 bg-background/40"
-                }`}
+              className={`h-1 rounded-full transition-all duration-500 ${
+                i === active ? "w-12 bg-background" : "w-6 bg-background/40"
+              }`}
             />
           ))}
         </div>
       </div>
-    </section >
+    </section>
   );
 }

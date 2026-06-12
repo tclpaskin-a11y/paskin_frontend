@@ -18,34 +18,34 @@ export default function LoginPage() {
 
   const validateForm = () => {
     const newErrors: { email?: string; password?: string } = {};
-    
+
     if (!email) {
       newErrors.email = "Email or mobile number is required";
     } else if (email.length < 5) {
       newErrors.email = "Please enter a valid email or mobile number";
     }
-    
+
     if (!password) {
       newErrors.password = "Password is required";
     } else if (password.length < 6) {
       newErrors.password = "Password must be at least 6 characters";
     }
-    
+
     return newErrors;
   };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const newErrors = validateForm();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       toast.error("Please check your input fields");
       return;
     }
-    
+
     setErrors({});
-    
+
     try {
       await login(email, password);
       toast.success("Welcome back!");
@@ -59,7 +59,7 @@ export default function LoginPage() {
     } catch (error: any) {
       const errorMessage = error.message;
       toast.error(errorMessage);
-      
+
       // Show specific field errors
       if (errorMessage.includes("not found")) {
         setErrors({ email: "This email or mobile is not registered" });
@@ -83,7 +83,9 @@ export default function LoginPage() {
         <div className="bg-white rounded-[2.5rem] p-10 shadow-soft border border-border/50">
           <form className="space-y-6" onSubmit={handleLogin}>
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Email or Mobile</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">
+                Email or Mobile
+              </label>
               <div className="relative">
                 <Mail className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <input
@@ -95,8 +97,8 @@ export default function LoginPage() {
                   }}
                   placeholder="name@example.com"
                   className={`w-full h-14 pl-14 pr-6 rounded-2xl bg-slate-50 border transition-all font-medium focus:bg-white focus:outline-none ${
-                    errors.email 
-                      ? "border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-200" 
+                    errors.email
+                      ? "border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-200"
                       : "border-transparent focus:border-primary/30 focus:ring-0"
                   }`}
                 />
@@ -111,8 +113,15 @@ export default function LoginPage() {
 
             <div className="space-y-2">
               <div className="flex justify-between items-end ml-1">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Password</label>
-                <button type="button" className="text-[10px] font-bold text-primary hover:underline">Forgot Password?</button>
+                <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                  Password
+                </label>
+                <button
+                  type="button"
+                  className="text-[10px] font-bold text-primary hover:underline"
+                >
+                  Forgot Password?
+                </button>
               </div>
               <div className="relative">
                 <Lock className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -125,8 +134,8 @@ export default function LoginPage() {
                   }}
                   placeholder="••••••••"
                   className={`w-full h-14 pl-14 pr-6 rounded-2xl bg-slate-50 border transition-all font-medium focus:bg-white focus:outline-none ${
-                    errors.password 
-                      ? "border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-200" 
+                    errors.password
+                      ? "border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-200"
                       : "border-transparent focus:border-primary/30 focus:ring-0"
                   }`}
                 />
@@ -139,22 +148,24 @@ export default function LoginPage() {
               )}
             </div>
 
-            <button 
+            <button
               disabled={loading}
               onClick={handleLogin}
               className="w-full h-14 bg-primary text-white rounded-2xl font-bold text-lg hover:bg-primary-glow transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-2 group disabled:opacity-70"
             >
               {loading ? "Logging in..." : "Log In"}
-              {!loading && <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />}
+              {!loading && (
+                <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              )}
             </button>
           </form>
-
-
         </div>
 
         <p className="text-center mt-8 text-sm text-muted-foreground font-medium">
           Don't have an account?{" "}
-          <Link to="/signup" className="text-primary font-bold hover:underline">Sign up for free</Link>
+          <Link to="/signup" className="text-primary font-bold hover:underline">
+            Sign up for free
+          </Link>
         </p>
       </div>
     </div>

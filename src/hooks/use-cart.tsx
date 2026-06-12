@@ -35,12 +35,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     try {
       const cart = await getCart();
       setCartId(cart._id);
-      
+
       // Map backend products to CartItem interface
       const mappedItems = cart.products
         .filter((item: any) => item.productId !== null && item.productId !== undefined)
         .map((item: any) => {
-          const prod = typeof item.productId === "object" && item.productId !== null ? item.productId : {};
+          const prod =
+            typeof item.productId === "object" && item.productId !== null ? item.productId : {};
           return {
             id: prod._id || item.productId,
             name: prod.name || prod.productName || "Product",
@@ -48,9 +49,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             oldPrice: prod.basePrice || undefined,
             rating: prod.rating || 4.8,
             reviews: prod.reviews || 120,
-            image: prod.images?.[0] || "https://images.unsplash.com/photo-1611073103901-09605d8f6cc9?auto=format&fit=crop&q=80&w=300",
+            image:
+              prod.images?.[0] ||
+              "https://images.unsplash.com/photo-1611073103901-09605d8f6cc9?auto=format&fit=crop&q=80&w=300",
             quantity: item.quantity || 1,
-            category: typeof prod.category === "object" ? prod.category.name : (prod.category || "Pharma"),
+            category:
+              typeof prod.category === "object" ? prod.category.name : prod.category || "Pharma",
           };
         });
       setItems(mappedItems);
@@ -119,7 +123,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     if (!isLoggedIn) {
       setItems((prev) =>
-        prev.map((item) => (item.id === productId ? { ...item, quantity } : item))
+        prev.map((item) => (item.id === productId ? { ...item, quantity } : item)),
       );
       return;
     }

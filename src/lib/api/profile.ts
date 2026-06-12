@@ -31,7 +31,7 @@ export async function getUserProfile(): Promise<UserProfile> {
   const headers: HeadersInit = {
     "Content-Type": "application/json",
   };
-  
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -46,7 +46,7 @@ export async function getUserProfile(): Promise<UserProfile> {
     throw new Error(errorData.message || "Failed to fetch profile");
   }
 
-  const result = await response.json() as ProfileResponse;
+  const result = (await response.json()) as ProfileResponse;
   if (result.success && result.user) {
     return result.user;
   }
@@ -59,7 +59,7 @@ export async function updateUserProfile(data: Partial<UserProfile>): Promise<Use
   const headers: HeadersInit = {
     "Content-Type": "application/json",
   };
-  
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -75,7 +75,7 @@ export async function updateUserProfile(data: Partial<UserProfile>): Promise<Use
     throw new Error(errorData.message || "Failed to update profile");
   }
 
-  const result = await response.json() as ProfileResponse;
+  const result = (await response.json()) as ProfileResponse;
   if (result.success && result.user) {
     return result.user;
   }
@@ -88,7 +88,7 @@ export async function updatePassword(currentPassword: string, newPassword: strin
   const headers: HeadersInit = {
     "Content-Type": "application/json",
   };
-  
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -116,7 +116,7 @@ export async function addAddress(address: {
   const headers: HeadersInit = {
     "Content-Type": "application/json",
   };
-  
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -132,7 +132,7 @@ export async function addAddress(address: {
     throw new Error(errorData.message || "Failed to add address");
   }
 
-  const result = await response.json() as any;
+  const result = (await response.json()) as any;
   if (result.success && result.data) {
     return result.data;
   }
@@ -145,7 +145,7 @@ export async function getUserAddresses(): Promise<any[]> {
   const headers: HeadersInit = {
     "Content-Type": "application/json",
   };
-  
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -160,7 +160,7 @@ export async function getUserAddresses(): Promise<any[]> {
     throw new Error(errorData.message || "Failed to fetch addresses");
   }
 
-  const result = await response.json() as any;
+  const result = (await response.json()) as any;
   if (result.success && result.data) {
     return Array.isArray(result.data) ? result.data : [result.data];
   }
@@ -176,13 +176,13 @@ export async function updateAddress(
     pincode: string;
     country: string;
     type?: string;
-  }>
+  }>,
 ): Promise<any> {
   const token = getAccessToken();
   const headers: HeadersInit = {
     "Content-Type": "application/json",
   };
-  
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -198,7 +198,7 @@ export async function updateAddress(
     throw new Error(errorData.message || "Failed to update address");
   }
 
-  const result = await response.json() as any;
+  const result = (await response.json()) as any;
   if (result.success && result.data) {
     return result.data;
   }
@@ -211,7 +211,7 @@ export async function deleteAddress(addressId: string): Promise<any> {
   const headers: HeadersInit = {
     "Content-Type": "application/json",
   };
-  
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -226,7 +226,7 @@ export async function deleteAddress(addressId: string): Promise<any> {
     throw new Error(errorData.message || "Failed to delete address");
   }
 
-  const result = await response.json() as any;
+  const result = (await response.json()) as any;
   if (result.success && result.data) {
     return result.data;
   }

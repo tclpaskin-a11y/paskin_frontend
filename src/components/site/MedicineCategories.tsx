@@ -38,9 +38,6 @@ const categories = [
     color: "bg-green-100",
     iconBg: "bg-green-600",
   },
-
-
-
 ];
 
 export function MedicineCategories() {
@@ -60,10 +57,20 @@ export function MedicineCategories() {
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {categories.map((cat, i) => (
-            <Link to="/products" key={i} className="flex flex-col items-center text-center group cursor-pointer">
-              <div className={`relative w-full aspect-[4/3] rounded-2xl overflow-hidden mb-6 ${cat.color}`}>
+            <Link
+              to="/products"
+              key={i}
+              className="flex flex-col items-center text-center group cursor-pointer"
+            >
+              <div
+                className={`relative w-full aspect-[4/3] rounded-2xl overflow-hidden mb-6 ${cat.color}`}
+              >
                 {cat.image ? (
-                  <img src={cat.image} alt={cat.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                  <img
+                    src={cat.image}
+                    alt={cat.title}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
                 ) : (
                   <div className="w-16 h-16 rounded-full bg-white/50 flex items-center justify-center">
                     <cat.icon className="h-8 w-8 text-purple-600 opacity-40" />
@@ -71,7 +78,9 @@ export function MedicineCategories() {
                 )}
 
                 {/* Floating Icon */}
-                <div className={`absolute bottom-4 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full ${cat.iconBg} flex items-center justify-center text-white border-4 border-white shadow-lg z-10 transition-transform duration-300 group-hover:scale-110`}>
+                <div
+                  className={`absolute bottom-4 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full ${cat.iconBg} flex items-center justify-center text-white border-4 border-white shadow-lg z-10 transition-transform duration-300 group-hover:scale-110`}
+                >
                   <cat.icon className="h-4 w-4" />
                 </div>
               </div>

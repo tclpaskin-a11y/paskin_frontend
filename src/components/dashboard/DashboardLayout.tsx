@@ -48,8 +48,8 @@ export function DashboardLayout() {
 
           {/* Right: "Go to Main Website" Link on desktop */}
           <div className="hidden lg:flex items-center gap-4">
-            <Link 
-              to="/" 
+            <Link
+              to="/"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 text-primary text-xs font-bold hover:bg-primary/5 transition-all shadow-sm"
             >
               <Store className="h-3.5 w-3.5" />
@@ -68,4 +68,3 @@ export function DashboardLayout() {
     </div>
   );
 }
-

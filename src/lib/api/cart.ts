@@ -27,7 +27,7 @@ export async function getCart(): Promise<Cart> {
   const headers: HeadersInit = {
     "Content-Type": "application/json",
   };
-  
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -42,7 +42,7 @@ export async function getCart(): Promise<Cart> {
     throw new Error(errorData.message || "Failed to fetch cart");
   }
 
-  const result = await response.json() as CartResponse;
+  const result = (await response.json()) as CartResponse;
   if (result.success && result.data) {
     return result.data;
   }
@@ -55,7 +55,7 @@ export async function addToCart(productId: string, quantity: number): Promise<Ca
   const headers: HeadersInit = {
     "Content-Type": "application/json",
   };
-  
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -71,7 +71,7 @@ export async function addToCart(productId: string, quantity: number): Promise<Ca
     throw new Error(errorData.message || "Failed to add to cart");
   }
 
-  const result = await response.json() as CartResponse;
+  const result = (await response.json()) as CartResponse;
   if (result.success && result.data) {
     return result.data;
   }
@@ -84,7 +84,7 @@ export async function updateCartItem(productId: string, quantity: number): Promi
   const headers: HeadersInit = {
     "Content-Type": "application/json",
   };
-  
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -100,7 +100,7 @@ export async function updateCartItem(productId: string, quantity: number): Promi
     throw new Error(errorData.message || "Failed to update cart");
   }
 
-  const result = await response.json() as CartResponse;
+  const result = (await response.json()) as CartResponse;
   if (result.success && result.data) {
     return result.data;
   }
@@ -113,7 +113,7 @@ export async function removeFromCart(productId: string): Promise<Cart> {
   const headers: HeadersInit = {
     "Content-Type": "application/json",
   };
-  
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -128,7 +128,7 @@ export async function removeFromCart(productId: string): Promise<Cart> {
     throw new Error(errorData.message || "Failed to remove from cart");
   }
 
-  const result = await response.json() as CartResponse;
+  const result = (await response.json()) as CartResponse;
   if (result.success && result.data) {
     return result.data;
   }
@@ -141,7 +141,7 @@ export async function clearCart(): Promise<void> {
   const headers: HeadersInit = {
     "Content-Type": "application/json",
   };
-  
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }

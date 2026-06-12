@@ -11,7 +11,7 @@ export default function PrivacyPolicyPage() {
   const fadeIn = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.6 }
+    transition: { duration: 0.6 },
   };
 
   const sections = [
@@ -31,9 +31,12 @@ export default function PrivacyPolicyPage() {
                 "Contact information (email, phone number, address)",
                 "Payment and billing information",
                 "Prescription or medical data",
-                "Government-issued ID"
+                "Government-issued ID",
               ].map((item, i) => (
-                <div key={i} className="px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 text-sm text-muted-foreground">
+                <div
+                  key={i}
+                  className="px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 text-sm text-muted-foreground"
+                >
                   {item}
                 </div>
               ))}
@@ -50,9 +53,12 @@ export default function PrivacyPolicyPage() {
                 "Browser type and version",
                 "Device identifiers",
                 "Browsing behavior",
-                "Cookies and usage data"
+                "Cookies and usage data",
               ].map((item, i) => (
-                <div key={i} className="px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 text-sm text-muted-foreground">
+                <div
+                  key={i}
+                  className="px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 text-sm text-muted-foreground"
+                >
                   {item}
                 </div>
               ))}
@@ -67,15 +73,26 @@ export default function PrivacyPolicyPage() {
       content: (
         <div className="grid gap-4">
           {[
-            { label: "Order Fulfillment", desc: "Fulfill your orders and provide requested services" },
+            {
+              label: "Order Fulfillment",
+              desc: "Fulfill your orders and provide requested services",
+            },
             { label: "Communication", desc: "Regarding orders, promotions, and updates" },
-            { label: "Compliance", desc: "Ensure compliance with legal and regulatory requirements" },
+            {
+              label: "Compliance",
+              desc: "Ensure compliance with legal and regulatory requirements",
+            },
             { label: "Improvement", desc: "Improve our website, services, and support" },
             { label: "Security", desc: "Prevent fraud and ensure security" },
-            { label: "Payments", desc: "Process payments securely" }
+            { label: "Payments", desc: "Process payments securely" },
           ].map((item, i) => (
-            <div key={i} className="flex gap-4 p-4 rounded-2xl bg-white border border-border/50 shadow-sm">
-              <div className="font-bold text-primary whitespace-nowrap min-w-[140px]">{item.label}</div>
+            <div
+              key={i}
+              className="flex gap-4 p-4 rounded-2xl bg-white border border-border/50 shadow-sm"
+            >
+              <div className="font-bold text-primary whitespace-nowrap min-w-[140px]">
+                {item.label}
+              </div>
               <div className="text-muted-foreground">{item.desc}</div>
             </div>
           ))}
@@ -87,13 +104,15 @@ export default function PrivacyPolicyPage() {
       icon: Scale,
       content: (
         <div className="p-6 rounded-3xl bg-slate-50 border border-slate-200">
-          <p className="mb-4">If you are in the European Economic Area (EEA), our legal basis depends on:</p>
+          <p className="mb-4">
+            If you are in the European Economic Area (EEA), our legal basis depends on:
+          </p>
           <ul className="grid sm:grid-cols-2 gap-4">
             {[
               "Your explicit consent",
               "Performance of a contract",
               "Compliance with legal obligations",
-              "Legitimate interests pursued by us"
+              "Legitimate interests pursued by us",
             ].map((item, i) => (
               <li key={i} className="flex items-center gap-3 text-muted-foreground">
                 <div className="h-2 w-2 rounded-full bg-primary/40" />
@@ -116,9 +135,12 @@ export default function PrivacyPolicyPage() {
               "Payment processors",
               "Logistics partners",
               "Government bodies",
-              "IT service providers"
+              "IT service providers",
             ].map((item, i) => (
-              <span key={i} className="px-4 py-2 rounded-full bg-primary/5 text-primary text-sm font-medium border border-primary/10">
+              <span
+                key={i}
+                className="px-4 py-2 rounded-full bg-primary/5 text-primary text-sm font-medium border border-primary/10"
+              >
                 {item}
               </span>
             ))}
@@ -135,9 +157,12 @@ export default function PrivacyPolicyPage() {
             { label: "SSL Encryption", desc: "Secure data transmission" },
             { label: "Secure Servers", desc: "Protected by firewalls" },
             { label: "Access Control", desc: "Strict protocol-based access" },
-            { label: "Staff Training", desc: "Confidentiality agreements" }
+            { label: "Staff Training", desc: "Confidentiality agreements" },
           ].map((item, i) => (
-            <div key={i} className="p-5 rounded-2xl border border-border group hover:border-primary/30 transition-colors">
+            <div
+              key={i}
+              className="p-5 rounded-2xl border border-border group hover:border-primary/30 transition-colors"
+            >
               <h5 className="font-bold mb-1 text-foreground">{item.label}</h5>
               <p className="text-sm text-muted-foreground">{item.desc}</p>
             </div>
@@ -150,7 +175,9 @@ export default function PrivacyPolicyPage() {
       icon: Lock,
       content: (
         <p className="text-muted-foreground leading-relaxed">
-          We retain your personal data only for as long as necessary to fulfill the purposes outlined in this Privacy Policy, or as required by law (e.g., for tax, accounting, or legal obligations).
+          We retain your personal data only for as long as necessary to fulfill the purposes
+          outlined in this Privacy Policy, or as required by law (e.g., for tax, accounting, or
+          legal obligations).
         </p>
       ),
     },
@@ -165,9 +192,12 @@ export default function PrivacyPolicyPage() {
             "Deletion",
             "Restriction",
             "Data portability",
-            "Withdraw consent"
+            "Withdraw consent",
           ].map((item, i) => (
-            <div key={i} className="px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 text-center text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            <div
+              key={i}
+              className="px-4 py-3 rounded-xl bg-slate-50 border border-slate-100 text-center text-xs font-bold uppercase tracking-wider text-muted-foreground"
+            >
               {item}
             </div>
           ))}
@@ -179,7 +209,8 @@ export default function PrivacyPolicyPage() {
       icon: Bell,
       content: (
         <p className="text-muted-foreground leading-relaxed">
-          We may update this Privacy Policy from time to time. Changes will be posted on this page with a new effective date.
+          We may update this Privacy Policy from time to time. Changes will be posted on this page
+          with a new effective date.
         </p>
       ),
     },
@@ -190,9 +221,9 @@ export default function PrivacyPolicyPage() {
       {/* Luxury Hero Section */}
       <section className="relative pt-32 pb-24 overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[150%] aspect-square bg-gradient-to-b from-primary/5 via-transparent to-transparent rounded-full -translate-y-1/2 blur-3xl opacity-50" />
-        
+
         <div className="container mx-auto px-6 relative z-10">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -206,7 +237,8 @@ export default function PrivacyPolicyPage() {
               Privacy <span className="italic font-light text-primary">Policy</span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed font-light">
-              Paskin Medicine Supplier values your privacy and is committed to protecting the personal information you provide to us.
+              Paskin Medicine Supplier values your privacy and is committed to protecting the
+              personal information you provide to us.
             </p>
           </motion.div>
         </div>
@@ -218,7 +250,7 @@ export default function PrivacyPolicyPage() {
           <div className="max-w-5xl mx-auto">
             <div className="grid gap-12">
               {sections.map((section, index) => (
-                <motion.div 
+                <motion.div
                   key={index}
                   initial="initial"
                   whileInView="animate"
@@ -235,9 +267,7 @@ export default function PrivacyPolicyPage() {
                         {section.title}
                       </h2>
                     </div>
-                    <div className="lg:w-2/3">
-                      {section.content}
-                    </div>
+                    <div className="lg:w-2/3">{section.content}</div>
                   </div>
                 </motion.div>
               ))}
@@ -250,13 +280,18 @@ export default function PrivacyPolicyPage() {
       <section className="py-32 bg-foreground text-background">
         <div className="container mx-auto px-6 max-w-4xl text-center space-y-12">
           <div className="space-y-4">
-             <h2 className="font-display text-4xl md:text-5xl">Your trust is our priority</h2>
-             <p className="text-background/60 text-lg font-light leading-relaxed">
-               We use industry-standard security protocols to ensure your data remains confidential and secure. If you have any questions about your privacy, please don't hesitate to reach out.
-             </p>
+            <h2 className="font-display text-4xl md:text-5xl">Your trust is our priority</h2>
+            <p className="text-background/60 text-lg font-light leading-relaxed">
+              We use industry-standard security protocols to ensure your data remains confidential
+              and secure. If you have any questions about your privacy, please don't hesitate to
+              reach out.
+            </p>
           </div>
           <div className="flex flex-col sm:flex-row justify-center gap-6">
-            <a href="/contact" className="px-12 py-5 rounded-full bg-primary text-primary-foreground font-bold hover:bg-primary-glow transition shadow-xl hover:scale-105 active:scale-95">
+            <a
+              href="/contact"
+              className="px-12 py-5 rounded-full bg-primary text-primary-foreground font-bold hover:bg-primary-glow transition shadow-xl hover:scale-105 active:scale-95"
+            >
               Contact Privacy Team
             </a>
           </div>

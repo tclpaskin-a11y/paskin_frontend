@@ -1,19 +1,19 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Plus, 
-  Search, 
-  Edit3, 
-  Trash2, 
-  Image as ImageIcon, 
-  X, 
+import {
+  Plus,
+  Search,
+  Edit3,
+  Trash2,
+  Image as ImageIcon,
+  X,
   Check,
   Calendar,
   Eye,
   Crop,
   ArrowRight,
   BookOpen,
-  Loader
+  Loader,
 } from "lucide-react";
 import { toast } from "sonner";
 import { createBlog, getAllBlogs, updateBlog, deleteBlog, Blog } from "@/lib/api/blogs";
@@ -36,7 +36,7 @@ export default function AdminBlog() {
   const [existingImages, setExistingImages] = useState<string[]>([]);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [selectedImagePreviews, setSelectedImagePreviews] = useState<string[]>([]);
-  
+
   const [formData, setFormData] = useState<BlogFormData>({
     title: "",
     description: "",
@@ -130,7 +130,7 @@ export default function AdminBlog() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.title.trim() || !formData.description.trim()) {
       toast.error("Please fill in all required fields");
       return;
@@ -138,9 +138,10 @@ export default function AdminBlog() {
 
     try {
       setIsLoading(true);
-      
+
       if (isEditMode && editingBlogId) {
-        const totalImages = selectedImages.length > 0 ? selectedImages.length : existingImages.length;
+        const totalImages =
+          selectedImages.length > 0 ? selectedImages.length : existingImages.length;
         if (totalImages < 1) {
           toast.error("Please provide at least one image for the blog post.");
           return;
@@ -174,7 +175,7 @@ export default function AdminBlog() {
         });
         toast.success("Blog created successfully!");
       }
-      
+
       setIsFormOpen(false);
       resetForm();
       await fetchBlogs();
@@ -211,9 +212,10 @@ export default function AdminBlog() {
     }
   };
 
-  const filteredBlogs = blogs.filter(blog =>
-    blog.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    blog.description.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredBlogs = blogs.filter(
+    (blog) =>
+      blog.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      blog.description.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const formatDate = (dateString: string) => {
@@ -231,7 +233,7 @@ export default function AdminBlog() {
           <h2 className="text-3xl font-bold text-slate-800 tracking-tight">Blog Content</h2>
           <p className="text-slate-500 mt-1">Publish health tips and medicinal news.</p>
         </div>
-        <button 
+        <button
           onClick={() => {
             resetForm();
             setIsFormOpen(true);
@@ -246,9 +248,9 @@ export default function AdminBlog() {
       {/* Search Bar */}
       <div className="relative">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-        <input 
-          type="text" 
-          placeholder="Search blogs..." 
+        <input
+          type="text"
+          placeholder="Search blogs..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all"
@@ -279,7 +281,11 @@ export default function AdminBlog() {
                 >
                   <div className="h-64 relative overflow-hidden bg-slate-100">
                     {blog.images && blog.images.length > 0 ? (
-                      <img src={blog.images[0]} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={blog.title} />
+                      <img
+                        src={blog.images[0]}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                        alt={blog.title}
+                      />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
                         <ImageIcon className="h-12 w-12 text-slate-300" />
@@ -287,7 +293,7 @@ export default function AdminBlog() {
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
                       <div className="flex gap-2 w-full">
-                        <a 
+                        <a
                           href={`/blog/${blog._id}`}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -296,7 +302,7 @@ export default function AdminBlog() {
                           <Eye className="h-4 w-4" />
                           Preview
                         </a>
-                        <button 
+                        <button
                           onClick={() => handleDelete(blog._id)}
                           className="p-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl transition-all"
                         >
@@ -319,11 +325,9 @@ export default function AdminBlog() {
                     <h3 className="text-xl font-bold text-slate-800 group-hover:text-primary transition-colors line-clamp-2 leading-relaxed mb-2">
                       {blog.title}
                     </h3>
-                    <p className="text-sm text-slate-600 line-clamp-2 mb-6">
-                      {blog.description}
-                    </p>
+                    <p className="text-sm text-slate-600 line-clamp-2 mb-6">{blog.description}</p>
                     <div className="mt-auto pt-6 border-t border-slate-50 flex items-center justify-between">
-                      <button 
+                      <button
                         onClick={() => handleEdit(blog)}
                         className="text-sm font-bold text-slate-600 hover:text-primary transition-colors flex items-center gap-2"
                       >
@@ -349,7 +353,7 @@ export default function AdminBlog() {
       <AnimatePresence>
         {isFormOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -370,7 +374,7 @@ export default function AdminBlog() {
                   <h3 className="text-3xl font-bold text-slate-800 tracking-tight">
                     {isEditMode ? "Edit Blog Post" : "Create New Post"}
                   </h3>
-                  <button 
+                  <button
                     onClick={() => {
                       setIsFormOpen(false);
                       resetForm();
@@ -383,26 +387,37 @@ export default function AdminBlog() {
 
                 <form onSubmit={handleSubmit} className="space-y-10">
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Post Title</label>
-                    <input 
-                      type="text" 
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">
+                      Post Title
+                    </label>
+                    <input
+                      type="text"
                       value={formData.title}
-                      onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                      className="w-full bg-slate-50 border-transparent rounded-[1.5rem] py-5 px-6 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all text-xl font-bold" 
-                      placeholder="Enter a catchy title..." 
+                      onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
+                      className="w-full bg-slate-50 border-transparent rounded-[1.5rem] py-5 px-6 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all text-xl font-bold"
+                      placeholder="Enter a catchy title..."
                       disabled={isLoading}
                     />
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-10">
                     <div className="space-y-4">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Blog Images</label>
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">
+                        Blog Images
+                      </label>
                       <label className="aspect-video bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2rem] flex flex-col items-center justify-center gap-4 group hover:bg-primary/5 hover:border-primary transition-all cursor-pointer">
                         {selectedImagePreviews.length > 0 ? (
                           <div className="grid grid-cols-2 gap-3 w-full h-full p-3 overflow-hidden">
                             {selectedImagePreviews.map((preview, index) => (
-                              <div key={preview} className="relative rounded-[1.85rem] overflow-hidden border border-slate-200 h-full group/thumb">
-                                <img src={preview} alt={`Selected image ${index + 1}`} className="w-full h-full object-cover" />
+                              <div
+                                key={preview}
+                                className="relative rounded-[1.85rem] overflow-hidden border border-slate-200 h-full group/thumb"
+                              >
+                                <img
+                                  src={preview}
+                                  alt={`Selected image ${index + 1}`}
+                                  className="w-full h-full object-cover"
+                                />
                                 <div className="absolute inset-0 bg-slate-900/60 flex items-center justify-center gap-2 opacity-0 group-hover/thumb:opacity-100 transition-opacity">
                                   <button
                                     type="button"
@@ -439,13 +454,17 @@ export default function AdminBlog() {
                               <ImageIcon className="h-8 w-8 text-slate-400 group-hover:text-primary transition-colors" />
                             </div>
                             <div className="text-center">
-                              <p className="text-sm font-bold text-slate-600">Click to upload images</p>
-                              <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-widest">You can select multiple images</p>
+                              <p className="text-sm font-bold text-slate-600">
+                                Click to upload images
+                              </p>
+                              <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-widest">
+                                You can select multiple images
+                              </p>
                             </div>
                           </>
                         )}
-                        <input 
-                          type="file" 
+                        <input
+                          type="file"
                           accept="image/*"
                           multiple
                           onChange={handleImageChange}
@@ -457,11 +476,20 @@ export default function AdminBlog() {
 
                     {existingImages.length > 0 && (
                       <div className="space-y-4">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Existing Images</label>
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">
+                          Existing Images
+                        </label>
                         <div className="grid grid-cols-2 gap-3">
                           {existingImages.map((image, index) => (
-                            <div key={`${image}-${index}`} className="rounded-[1.85rem] overflow-hidden border border-slate-200 h-32">
-                              <img src={image} alt={`Existing blog image ${index + 1}`} className="w-full h-full object-cover" />
+                            <div
+                              key={`${image}-${index}`}
+                              className="rounded-[1.85rem] overflow-hidden border border-slate-200 h-32"
+                            >
+                              <img
+                                src={image}
+                                alt={`Existing blog image ${index + 1}`}
+                                className="w-full h-full object-cover"
+                              />
                             </div>
                           ))}
                         </div>
@@ -470,10 +498,14 @@ export default function AdminBlog() {
                   </div>
 
                   <div className="space-y-4">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Post Content</label>
-                    <textarea 
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">
+                      Post Content
+                    </label>
+                    <textarea
                       value={formData.description}
-                      onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                      onChange={(e) =>
+                        setFormData((prev) => ({ ...prev, description: e.target.value }))
+                      }
                       className="w-full min-h-[300px] bg-slate-50 rounded-[2rem] p-8 border border-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all resize-none font-medium text-slate-700"
                       placeholder="Write your blog content here..."
                       disabled={isLoading}
@@ -481,7 +513,7 @@ export default function AdminBlog() {
                   </div>
 
                   <div className="flex gap-4 pt-4">
-                    <button 
+                    <button
                       type="button"
                       onClick={() => {
                         setIsFormOpen(false);
@@ -492,7 +524,7 @@ export default function AdminBlog() {
                     >
                       Discard Draft
                     </button>
-                    <button 
+                    <button
                       type="submit"
                       className="flex-1 bg-primary hover:bg-primary-glow text-white font-bold py-5 rounded-2xl shadow-xl shadow-primary/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                       disabled={isLoading}
@@ -521,7 +553,7 @@ export default function AdminBlog() {
         {croppingFile && (
           <ImageCropper
             file={croppingFile}
-            aspectRatio={16/9}
+            aspectRatio={16 / 9}
             onClose={() => {
               setCroppingFile(null);
               setCroppingIndex(null);

@@ -24,7 +24,6 @@ import TermsConditionsPage from "./routes/terms-and-conditions";
 import ReturnsPolicyPage from "./routes/returns-policy";
 import OrderDetailsPage from "./routes/orders.$id";
 
-
 // Dashboard
 import { DashboardLayout } from "./components/dashboard/DashboardLayout";
 import DashboardIndex from "./routes/dashboard/index";
@@ -62,7 +61,10 @@ function NotFound() {
         <p className="mt-2 text-sm text-muted-foreground">
           The page you're looking for doesn't exist.
         </p>
-        <Link to="/" className="mt-6 inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+        <Link
+          to="/"
+          className="mt-6 inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+        >
           Back home
         </Link>
       </div>
@@ -75,53 +77,52 @@ export default function App() {
     <AuthProvider>
       <CartProvider>
         <BrowserRouter>
-        <Routes>
-          <Route element={<Layout />}>
-            <Route path="/" element={<Index />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/about-us" element={<AboutUsPage />} />
-            <Route path="/blog" element={<BlogPage />} />
-            <Route path="/blog/:id" element={<BlogDetailsPage />} />
-            <Route path="/checkout" element={<CheckoutPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/partner" element={<PartnerPage />} />
-            <Route path="/signup" element={<SignupPage />} />
-            <Route path="/shipping-policy" element={<ShippingPolicyPage />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-            <Route path="/terms-and-conditions" element={<TermsConditionsPage />} />
-            <Route path="/returns-policy" element={<ReturnsPolicyPage />} />
+          <Routes>
+            <Route element={<Layout />}>
+              <Route path="/" element={<Index />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/about-us" element={<AboutUsPage />} />
+              <Route path="/blog" element={<BlogPage />} />
+              <Route path="/blog/:id" element={<BlogDetailsPage />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
+              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/partner" element={<PartnerPage />} />
+              <Route path="/signup" element={<SignupPage />} />
+              <Route path="/shipping-policy" element={<ShippingPolicyPage />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+              <Route path="/terms-and-conditions" element={<TermsConditionsPage />} />
+              <Route path="/returns-policy" element={<ReturnsPolicyPage />} />
 
-            
-            <Route path="/orders/:id" element={<OrderDetailsPage />} />
+              <Route path="/orders/:id" element={<OrderDetailsPage />} />
 
-            <Route path="/products" element={<ProductsLayout />}>
-              <Route index element={<ProductsPage />} />
-              <Route path=":id" element={<ProductDetailsPage />} />
+              <Route path="/products" element={<ProductsLayout />}>
+                <Route index element={<ProductsPage />} />
+                <Route path=":id" element={<ProductDetailsPage />} />
+              </Route>
+
+              <Route path="/dashboard" element={<DashboardLayout />}>
+                <Route index element={<DashboardIndex />} />
+                <Route path="cart" element={<DashboardCart />} />
+                <Route path="orders" element={<DashboardOrders />} />
+                <Route path="address" element={<DashboardAddress />} />
+              </Route>
+
+              <Route path="*" element={<NotFound />} />
             </Route>
 
-            <Route path="/dashboard" element={<DashboardLayout />}>
-              <Route index element={<DashboardIndex />} />
-              <Route path="cart" element={<DashboardCart />} />
-              <Route path="orders" element={<DashboardOrders />} />
-              <Route path="address" element={<DashboardAddress />} />
+            {/* Admin Panel */}
+            <Route path="/admin" element={<AdminLogin />} />
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route path="dashboard" element={<AdminDashboard />} />
+              <Route path="category" element={<AdminCategories />} />
+              <Route path="products" element={<AdminProducts />} />
+              <Route path="orders" element={<AdminOrders />} />
+              <Route path="blog" element={<AdminBlog />} />
             </Route>
-
-            <Route path="*" element={<NotFound />} />
-          </Route>
-
-          {/* Admin Panel */}
-          <Route path="/admin" element={<AdminLogin />} />
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route path="dashboard" element={<AdminDashboard />} />
-            <Route path="category" element={<AdminCategories />} />
-            <Route path="products" element={<AdminProducts />} />
-            <Route path="orders" element={<AdminOrders />} />
-            <Route path="blog" element={<AdminBlog />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </CartProvider>
-  </AuthProvider>
-);
+          </Routes>
+        </BrowserRouter>
+      </CartProvider>
+    </AuthProvider>
+  );
 }

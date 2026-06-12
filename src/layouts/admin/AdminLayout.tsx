@@ -62,7 +62,7 @@ export function AdminLayout() {
         {/* Header */}
         <header className="h-20 bg-white border-b border-slate-200 sticky top-0 z-40 flex items-center px-6 lg:px-10 justify-between gap-6">
           <div className="flex items-center gap-4">
-            <button 
+            <button
               onClick={() => setIsMobileOpen(true)}
               className="lg:hidden p-2 hover:bg-slate-100 rounded-xl transition-colors"
             >
@@ -74,9 +74,9 @@ export function AdminLayout() {
           {/* Search Bar - Desktop */}
           <div className="hidden md:flex flex-1 max-w-md relative group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
-            <input 
-              type="text" 
-              placeholder="Search anything..." 
+            <input
+              type="text"
+              placeholder="Search anything..."
               className="w-full bg-slate-100 border-transparent rounded-2xl py-2.5 pl-11 pr-4 text-sm focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all"
             />
           </div>
@@ -90,8 +90,12 @@ export function AdminLayout() {
             <div className="h-8 w-px bg-slate-200 mx-1" />
             <div className="flex items-center gap-3 pl-2 group cursor-pointer">
               <div className="text-right hidden sm:block">
-                <p className="text-sm font-bold text-slate-800 group-hover:text-primary transition-colors leading-tight">Admin User</p>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Super Admin</p>
+                <p className="text-sm font-bold text-slate-800 group-hover:text-primary transition-colors leading-tight">
+                  Admin User
+                </p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                  Super Admin
+                </p>
               </div>
               <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-primary to-primary-glow p-0.5 shadow-lg group-hover:scale-105 transition-transform">
                 <div className="h-full w-full rounded-[0.875rem] bg-white flex items-center justify-center overflow-hidden">

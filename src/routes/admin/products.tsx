@@ -1,26 +1,16 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Plus, 
-  Search, 
-  Edit3, 
-  Trash2, 
-  Upload, 
-  X, 
-  Check,
-  ChevronDown,
-  Crop
-} from "lucide-react";
+import { Plus, Search, Edit3, Trash2, Upload, X, Check, ChevronDown, Crop } from "lucide-react";
 import { toast } from "sonner";
-import { 
-  getAllProducts, 
-  createProduct, 
-  updateProduct, 
-  deleteProduct, 
-  getAllCategories, 
+import {
+  getAllProducts,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+  getAllCategories,
   createCategory,
-  Product, 
-  Category 
+  Product,
+  Category,
 } from "@/lib/api";
 import ImageCropper from "@/components/admin/ImageCropper";
 
@@ -31,7 +21,7 @@ export default function AdminProducts() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  
+
   // Editing state
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
@@ -48,12 +38,12 @@ export default function AdminProducts() {
   const [benefits, setBenefits] = useState("");
   const [usage, setUsage] = useState("");
   const [ingredients, setIngredients] = useState("");
-  
+
   // Image Upload / Preview States
   const [images, setImages] = useState<string[]>([]); // New uploads previews (ObjectURLs)
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]); // New uploads files
   const [existingImages, setExistingImages] = useState<string[]>([]); // Pre-existing image URLs
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Quick Add Category State
@@ -105,13 +95,10 @@ export default function AdminProducts() {
   const fetchInventoryData = async () => {
     setLoading(true);
     try {
-      const [prodsList, catsList] = await Promise.all([
-        getAllProducts(),
-        getAllCategories(),
-      ]);
+      const [prodsList, catsList] = await Promise.all([getAllProducts(), getAllCategories()]);
       setProducts(prodsList);
       setCategories(catsList);
-      
+
       // Default category for add form
       if (catsList.length > 0 && !category) {
         setCategory(catsList[0]._id);
@@ -132,20 +119,20 @@ export default function AdminProducts() {
     if (files) {
       const fileList = Array.from(files);
       const currentTotal = existingImages.length + uploadedFiles.length;
-      
+
       if (currentTotal + fileList.length > 5) {
         toast.error("You can upload a maximum of 5 images total.");
         const allowedCount = 5 - currentTotal;
         if (allowedCount <= 0) return;
         const allowedFiles = fileList.slice(0, allowedCount);
         setUploadedFiles([...uploadedFiles, ...allowedFiles]);
-        
-        const newPreviews = allowedFiles.map(file => URL.createObjectURL(file));
+
+        const newPreviews = allowedFiles.map((file) => URL.createObjectURL(file));
         setImages([...images, ...newPreviews]);
         toast.success(`Added ${allowedFiles.length} images (capped at 5 total)`);
       } else {
         setUploadedFiles([...uploadedFiles, ...fileList]);
-        const newPreviews = fileList.map(file => URL.createObjectURL(file));
+        const newPreviews = fileList.map((file) => URL.createObjectURL(file));
         setImages([...images, ...newPreviews]);
         toast.success(`${files.length} images added`);
       }
@@ -177,7 +164,7 @@ export default function AdminProducts() {
     setBasePrice(p.basePrice);
     setSellPrice(p.sellPrice);
     setGst(p.gst ?? 10);
-    setCategory(typeof p.category === "object" && p.category ? p.category._id : (p.category || ""));
+    setCategory(typeof p.category === "object" && p.category ? p.category._id : p.category || "");
     setColor(p.color ?? "");
     setSize(p.size ?? "");
     setStock(p.stock ?? 0);
@@ -272,7 +259,7 @@ export default function AdminProducts() {
   };
 
   // Filters logic
-  const filteredProducts = products.filter(p => {
+  const filteredProducts = products.filter((p) => {
     const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
     const catId = typeof p.category === "object" && p.category ? p.category._id : p.category;
     const matchesCategory = selectedCategory === "All" || catId === selectedCategory;
@@ -291,30 +278,32 @@ export default function AdminProducts() {
         <div className="flex flex-wrap items-center gap-4 w-full xl:w-auto">
           <div className="flex-1 min-w-[280px] relative group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
-            <input 
-              type="text" 
-              placeholder="Search products by name..." 
+            <input
+              type="text"
+              placeholder="Search products by name..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-white border border-slate-200 rounded-2xl py-3 pl-11 pr-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all"
             />
           </div>
-          
+
           <div className="relative group min-w-[180px]">
-            <select 
+            <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
               className="w-full bg-white border border-slate-200 rounded-2xl py-3 px-5 text-sm appearance-none focus:ring-2 focus:ring-primary/20 transition-all font-medium pr-10"
             >
               <option value="All">All Categories</option>
               {categories.map((cat) => (
-                <option key={cat._id} value={cat._id}>{cat.name}</option>
+                <option key={cat._id} value={cat._id}>
+                  {cat.name}
+                </option>
               ))}
             </select>
             <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none group-focus-within:rotate-180 transition-transform" />
           </div>
 
-          <button 
+          <button
             onClick={handleAddClick}
             className="bg-primary hover:bg-primary-glow text-white px-8 py-3.5 rounded-2xl font-bold shadow-lg shadow-primary/20 transition-all flex items-center gap-2 group ml-auto sm:ml-0"
           >
@@ -332,7 +321,10 @@ export default function AdminProducts() {
       ) : filteredProducts.length === 0 ? (
         <div className="h-96 bg-white border border-slate-100 rounded-[2.5rem] flex flex-col items-center justify-center text-center p-8">
           <p className="text-slate-400 text-lg font-medium">No products found in this inventory.</p>
-          <button onClick={handleAddClick} className="mt-4 text-primary font-bold hover:underline flex items-center gap-2">
+          <button
+            onClick={handleAddClick}
+            className="mt-4 text-primary font-bold hover:underline flex items-center gap-2"
+          >
             <Plus className="h-4 w-4" /> Add your first product
           </button>
         </div>
@@ -352,13 +344,16 @@ export default function AdminProducts() {
               >
                 {/* Product Image */}
                 <div className="aspect-square rounded-[1.75rem] overflow-hidden mb-6 relative bg-slate-50">
-                  <img 
-                    src={p.images?.[0] || "https://images.unsplash.com/photo-1611073103901-09605d8f6cc9?auto=format&fit=crop&q=80&w=300"} 
-                    alt={p.name} 
+                  <img
+                    src={
+                      p.images?.[0] ||
+                      "https://images.unsplash.com/photo-1611073103901-09605d8f6cc9?auto=format&fit=crop&q=80&w=300"
+                    }
+                    alt={p.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   />
                   <div className="absolute top-4 right-4 flex gap-2">
-                    <button 
+                    <button
                       onClick={() => handleDelete(p._id)}
                       className="p-2.5 bg-white/90 backdrop-blur-sm text-rose-500 rounded-xl shadow-lg hover:bg-rose-500 hover:text-white transition-all transform translate-y-[-120%] group-hover:translate-y-0 duration-300"
                     >
@@ -366,18 +361,24 @@ export default function AdminProducts() {
                     </button>
                   </div>
                   <div className="absolute bottom-4 left-4">
-                     <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${p.isPaused ? 'bg-amber-500 text-white' : 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'}`}>
-                      {p.isPaused ? 'Paused' : 'Active'}
-                     </span>
+                    <span
+                      className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${p.isPaused ? "bg-amber-500 text-white" : "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20"}`}
+                    >
+                      {p.isPaused ? "Paused" : "Active"}
+                    </span>
                   </div>
                 </div>
 
                 {/* Product Info */}
                 <div className="space-y-3 px-1">
                   <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">
-                    {typeof p.category === "object" && p.category ? p.category.name : "Uncategorized"}
+                    {typeof p.category === "object" && p.category
+                      ? p.category.name
+                      : "Uncategorized"}
                   </p>
-                  <h3 className="text-lg font-bold text-slate-800 line-clamp-1 group-hover:text-primary transition-colors">{p.name}</h3>
+                  <h3 className="text-lg font-bold text-slate-800 line-clamp-1 group-hover:text-primary transition-colors">
+                    {p.name}
+                  </h3>
                   <div className="flex items-center gap-1.5 text-xs font-semibold mt-1">
                     {p.stock !== undefined && p.stock > 0 ? (
                       <span className="text-emerald-600 flex items-center gap-1">
@@ -389,13 +390,13 @@ export default function AdminProducts() {
                       </span>
                     )}
                   </div>
-                  
+
                   <div className="flex items-center justify-between pt-2">
                     <div className="flex items-baseline gap-2">
                       <span className="text-xl font-bold text-slate-800">₹{p.sellPrice}</span>
                       <span className="text-sm text-slate-400 line-through">₹{p.basePrice}</span>
                     </div>
-                    <button 
+                    <button
                       onClick={() => handleEditClick(p)}
                       className="p-2.5 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-slate-800 transition-colors"
                     >
@@ -413,7 +414,7 @@ export default function AdminProducts() {
       <AnimatePresence>
         {isFormOpen && (
           <div className="fixed inset-0 z-[100] flex justify-end">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -434,10 +435,12 @@ export default function AdminProducts() {
                       {editingProduct ? "Edit Product" : "New Product"}
                     </h3>
                     <p className="text-slate-500 mt-1">
-                      {editingProduct ? "Modify the product details below." : "Fill in the details to add a new item."}
+                      {editingProduct
+                        ? "Modify the product details below."
+                        : "Fill in the details to add a new item."}
                     </p>
                   </div>
-                  <button 
+                  <button
                     onClick={() => setIsFormOpen(false)}
                     className="p-3 hover:bg-slate-100 rounded-2xl transition-colors border border-slate-100"
                   >
@@ -447,22 +450,28 @@ export default function AdminProducts() {
 
                 <form className="space-y-8" onSubmit={handleSubmit}>
                   <div className="space-y-4">
-                    <h4 className="text-sm font-bold text-slate-800 uppercase tracking-widest border-b pb-2">Product Information</h4>
+                    <h4 className="text-sm font-bold text-slate-800 uppercase tracking-widest border-b pb-2">
+                      Product Information
+                    </h4>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                       <div className="space-y-2">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Product Name *</label>
-                        <input 
-                          type="text" 
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">
+                          Product Name *
+                        </label>
+                        <input
+                          type="text"
                           required
                           value={name}
                           onChange={(e) => setName(e.target.value)}
-                          className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium" 
-                          placeholder="Amoxicillin..." 
+                          className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium"
+                          placeholder="Amoxicillin..."
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Category *</label>
-                        <select 
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">
+                          Category *
+                        </label>
+                        <select
                           required
                           value={category}
                           onChange={(e) => {
@@ -478,22 +487,28 @@ export default function AdminProducts() {
                         >
                           <option value="">Select Category</option>
                           {categories.map((cat) => (
-                            <option key={cat._id} value={cat._id}>{cat.name}</option>
+                            <option key={cat._id} value={cat._id}>
+                              {cat.name}
+                            </option>
                           ))}
-                          <option value="ADD_NEW" className="text-primary font-bold">+ Add New Category</option>
+                          <option value="ADD_NEW" className="text-primary font-bold">
+                            + Add New Category
+                          </option>
                         </select>
 
                         {showQuickAddCategory && (
-                          <motion.div 
-                            initial={{ opacity: 0, y: -10 }} 
-                            animate={{ opacity: 1, y: 0 }} 
+                          <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
                             className="mt-3 p-4 bg-slate-50 border border-slate-100 rounded-2xl space-y-3"
                           >
-                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Create New Category</p>
+                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                              Create New Category
+                            </p>
                             <div className="flex gap-2">
-                              <input 
-                                type="text" 
-                                placeholder="Category name..." 
+                              <input
+                                type="text"
+                                placeholder="Category name..."
                                 value={newCategoryName}
                                 onChange={(e) => setNewCategoryName(e.target.value)}
                                 className="flex-1 bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 transition-all"
@@ -521,15 +536,17 @@ export default function AdminProducts() {
                         )}
                       </div>
                       <div className="space-y-2">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Stock *</label>
-                        <input 
-                          type="number" 
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">
+                          Stock *
+                        </label>
+                        <input
+                          type="number"
                           required
                           min="0"
                           value={stock}
                           onChange={(e) => setStock(Number(e.target.value))}
-                          className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium" 
-                          placeholder="e.g. 250" 
+                          className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium"
+                          placeholder="e.g. 250"
                         />
                       </div>
                     </div>
@@ -537,38 +554,46 @@ export default function AdminProducts() {
 
                   {/* Pricing */}
                   <div className="space-y-4">
-                    <h4 className="text-sm font-bold text-slate-800 uppercase tracking-widest border-b pb-2">Pricing</h4>
+                    <h4 className="text-sm font-bold text-slate-800 uppercase tracking-widest border-b pb-2">
+                      Pricing
+                    </h4>
                     <div className="grid grid-cols-3 gap-6">
                       <div className="space-y-2">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Base Price *</label>
-                        <input 
-                          type="number" 
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">
+                          Base Price *
+                        </label>
+                        <input
+                          type="number"
                           required
                           value={basePrice}
                           onChange={(e) => setBasePrice(Number(e.target.value))}
-                          className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium" 
-                          placeholder="₹" 
+                          className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium"
+                          placeholder="₹"
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Sell Price *</label>
-                        <input 
-                          type="number" 
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">
+                          Sell Price *
+                        </label>
+                        <input
+                          type="number"
                           required
                           value={sellPrice}
                           onChange={(e) => setSellPrice(Number(e.target.value))}
-                          className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium" 
-                          placeholder="₹" 
+                          className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium"
+                          placeholder="₹"
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">GST %</label>
-                        <input 
-                          type="number" 
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">
+                          GST %
+                        </label>
+                        <input
+                          type="number"
                           value={gst}
                           onChange={(e) => setGst(Number(e.target.value))}
-                          className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium" 
-                          placeholder="10%" 
+                          className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium"
+                          placeholder="10%"
                         />
                       </div>
                     </div>
@@ -576,42 +601,52 @@ export default function AdminProducts() {
 
                   {/* Product Details */}
                   <div className="space-y-4">
-                    <h4 className="text-sm font-bold text-slate-800 uppercase tracking-widest border-b pb-2">Product Details</h4>
+                    <h4 className="text-sm font-bold text-slate-800 uppercase tracking-widest border-b pb-2">
+                      Product Details
+                    </h4>
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Description</label>
-                        <textarea 
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">
+                          Description
+                        </label>
+                        <textarea
                           value={description}
                           onChange={(e) => setDescription(e.target.value)}
-                          className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium h-24 resize-none" 
+                          className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium h-24 resize-none"
                           placeholder="Tell us about the product..."
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Benefits</label>
-                        <textarea 
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">
+                          Benefits
+                        </label>
+                        <textarea
                           value={benefits}
                           onChange={(e) => setBenefits(e.target.value)}
-                          className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium h-24 resize-none" 
+                          className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium h-24 resize-none"
                           placeholder="e.g. Boosts immune system, Promotes skin elasticity..."
                         />
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div className="space-y-2">
-                          <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Usage</label>
-                          <textarea 
+                          <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">
+                            Usage
+                          </label>
+                          <textarea
                             value={usage}
                             onChange={(e) => setUsage(e.target.value)}
-                            className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium h-24 resize-none" 
+                            className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium h-24 resize-none"
                             placeholder="e.g. Take 1-2 capsules daily with a meal..."
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Ingredients</label>
-                          <textarea 
+                          <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">
+                            Ingredients
+                          </label>
+                          <textarea
                             value={ingredients}
                             onChange={(e) => setIngredients(e.target.value)}
-                            className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium h-24 resize-none" 
+                            className="w-full bg-slate-50 border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all font-medium h-24 resize-none"
                             placeholder="e.g. Pure Sea Buckthorn Oil Extract..."
                           />
                         </div>
@@ -621,27 +656,45 @@ export default function AdminProducts() {
 
                   {/* Image Upload */}
                   <div className="space-y-4">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Product Images</label>
-                    <div 
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">
+                      Product Images
+                    </label>
+                    <div
                       onClick={() => fileInputRef.current?.click()}
                       className="border-2 border-dashed border-slate-200 rounded-[2.5rem] p-12 text-center hover:border-primary hover:bg-primary/5 transition-all cursor-pointer group"
                     >
-                      <input type="file" multiple hidden ref={fileInputRef} onChange={handleImageUpload} accept="image/*" />
+                      <input
+                        type="file"
+                        multiple
+                        hidden
+                        ref={fileInputRef}
+                        onChange={handleImageUpload}
+                        accept="image/*"
+                      />
                       <div className="bg-slate-100 p-4 rounded-2xl w-fit mx-auto group-hover:bg-primary/10 transition-colors">
                         <Upload className="h-8 w-8 text-slate-400 group-hover:text-primary transition-colors" />
                       </div>
-                      <p className="mt-4 text-sm font-bold text-slate-600">Drag & drop or <span className="text-primary">browse files</span></p>
-                      <p className="text-xs text-slate-400 mt-1">Support JPG, PNG, WEBP (Max 5MB)</p>
+                      <p className="mt-4 text-sm font-bold text-slate-600">
+                        Drag & drop or <span className="text-primary">browse files</span>
+                      </p>
+                      <p className="text-xs text-slate-400 mt-1">
+                        Support JPG, PNG, WEBP (Max 5MB)
+                      </p>
                     </div>
 
                     <div className="flex flex-wrap gap-4 mt-4">
                       {/* Pre-existing Images */}
                       {existingImages.map((img, i) => (
-                        <div key={`existing-${i}`} className="relative w-24 h-24 rounded-2xl overflow-hidden group border border-slate-100 bg-slate-50">
+                        <div
+                          key={`existing-${i}`}
+                          className="relative w-24 h-24 rounded-2xl overflow-hidden group border border-slate-100 bg-slate-50"
+                        >
                           <img src={img} className="w-full h-full object-cover" />
-                          <button 
+                          <button
                             type="button"
-                            onClick={() => setExistingImages(existingImages.filter((_, idx) => idx !== i))}
+                            onClick={() =>
+                              setExistingImages(existingImages.filter((_, idx) => idx !== i))
+                            }
                             className="absolute inset-0 bg-rose-500/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                           >
                             <Trash2 className="h-5 w-5" />
@@ -651,7 +704,10 @@ export default function AdminProducts() {
 
                       {/* New Uploads Preview */}
                       {images.map((img, i) => (
-                        <div key={`new-${i}`} className="relative w-24 h-24 rounded-2xl overflow-hidden group border border-slate-100 bg-slate-50">
+                        <div
+                          key={`new-${i}`}
+                          className="relative w-24 h-24 rounded-2xl overflow-hidden group border border-slate-100 bg-slate-50"
+                        >
                           <img src={img} className="w-full h-full object-cover" />
                           <div className="absolute inset-0 bg-slate-900/60 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button
@@ -680,15 +736,15 @@ export default function AdminProducts() {
                   </div>
 
                   <div className="pt-6 flex gap-4">
-                    <button 
-                      type="button" 
-                      onClick={() => setIsFormOpen(false)} 
+                    <button
+                      type="button"
+                      onClick={() => setIsFormOpen(false)}
                       className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-5 rounded-2xl transition-all"
                     >
                       Discard
                     </button>
-                    <button 
-                      type="submit" 
+                    <button
+                      type="submit"
                       className="flex-1 bg-primary hover:bg-primary-glow text-white font-bold py-5 rounded-2xl shadow-xl shadow-primary/20 transition-all flex items-center justify-center gap-2"
                     >
                       <Check className="h-5 w-5" />

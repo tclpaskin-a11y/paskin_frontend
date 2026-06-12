@@ -19,7 +19,10 @@ export function Categories() {
             Nature's pharmacy, beautifully organized.
           </h2>
         </div>
-        <a href="/products" className="hidden md:inline-block text-sm font-medium text-primary hover:underline underline-offset-4">
+        <a
+          href="/products"
+          className="hidden md:inline-block text-sm font-medium text-primary hover:underline underline-offset-4"
+        >
           View all →
         </a>
       </div>
@@ -32,7 +35,9 @@ export function Categories() {
             className="group relative flex flex-col items-center justify-center text-center p-6 rounded-2xl bg-card border border-border hover-lift overflow-hidden"
             style={{ animationDelay: `${i * 60}ms` }}
           >
-            <div className={`absolute inset-0 bg-gradient-to-br ${hue} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+            <div
+              className={`absolute inset-0 bg-gradient-to-br ${hue} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
+            />
             <div className="relative grid place-items-center h-14 w-14 rounded-full bg-secondary group-hover:bg-primary group-hover:text-primary-foreground transition-colors mb-4">
               <Icon className="h-6 w-6" />
             </div>

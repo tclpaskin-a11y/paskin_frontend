@@ -12,13 +12,16 @@ export function Footer() {
       <div className="container mx-auto px-6 py-16 grid gap-12 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
         <div className="lg:col-span-2 max-w-sm">
           <div className="flex items-center gap-2 mb-4">
-            <Link to="/" className="bg-white px-3 py-2 rounded-xl inline-block transition-transform hover:scale-105 active:scale-95 shadow-sm hover:shadow-md">
+            <Link
+              to="/"
+              className="bg-white px-3 py-2 rounded-xl inline-block transition-transform hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
+            >
               <img src={logo} alt="PASKIN" className="h-8 w-auto" />
             </Link>
           </div>
           <p className="text-sm text-background/70 leading-relaxed">
-            Pure herbal wellness rooted in the wisdom of Ayurveda. Crafted with
-            care, certified organic, and trusted by thousands.
+            Pure herbal wellness rooted in the wisdom of Ayurveda. Crafted with care, certified
+            organic, and trusted by thousands.
           </p>
           <div className="flex items-center gap-3 mt-6">
             {[
@@ -42,9 +45,7 @@ export function Footer() {
         </div>
 
         <div>
-          <h4 className="text-sm font-semibold uppercase tracking-wider mb-4">
-            Shop
-          </h4>
+          <h4 className="text-sm font-semibold uppercase tracking-wider mb-4">Shop</h4>
           <ul className="space-y-2.5 text-sm text-background/70">
             {[
               { to: "/", label: "Home" },
@@ -63,9 +64,7 @@ export function Footer() {
         </div>
 
         <div>
-          <h4 className="text-sm font-semibold uppercase tracking-wider mb-4">
-            Support
-          </h4>
+          <h4 className="text-sm font-semibold uppercase tracking-wider mb-4">Support</h4>
           <ul className="space-y-2.5 text-sm text-background/70">
             {[
               { to: "/shipping-policy", label: "Shipping Policy" },
@@ -83,9 +82,7 @@ export function Footer() {
         </div>
 
         <div>
-          <h4 className="text-sm font-semibold uppercase tracking-wider mb-4">
-            Newsletter
-          </h4>
+          <h4 className="text-sm font-semibold uppercase tracking-wider mb-4">Newsletter</h4>
           <p className="text-sm text-background/70 mb-4">
             Get herbal wellness tips & 10% off your first order.
           </p>

@@ -38,9 +38,7 @@ export function Features() {
               <div className="mb-4 h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary transition-transform duration-500 group-hover:scale-110">
                 <feature.icon className="h-6 w-6" />
               </div>
-              <h3 className="font-display text-lg font-bold text-primary mb-3">
-                {feature.title}
-              </h3>
+              <h3 className="font-display text-lg font-bold text-primary mb-3">{feature.title}</h3>
               <p className="text-sm text-muted-foreground leading-relaxed max-w-[200px]">
                 {feature.description}
               </p>

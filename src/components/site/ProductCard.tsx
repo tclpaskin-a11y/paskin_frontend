@@ -49,7 +49,7 @@ export function ProductCard({ product }: { product: Product }) {
 
         {product.stock === 0 ? (
           <div className="absolute inset-x-4 bottom-4 z-10">
-            <button 
+            <button
               disabled
               className="w-full inline-flex items-center justify-center gap-2 bg-slate-100 text-slate-400 py-3 rounded-2xl text-xs font-bold cursor-not-allowed border border-slate-200"
             >
@@ -58,7 +58,7 @@ export function ProductCard({ product }: { product: Product }) {
           </div>
         ) : (
           <div className="absolute inset-x-4 bottom-4 flex flex-col gap-2 opacity-100 translate-y-0 lg:opacity-0 lg:translate-y-4 lg:group-hover:opacity-100 lg:group-hover:translate-y-0 transition-all z-10">
-            <button 
+            <button
               onClick={(e) => {
                 e.preventDefault();
                 addToCart(product);
@@ -68,8 +68,8 @@ export function ProductCard({ product }: { product: Product }) {
               <ShoppingBag className="h-3.5 w-3.5" />
               Add to Bag
             </button>
-            <Link 
-              to="/checkout" 
+            <Link
+              to="/checkout"
               onClick={(e) => {
                 e.stopPropagation();
                 addToCart(product);
@@ -95,7 +95,7 @@ export function ProductCard({ product }: { product: Product }) {
             <span className="text-[10px] font-bold">{product.rating}</span>
           </div>
         </div>
-        
+
         <Link to={`/products/${product.id}`} className="block mb-3">
           <h3 className="font-display text-lg font-bold leading-tight hover:text-primary transition-colors line-clamp-1">
             {product.name}

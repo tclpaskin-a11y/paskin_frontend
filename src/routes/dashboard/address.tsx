@@ -1,14 +1,5 @@
 import { useState, useEffect } from "react";
-import { 
-  MapPin, 
-  Plus, 
-  Edit2, 
-  Trash2, 
-  Home, 
-  Briefcase, 
-  Globe,
-  Loader
-} from "lucide-react";
+import { MapPin, Plus, Edit2, Trash2, Home, Briefcase, Globe, Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -149,9 +140,12 @@ export default function DashboardAddress() {
 
   const getAddressIcon = (type: string) => {
     switch (type) {
-      case "home": return Home;
-      case "work": return Briefcase;
-      default: return MapPin;
+      case "home":
+        return Home;
+      case "work":
+        return Briefcase;
+      default:
+        return MapPin;
     }
   };
 
@@ -163,10 +157,13 @@ export default function DashboardAddress() {
           <p className="text-muted-foreground mt-1">Manage your shipping and billing addresses.</p>
         </div>
 
-        <Dialog open={isAddModalOpen} onOpenChange={(open) => {
-          setIsAddModalOpen(open);
-          if (!open) resetForm();
-        }}>
+        <Dialog
+          open={isAddModalOpen}
+          onOpenChange={(open) => {
+            setIsAddModalOpen(open);
+            if (!open) resetForm();
+          }}
+        >
           <DialogTrigger asChild>
             <Button className="w-full sm:w-auto rounded-full gap-2 shadow-lg hover:shadow-primary/20 transition-all px-6">
               <Plus className="h-4 w-4" />
@@ -181,53 +178,80 @@ export default function DashboardAddress() {
             </DialogHeader>
             <div className="px-8 py-8 space-y-6 bg-white">
               <div className="space-y-2">
-                <Label htmlFor="fullAddress" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Full Address</Label>
-                <Input 
-                  id="fullAddress" 
-                  value={formData.fullAddress} 
+                <Label
+                  htmlFor="fullAddress"
+                  className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1"
+                >
+                  Full Address
+                </Label>
+                <Input
+                  id="fullAddress"
+                  value={formData.fullAddress}
                   onChange={handleInputChange}
-                  placeholder="e.g. 123 Street, Area" 
-                  className="rounded-2xl h-14 border-slate-200 focus:border-primary focus:ring-primary/20 bg-slate-50/50" 
+                  placeholder="e.g. 123 Street, Area"
+                  className="rounded-2xl h-14 border-slate-200 focus:border-primary focus:ring-primary/20 bg-slate-50/50"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="city" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">City</Label>
-                  <Input 
-                    id="city" 
-                    value={formData.city} 
+                  <Label
+                    htmlFor="city"
+                    className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1"
+                  >
+                    City
+                  </Label>
+                  <Input
+                    id="city"
+                    value={formData.city}
                     onChange={handleInputChange}
-                    placeholder="Delhi" 
-                    className="rounded-2xl h-14 border-slate-200 focus:border-primary focus:ring-primary/20 bg-slate-50/50" 
+                    placeholder="Delhi"
+                    className="rounded-2xl h-14 border-slate-200 focus:border-primary focus:ring-primary/20 bg-slate-50/50"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="pincode" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Pincode</Label>
-                  <Input 
-                    id="pincode" 
-                    value={formData.pincode} 
+                  <Label
+                    htmlFor="pincode"
+                    className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1"
+                  >
+                    Pincode
+                  </Label>
+                  <Input
+                    id="pincode"
+                    value={formData.pincode}
                     onChange={handleInputChange}
-                    placeholder="110001" 
-                    className="rounded-2xl h-14 border-slate-200 focus:border-primary focus:ring-primary/20 bg-slate-50/50" 
+                    placeholder="110001"
+                    className="rounded-2xl h-14 border-slate-200 focus:border-primary focus:ring-primary/20 bg-slate-50/50"
                   />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="country" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Country</Label>
-                <Input 
-                  id="country" 
-                  value={formData.country} 
+                <Label
+                  htmlFor="country"
+                  className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1"
+                >
+                  Country
+                </Label>
+                <Input
+                  id="country"
+                  value={formData.country}
                   onChange={handleInputChange}
-                  placeholder="India" 
-                  className="rounded-2xl h-14 border-slate-200 focus:border-primary focus:ring-primary/20 bg-slate-50/50" 
+                  placeholder="India"
+                  className="rounded-2xl h-14 border-slate-200 focus:border-primary focus:ring-primary/20 bg-slate-50/50"
                 />
               </div>
             </div>
             <div className="px-8 pb-10 flex flex-col gap-3 bg-white">
-              <Button onClick={handleSaveAddress} className="rounded-2xl h-14 text-base font-bold bg-primary hover:bg-primary-glow shadow-lg shadow-primary/20">
+              <Button
+                onClick={handleSaveAddress}
+                className="rounded-2xl h-14 text-base font-bold bg-primary hover:bg-primary-glow shadow-lg shadow-primary/20"
+              >
                 Save Address
               </Button>
-              <Button variant="ghost" onClick={() => setIsAddModalOpen(false)} className="rounded-2xl h-14 text-sm font-bold text-muted-foreground hover:bg-slate-50">
+              <Button
+                variant="ghost"
+                onClick={() => setIsAddModalOpen(false)}
+                className="rounded-2xl h-14 text-sm font-bold text-muted-foreground hover:bg-slate-50"
+              >
                 Cancel
               </Button>
             </div>
@@ -260,19 +284,19 @@ export default function DashboardAddress() {
                           <Icon className="h-6 w-6" />
                         </div>
                         <div className="flex gap-2">
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={() => openEditModal(address)}
                             className="h-10 w-10 rounded-full hover:bg-slate-50 text-muted-foreground hover:text-foreground"
                           >
                             <Edit2 className="h-4 w-4" />
                           </Button>
-                          
+
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
-                              <Button 
-                                variant="ghost" 
+                              <Button
+                                variant="ghost"
                                 size="icon"
                                 className="h-10 w-10 rounded-full hover:bg-destructive/5 text-muted-foreground hover:text-destructive"
                               >
@@ -288,7 +312,7 @@ export default function DashboardAddress() {
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                 <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
-                                <AlertDialogAction 
+                                <AlertDialogAction
                                   onClick={() => handleDeleteAddress(address.id)}
                                   className="rounded-xl bg-destructive hover:bg-destructive/90"
                                 >
@@ -302,16 +326,22 @@ export default function DashboardAddress() {
 
                       <div className="space-y-4">
                         <div>
-                          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Address</p>
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
+                            Address
+                          </p>
                           <p className="font-medium text-foreground">{address.fullAddress}</p>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">City</p>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
+                              City
+                            </p>
                             <p className="text-sm font-medium">{address.city}</p>
                           </div>
                           <div>
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Pincode</p>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
+                              Pincode
+                            </p>
                             <p className="text-sm font-medium">{address.pincode}</p>
                           </div>
                         </div>
@@ -330,7 +360,9 @@ export default function DashboardAddress() {
           {addresses.length === 0 && (
             <div className="col-span-full py-20 text-center bg-white rounded-3xl border-2 border-dashed border-slate-100">
               <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-4 stroke-1 opacity-20" />
-              <p className="text-muted-foreground font-medium">No saved addresses. Add one to get started!</p>
+              <p className="text-muted-foreground font-medium">
+                No saved addresses. Add one to get started!
+              </p>
             </div>
           )}
         </div>

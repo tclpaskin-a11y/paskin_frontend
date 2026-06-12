@@ -96,12 +96,16 @@ export default function AdminLogin() {
               </div>
             </Link>
             <h1 className="text-3xl font-bold text-white tracking-tight">Admin Portal</h1>
-            <p className="text-slate-400 mt-2">Enter your credentials to access the command center.</p>
+            <p className="text-slate-400 mt-2">
+              Enter your credentials to access the command center.
+            </p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Admin Email</label>
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">
+                Admin Email
+              </label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-primary transition-colors">
                   <Mail className="h-5 w-5" />
@@ -119,8 +123,12 @@ export default function AdminLogin() {
 
             <div className="space-y-2">
               <div className="flex justify-between items-center px-1">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Password</label>
-                <button type="button" className="text-xs text-primary hover:underline font-bold">Forgot?</button>
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                  Password
+                </label>
+                <button type="button" className="text-xs text-primary hover:underline font-bold">
+                  Forgot?
+                </button>
               </div>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-primary transition-colors">

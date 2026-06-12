@@ -15,6 +15,7 @@ The `accessToken` is stored in `localStorage` with the key `accessToken` after s
 ## API Endpoints
 
 ### Base URL
+
 ```
 https://api.paskin.co.in/api
 ```
@@ -24,6 +25,7 @@ https://api.paskin.co.in/api
 ## 1. Authentication Endpoints (No Bearer Token Required)
 
 ### Login
+
 - **Method**: POST
 - **Endpoint**: `/auth/login`
 - **Body**:
@@ -44,6 +46,7 @@ https://api.paskin.co.in/api
   ```
 
 ### Signup
+
 - **Method**: POST
 - **Endpoint**: `/auth/signup`
 - **Body**:
@@ -57,6 +60,7 @@ https://api.paskin.co.in/api
   ```
 
 ### Logout
+
 - **Method**: POST
 - **Endpoint**: `/auth/logout`
 - **Body**: `{ "refreshToken": "token" }`
@@ -66,6 +70,7 @@ https://api.paskin.co.in/api
 ## 2. Blog Endpoints (Bearer Token Required)
 
 ### Get All Blogs
+
 - **Method**: GET
 - **Endpoint**: `/admin/blogs`
 - **Headers**: `Authorization: Bearer <token>`
@@ -89,6 +94,7 @@ https://api.paskin.co.in/api
   ```
 
 ### Create Blog (POST)
+
 - **Method**: POST
 - **Endpoint**: `/admin/blogs`
 - **Headers**: `Authorization: Bearer <token>`
@@ -117,6 +123,7 @@ https://api.paskin.co.in/api
   ```
 
 ### Update Blog (PUT)
+
 - **Method**: PUT
 - **Endpoint**: `/admin/blogs/{blogId}`
 - **Headers**: `Authorization: Bearer <token>`
@@ -124,6 +131,7 @@ https://api.paskin.co.in/api
 - **Response**: Updated blog object
 
 ### Delete Blog (DELETE)
+
 - **Method**: DELETE
 - **Endpoint**: `/admin/blogs/{blogId}`
 - **Headers**: `Authorization: Bearer <token>`
@@ -133,16 +141,19 @@ https://api.paskin.co.in/api
 ## 3. Product Endpoints (Bearer Token Required)
 
 ### Get All Products
+
 - **Method**: GET
 - **Endpoint**: `/admin/products`
 - **Headers**: `Authorization: Bearer <token>`
 
 ### Get Single Product
+
 - **Method**: GET
 - **Endpoint**: `/admin/products/{productId}`
 - **Headers**: `Authorization: Bearer <token>`
 
 ### Create Product (POST)
+
 - **Method**: POST
 - **Endpoint**: `/admin/products`
 - **Headers**: `Authorization: Bearer <token>`
@@ -158,12 +169,14 @@ https://api.paskin.co.in/api
   ```
 
 ### Update Product (PUT)
+
 - **Method**: PUT
 - **Endpoint**: `/admin/products/{productId}`
 - **Headers**: `Authorization: Bearer <token>`
 - **Body**: FormData (same as create)
 
 ### Delete Product (DELETE)
+
 - **Method**: DELETE
 - **Endpoint**: `/admin/products/{productId}`
 - **Headers**: `Authorization: Bearer <token>`
@@ -173,16 +186,19 @@ https://api.paskin.co.in/api
 ## 4. Category Endpoints (Bearer Token Required)
 
 ### Get All Categories
+
 - **Method**: GET
 - **Endpoint**: `/admin/categories`
 - **Headers**: `Authorization: Bearer <token>`
 
 ### Get Single Category
+
 - **Method**: GET
 - **Endpoint**: `/admin/categories/{categoryId}`
 - **Headers**: `Authorization: Bearer <token>`
 
 ### Create Category (POST)
+
 - **Method**: POST
 - **Endpoint**: `/admin/categories`
 - **Headers**: `Authorization: Bearer <token>`
@@ -195,12 +211,14 @@ https://api.paskin.co.in/api
   ```
 
 ### Update Category (PUT)
+
 - **Method**: PUT
 - **Endpoint**: `/admin/categories/{categoryId}`
 - **Headers**: `Authorization: Bearer <token>`
 - **Body**: FormData (same as create)
 
 ### Delete Category (DELETE)
+
 - **Method**: DELETE
 - **Endpoint**: `/admin/categories/{categoryId}`
 - **Headers**: `Authorization: Bearer <token>`
@@ -210,21 +228,25 @@ https://api.paskin.co.in/api
 ## 5. Order Endpoints (Bearer Token Required)
 
 ### Get All Orders (Admin)
+
 - **Method**: GET
 - **Endpoint**: `/admin/orders`
 - **Headers**: `Authorization: Bearer <token>`
 
 ### Get User Orders
+
 - **Method**: GET
 - **Endpoint**: `/orders`
 - **Headers**: `Authorization: Bearer <token>`
 
 ### Get Single Order
+
 - **Method**: GET
 - **Endpoint**: `/admin/orders/{orderId}` or `/orders/{orderId}`
 - **Headers**: `Authorization: Bearer <token>`
 
 ### Update Order Status (PUT)
+
 - **Method**: PUT
 - **Endpoint**: `/admin/orders/{orderId}`
 - **Headers**: `Authorization: Bearer <token>`
@@ -237,6 +259,7 @@ https://api.paskin.co.in/api
   ```
 
 ### Delete Order (DELETE)
+
 - **Method**: DELETE
 - **Endpoint**: `/admin/orders/{orderId}`
 - **Headers**: `Authorization: Bearer <token>`
@@ -246,11 +269,13 @@ https://api.paskin.co.in/api
 ## 6. Profile Endpoints (Bearer Token Required)
 
 ### Get Current User Profile
+
 - **Method**: GET
 - **Endpoint**: `/profile`
 - **Headers**: `Authorization: Bearer <token>`
 
 ### Update User Profile (PUT)
+
 - **Method**: PUT
 - **Endpoint**: `/profile`
 - **Headers**: `Authorization: Bearer <token>`
@@ -264,6 +289,7 @@ https://api.paskin.co.in/api
   ```
 
 ### Change Password (POST)
+
 - **Method**: POST
 - **Endpoint**: `/profile/change-password`
 - **Headers**: `Authorization: Bearer <token>`
@@ -276,6 +302,7 @@ https://api.paskin.co.in/api
   ```
 
 ### Add Address (POST)
+
 - **Method**: POST
 - **Endpoint**: `/profile/addresses`
 - **Headers**: `Authorization: Bearer <token>`
@@ -291,12 +318,14 @@ https://api.paskin.co.in/api
   ```
 
 ### Update Address (PUT)
+
 - **Method**: PUT
 - **Endpoint**: `/profile/addresses/{addressId}`
 - **Headers**: `Authorization: Bearer <token>`
 - **Body**: Same as add address
 
 ### Delete Address (DELETE)
+
 - **Method**: DELETE
 - **Endpoint**: `/profile/addresses/{addressId}`
 - **Headers**: `Authorization: Bearer <token>`
@@ -306,11 +335,13 @@ https://api.paskin.co.in/api
 ## 7. Cart Endpoints (Bearer Token Required)
 
 ### Get Cart
+
 - **Method**: GET
 - **Endpoint**: `/cart`
 - **Headers**: `Authorization: Bearer <token>`
 
 ### Add To Cart (POST)
+
 - **Method**: POST
 - **Endpoint**: `/cart/items`
 - **Headers**: `Authorization: Bearer <token>`
@@ -323,6 +354,7 @@ https://api.paskin.co.in/api
   ```
 
 ### Update Cart Item (PUT)
+
 - **Method**: PUT
 - **Endpoint**: `/cart/items/{productId}`
 - **Headers**: `Authorization: Bearer <token>`
@@ -334,11 +366,13 @@ https://api.paskin.co.in/api
   ```
 
 ### Remove From Cart (DELETE)
+
 - **Method**: DELETE
 - **Endpoint**: `/cart/items/{productId}`
 - **Headers**: `Authorization: Bearer <token>`
 
 ### Clear Cart (DELETE)
+
 - **Method**: DELETE
 - **Endpoint**: `/cart`
 - **Headers**: `Authorization: Bearer <token>`
@@ -355,7 +389,7 @@ const newBlog = await createBlog({
   title: "My Blog",
   description: "Content here",
   media: fileObject,
-  isPublished: true
+  isPublished: true,
 });
 
 // Get all blogs
@@ -388,6 +422,7 @@ If you receive a 401 Unauthorized error, the token has expired. Use the refresh 
 
 **Endpoint**: POST `/auth/refresh-token`
 **Body**:
+
 ```json
 {
   "refreshToken": "refreshToken"

@@ -1,14 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Plus, 
-  Search, 
-  Trash2, 
-  Layers,
-  X,
-  AlertCircle,
-  Loader2
-} from "lucide-react";
+import { Plus, Search, Trash2, Layers, X, AlertCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 const API_BASE_URL = "https://api.paskin.co.in/api";
@@ -107,7 +99,7 @@ export default function AdminCategories() {
     setSubmitting(true);
     try {
       const newCategory = await addCategory(categoryName.trim());
-      setCategories(prev => [...prev, newCategory]);
+      setCategories((prev) => [...prev, newCategory]);
       toast.success("Category added successfully");
       closeModal();
     } catch (error: any) {
@@ -129,15 +121,15 @@ export default function AdminCategories() {
 
     try {
       await deleteCategory(id);
-      setCategories(prev => prev.filter(c => c._id !== id));
+      setCategories((prev) => prev.filter((c) => c._id !== id));
       toast.success("Category deleted successfully");
     } catch (error: any) {
       toast.error(error.message || "Failed to delete category");
     }
   };
 
-  const filteredCategories = categories.filter(c => 
-    c.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredCategories = categories.filter((c) =>
+    c.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   if (loading) {
@@ -156,7 +148,7 @@ export default function AdminCategories() {
           <h2 className="text-3xl font-bold text-slate-800 tracking-tight">Category Management</h2>
           <p className="text-slate-500 mt-1">Organize your products into logical sections.</p>
         </div>
-        <button 
+        <button
           onClick={() => setIsModalOpen(true)}
           className="bg-primary hover:bg-primary-glow text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-primary/20 transition-all flex items-center gap-2 group"
         >
@@ -169,9 +161,9 @@ export default function AdminCategories() {
         <div className="p-8 border-b border-slate-50 bg-slate-50/30">
           <div className="max-w-md relative group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
-            <input 
-              type="text" 
-              placeholder="Search categories..." 
+            <input
+              type="text"
+              placeholder="Search categories..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-white border border-slate-200 rounded-2xl py-3 pl-11 pr-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all"
@@ -191,7 +183,7 @@ export default function AdminCategories() {
             <tbody className="divide-y divide-slate-50">
               <AnimatePresence mode="popLayout">
                 {filteredCategories.map((cat) => (
-                  <motion.tr 
+                  <motion.tr
                     key={cat._id}
                     layout
                     initial={{ opacity: 0 }}
@@ -214,7 +206,7 @@ export default function AdminCategories() {
                     </td>
                     <td className="px-8 py-6 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <button 
+                        <button
                           onClick={() => handleDelete(cat._id)}
                           className="p-2.5 hover:bg-rose-50 text-slate-400 hover:text-rose-500 rounded-xl transition-all"
                         >
@@ -230,7 +222,9 @@ export default function AdminCategories() {
           {filteredCategories.length === 0 && (
             <div className="py-20 text-center">
               <AlertCircle className="h-12 w-12 text-slate-200 mx-auto mb-4" />
-              <p className="text-slate-400 font-medium">No categories found matching your search.</p>
+              <p className="text-slate-400 font-medium">
+                No categories found matching your search.
+              </p>
             </div>
           )}
         </div>
@@ -240,7 +234,7 @@ export default function AdminCategories() {
       <AnimatePresence>
         {isModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -255,21 +249,24 @@ export default function AdminCategories() {
             >
               <div className="p-8 sm:p-10">
                 <div className="flex items-center justify-between mb-8">
-                  <h3 className="text-2xl font-bold text-slate-800">
-                    Add New Category
-                  </h3>
-                  <button onClick={closeModal} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                  <h3 className="text-2xl font-bold text-slate-800">Add New Category</h3>
+                  <button
+                    onClick={closeModal}
+                    className="p-2 hover:bg-slate-100 rounded-full transition-colors"
+                  >
                     <X className="h-6 w-6 text-slate-400" />
                   </button>
                 </div>
 
                 <div className="space-y-6">
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Category Name</label>
-                    <input 
-                      type="text" 
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">
+                      Category Name
+                    </label>
+                    <input
+                      type="text"
                       autoFocus
-                      placeholder="e.g. Antibiotics" 
+                      placeholder="e.g. Antibiotics"
                       value={categoryName}
                       onChange={(e) => setCategoryName(e.target.value)}
                       className="w-full bg-slate-50 border border-transparent rounded-2xl py-4 px-5 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all text-lg font-medium"
@@ -277,14 +274,14 @@ export default function AdminCategories() {
                   </div>
 
                   <div className="pt-4 flex gap-4">
-                    <button 
+                    <button
                       onClick={closeModal}
                       disabled={submitting}
                       className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-4 rounded-2xl transition-all disabled:opacity-50"
                     >
                       Cancel
                     </button>
-                    <button 
+                    <button
                       onClick={handleSave}
                       disabled={submitting || !categoryName.trim()}
                       className="flex-1 bg-primary hover:bg-primary-glow text-white font-bold py-4 rounded-2xl shadow-lg shadow-primary/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2"

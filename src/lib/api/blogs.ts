@@ -13,12 +13,14 @@ export interface Blog {
   title: string;
   description: string;
   images?: string[];
-  createdBy: string | {
-    _id: string;
-    name: string;
-    email: string;
-    role: string;
-  };
+  createdBy:
+    | string
+    | {
+        _id: string;
+        name: string;
+        email: string;
+        role: string;
+      };
   isPublished: boolean;
   createdAt: string;
   updatedAt: string;
@@ -37,7 +39,7 @@ export async function createBlog(data: BlogData): Promise<Blog> {
   const formData = new FormData();
   formData.append("title", data.title);
   formData.append("description", data.description);
-  
+
   if (data.media) {
     if (Array.isArray(data.media)) {
       data.media.forEach((file) => formData.append("media", file));
@@ -45,14 +47,14 @@ export async function createBlog(data: BlogData): Promise<Blog> {
       formData.append("media", data.media);
     }
   }
-  
+
   if (data.isPublished !== undefined) {
     formData.append("isPublished", String(data.isPublished));
   }
 
   const token = getAccessToken();
   const headers: HeadersInit = {};
-  
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -68,7 +70,7 @@ export async function createBlog(data: BlogData): Promise<Blog> {
     throw new Error(errorData.message || "Failed to create blog");
   }
 
-  const result = await response.json() as BlogResponse;
+  const result = (await response.json()) as BlogResponse;
   if (result.success) {
     if (result.data && !Array.isArray(result.data)) {
       return result.data;
@@ -86,7 +88,7 @@ export async function getAllBlogs(): Promise<Blog[]> {
   const headers: HeadersInit = {
     "Content-Type": "application/json",
   };
-  
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -101,7 +103,7 @@ export async function getAllBlogs(): Promise<Blog[]> {
     throw new Error(errorData.message || "Failed to fetch blogs");
   }
 
-  const result = await response.json() as BlogResponse;
+  const result = (await response.json()) as BlogResponse;
   if (result.success) {
     if (result.data && Array.isArray(result.data)) {
       return result.data;
@@ -118,7 +120,7 @@ export async function updateBlog(blogId: string, data: BlogData): Promise<Blog> 
   const formData = new FormData();
   formData.append("title", data.title);
   formData.append("description", data.description);
-  
+
   if (data.media) {
     if (Array.isArray(data.media)) {
       data.media.forEach((file) => formData.append("media", file));
@@ -126,14 +128,14 @@ export async function updateBlog(blogId: string, data: BlogData): Promise<Blog> 
       formData.append("media", data.media);
     }
   }
-  
+
   if (data.isPublished !== undefined) {
     formData.append("isPublished", String(data.isPublished));
   }
 
   const token = getAccessToken();
   const headers: HeadersInit = {};
-  
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -149,7 +151,7 @@ export async function updateBlog(blogId: string, data: BlogData): Promise<Blog> 
     throw new Error(errorData.message || "Failed to update blog");
   }
 
-  const result = await response.json() as BlogResponse;
+  const result = (await response.json()) as BlogResponse;
   if (result.success) {
     if (result.data && !Array.isArray(result.data)) {
       return result.data;
@@ -167,7 +169,7 @@ export async function deleteBlog(blogId: string): Promise<void> {
   const headers: HeadersInit = {
     "Content-Type": "application/json",
   };
-  
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -195,7 +197,7 @@ export async function getPublicBlogs(): Promise<Blog[]> {
     });
 
     if (response.ok) {
-      const result = await response.json() as BlogResponse;
+      const result = (await response.json()) as BlogResponse;
       if (result.success) {
         if (result.blog && Array.isArray(result.blog)) {
           apiBlogs = result.blog;
@@ -211,7 +213,7 @@ export async function getPublicBlogs(): Promise<Blog[]> {
   // Merge apiBlogs and fallbackBlogs (by _id to prevent duplicates)
   const merged = [...apiBlogs];
   for (const fb of fallbackBlogs) {
-    if (!merged.some(b => b._id === fb._id)) {
+    if (!merged.some((b) => b._id === fb._id)) {
       merged.unshift(fb as any);
     }
   }
@@ -221,7 +223,7 @@ export async function getPublicBlogs(): Promise<Blog[]> {
 // Get single public blog (GET)
 export async function getPublicBlog(blogId: string): Promise<Blog> {
   if (blogId === "6a227afceb0607fc889f622c") {
-    const fb = fallbackBlogs.find(b => b._id === blogId);
+    const fb = fallbackBlogs.find((b) => b._id === blogId);
     if (fb) return fb as any;
   }
 
@@ -234,7 +236,7 @@ export async function getPublicBlog(blogId: string): Promise<Blog> {
     });
 
     if (response.ok) {
-      const result = await response.json() as BlogResponse;
+      const result = (await response.json()) as BlogResponse;
       if (result.success) {
         if (result.blog && !Array.isArray(result.blog)) {
           return result.blog;
@@ -248,9 +250,8 @@ export async function getPublicBlog(blogId: string): Promise<Blog> {
     console.error(`Failed to fetch public blog ${blogId} from API, checking fallbacks:`, error);
   }
 
-  const fb = fallbackBlogs.find(b => b._id === blogId);
+  const fb = fallbackBlogs.find((b) => b._id === blogId);
   if (fb) return fb as any;
 
   throw new Error("Failed to fetch blog details");
 }
-

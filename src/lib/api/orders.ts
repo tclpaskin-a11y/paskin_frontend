@@ -29,7 +29,7 @@ export async function getAllOrders(): Promise<Order[]> {
   const headers: HeadersInit = {
     "Content-Type": "application/json",
   };
-  
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -44,7 +44,7 @@ export async function getAllOrders(): Promise<Order[]> {
     throw new Error(errorData.message || "Failed to fetch orders");
   }
 
-  const result = await response.json() as any;
+  const result = (await response.json()) as any;
   if (result.success) {
     if (result.data && Array.isArray(result.data)) {
       return result.data;
@@ -62,7 +62,7 @@ export async function getPendingOrders(): Promise<Order[]> {
   const headers: HeadersInit = {
     "Content-Type": "application/json",
   };
-  
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -77,7 +77,7 @@ export async function getPendingOrders(): Promise<Order[]> {
     throw new Error(errorData.message || "Failed to fetch pending orders");
   }
 
-  const result = await response.json() as any;
+  const result = (await response.json()) as any;
   if (result.success) {
     if (result.data && Array.isArray(result.data)) {
       return result.data;
@@ -95,7 +95,7 @@ export async function getOrder(orderId: string): Promise<Order> {
   const headers: HeadersInit = {
     "Content-Type": "application/json",
   };
-  
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -110,7 +110,7 @@ export async function getOrder(orderId: string): Promise<Order> {
     throw new Error(errorData.message || "Failed to fetch order");
   }
 
-  const result = await response.json() as OrderResponse;
+  const result = (await response.json()) as OrderResponse;
   if (result.success && result.order) {
     return result.order;
   }
@@ -121,13 +121,13 @@ export async function getOrder(orderId: string): Promise<Order> {
 export async function updateOrderStatus(
   orderId: string,
   status: string,
-  trackingNumber?: string
+  trackingNumber?: string,
 ): Promise<any> {
   const token = getAccessToken();
   const headers: HeadersInit = {
     "Content-Type": "application/json",
   };
-  
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -149,7 +149,7 @@ export async function updateOrderStatus(
     throw new Error(errorData.message || "Failed to update order status");
   }
 
-  const result = await response.json() as any;
+  const result = (await response.json()) as any;
   if (result.success) {
     if (result.data && !Array.isArray(result.data)) {
       return result.data;
@@ -167,7 +167,7 @@ export async function deleteOrder(orderId: string): Promise<void> {
   const headers: HeadersInit = {
     "Content-Type": "application/json",
   };
-  
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -189,7 +189,7 @@ export async function getUserOrders(): Promise<any[]> {
   const headers: HeadersInit = {
     "Content-Type": "application/json",
   };
-  
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -204,7 +204,7 @@ export async function getUserOrders(): Promise<any[]> {
     throw new Error(errorData.message || "Failed to fetch orders");
   }
 
-  const result = await response.json() as any;
+  const result = (await response.json()) as any;
   if (result.success) {
     return result.data || result.orders || [];
   }
@@ -217,7 +217,7 @@ export async function getUserOrder(orderId: string): Promise<any> {
   const headers: HeadersInit = {
     "Content-Type": "application/json",
   };
-  
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -232,7 +232,7 @@ export async function getUserOrder(orderId: string): Promise<any> {
     throw new Error(errorData.message || "Failed to fetch order details");
   }
 
-  const result = await response.json() as any;
+  const result = (await response.json()) as any;
   if (result.success) {
     return result.data || result.order || result;
   }
@@ -248,12 +248,15 @@ export async function createOrder(data: {
   };
   addressId: string;
   paymentMethod: string;
+  razorpayPaymentId?: string;
+  razorpayOrderId?: string;
+  razorpaySignature?: string;
 }): Promise<any> {
   const token = getAccessToken();
   const headers: HeadersInit = {
     "Content-Type": "application/json",
   };
-  
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -269,7 +272,7 @@ export async function createOrder(data: {
     throw new Error(errorData.message || "Failed to place order");
   }
 
-  const result = await response.json() as any;
+  const result = (await response.json()) as any;
   if (result.success) {
     return result.data || result.order || result;
   }

@@ -1,6 +1,18 @@
 import { useEffect } from "react";
 import { motion } from "framer-motion";
-import { FileText, CheckCircle, AlertCircle, CreditCard, Truck, RefreshCcw, ShieldAlert, Gavel, Lock, Info, UserCheck } from "lucide-react";
+import {
+  FileText,
+  CheckCircle,
+  AlertCircle,
+  CreditCard,
+  Truck,
+  RefreshCcw,
+  ShieldAlert,
+  Gavel,
+  Lock,
+  Info,
+  UserCheck,
+} from "lucide-react";
 
 export default function TermsConditionsPage() {
   useEffect(() => {
@@ -11,7 +23,7 @@ export default function TermsConditionsPage() {
   const fadeIn = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.6 }
+    transition: { duration: 0.6 },
   };
 
   const sections = [
@@ -20,7 +32,9 @@ export default function TermsConditionsPage() {
       icon: CheckCircle,
       content: (
         <p className="text-muted-foreground leading-relaxed">
-          By accessing, purchasing from, or otherwise using the services of Paskin Medicine Supplier, the customer agrees to be bound by the following Terms and Conditions. If you do not agree to these terms, please do not proceed with any transaction.
+          By accessing, purchasing from, or otherwise using the services of Paskin Medicine
+          Supplier, the customer agrees to be bound by the following Terms and Conditions. If you do
+          not agree to these terms, please do not proceed with any transaction.
         </p>
       ),
     },
@@ -31,7 +45,9 @@ export default function TermsConditionsPage() {
         <div className="p-6 rounded-2xl bg-amber-50 border border-amber-100 flex gap-4">
           <AlertCircle className="h-6 w-6 text-amber-600 shrink-0" />
           <p className="text-amber-900/80 text-sm leading-relaxed">
-            You must be at least <span className="font-bold">18 years of age</span> and legally authorized to purchase pharmaceutical products in your country or region. Orders will only be processed upon verification of all applicable licenses.
+            You must be at least <span className="font-bold">18 years of age</span> and legally
+            authorized to purchase pharmaceutical products in your country or region. Orders will
+            only be processed upon verification of all applicable licenses.
           </p>
         </div>
       ),
@@ -41,7 +57,8 @@ export default function TermsConditionsPage() {
       icon: Info,
       content: (
         <p className="text-muted-foreground leading-relaxed">
-          All products listed are subject to availability. We reserve the right to substitute, discontinue, or limit the quantities of any products at any time without prior notice.
+          All products listed are subject to availability. We reserve the right to substitute,
+          discontinue, or limit the quantities of any products at any time without prior notice.
         </p>
       ),
     },
@@ -53,7 +70,7 @@ export default function TermsConditionsPage() {
           {[
             "Prices are subject to change without prior notice.",
             "All prices are exclusive of applicable taxes, shipping, and handling charges unless otherwise stated.",
-            "Full payment is required before dispatch unless prior credit arrangements have been made in writing."
+            "Full payment is required before dispatch unless prior credit arrangements have been made in writing.",
           ].map((text, i) => (
             <li key={i} className="flex gap-3 text-muted-foreground">
               <span className="text-primary font-bold">{i + 1}.</span>
@@ -71,10 +88,12 @@ export default function TermsConditionsPage() {
           {[
             { label: "Placement", text: "Via email, phone, or authorized channels." },
             { label: "Timelines", text: "Estimates only; not guaranteed." },
-            { label: "Risk", text: "Passes to you upon delivery." }
+            { label: "Risk", text: "Passes to you upon delivery." },
           ].map((item, i) => (
             <div key={i} className="p-4 rounded-xl border border-border">
-              <span className="text-xs font-bold uppercase tracking-widest text-primary block mb-1">{item.label}</span>
+              <span className="text-xs font-bold uppercase tracking-widest text-primary block mb-1">
+                {item.label}
+              </span>
               <p className="text-sm text-muted-foreground">{item.text}</p>
             </div>
           ))}
@@ -86,9 +105,13 @@ export default function TermsConditionsPage() {
       icon: RefreshCcw,
       content: (
         <div className="space-y-4 text-muted-foreground">
-          <p>Returns accepted for damaged or incorrect products reported within <span className="text-foreground font-medium">3 working days</span>.</p>
+          <p>
+            Returns accepted for damaged or incorrect products reported within{" "}
+            <span className="text-foreground font-medium">3 working days</span>.
+          </p>
           <div className="p-4 rounded-xl bg-red-50 border border-red-100 text-red-900/70 text-sm italic">
-            No returns for temperature-sensitive, opened, or prescription-only medications unless faulty.
+            No returns for temperature-sensitive, opened, or prescription-only medications unless
+            faulty.
           </div>
         </div>
       ),
@@ -98,7 +121,8 @@ export default function TermsConditionsPage() {
       icon: ShieldAlert,
       content: (
         <p className="text-muted-foreground leading-relaxed italic">
-          "Our liability is strictly limited to the purchase price of the products supplied. We are not liable for any indirect, incidental, or consequential damages."
+          "Our liability is strictly limited to the purchase price of the products supplied. We are
+          not liable for any indirect, incidental, or consequential damages."
         </p>
       ),
     },
@@ -107,22 +131,23 @@ export default function TermsConditionsPage() {
       icon: Gavel,
       content: (
         <p className="text-muted-foreground leading-relaxed">
-          These Terms and Conditions shall be governed by and interpreted in accordance with the laws of <span className="text-foreground font-medium">India</span>. Any disputes arising shall be subject to the exclusive jurisdiction of the courts of <span className="text-foreground font-medium">New Delhi</span>.
+          These Terms and Conditions shall be governed by and interpreted in accordance with the
+          laws of <span className="text-foreground font-medium">India</span>. Any disputes arising
+          shall be subject to the exclusive jurisdiction of the courts of{" "}
+          <span className="text-foreground font-medium">New Delhi</span>.
         </p>
       ),
     },
   ];
-
-
 
   return (
     <div className="bg-white min-h-screen selection:bg-primary/20">
       {/* Luxury Hero Section */}
       <section className="relative pt-32 pb-24 overflow-hidden">
         <div className="absolute top-0 right-0 w-[100%] aspect-square bg-gradient-to-l from-primary/5 via-transparent to-transparent rounded-full -translate-y-1/2 translate-x-1/4 blur-3xl opacity-50" />
-        
+
         <div className="container mx-auto px-6 relative z-10">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8 }}
@@ -136,7 +161,8 @@ export default function TermsConditionsPage() {
               Terms & <span className="italic font-light text-primary">Conditions</span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed font-light">
-              Ensuring transparency and trust in every transaction. Please read these terms carefully before engaging with our services.
+              Ensuring transparency and trust in every transaction. Please read these terms
+              carefully before engaging with our services.
             </p>
           </motion.div>
         </div>
@@ -148,7 +174,7 @@ export default function TermsConditionsPage() {
           <div className="max-w-5xl mx-auto">
             <div className="grid md:grid-cols-2 gap-8">
               {sections.map((section, index) => (
-                <motion.div 
+                <motion.div
                   key={index}
                   initial="initial"
                   whileInView="animate"
@@ -159,12 +185,8 @@ export default function TermsConditionsPage() {
                   <div className="inline-flex p-3 rounded-xl bg-slate-50 text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-colors duration-500 w-fit">
                     <section.icon className="h-5 w-5" />
                   </div>
-                  <h2 className="text-xl font-bold text-foreground mb-4">
-                    {section.title}
-                  </h2>
-                  <div className="flex-1">
-                    {section.content}
-                  </div>
+                  <h2 className="text-xl font-bold text-foreground mb-4">{section.title}</h2>
+                  <div className="flex-1">{section.content}</div>
                 </motion.div>
               ))}
             </div>
@@ -175,14 +197,16 @@ export default function TermsConditionsPage() {
       {/* Governing Law CTA */}
       <section className="py-24 bg-slate-50 border-y border-border">
         <div className="container mx-auto px-6 text-center max-w-3xl space-y-8">
-           <Gavel className="h-12 w-12 text-primary mx-auto opacity-20" />
-           <h2 className="font-display text-4xl font-medium">Compliance & Ethics</h2>
-           <p className="text-muted-foreground leading-relaxed">
-             Paskin Medicine Supplier operates under strict regulatory guidelines to ensure the safety and efficacy of all pharmaceutical products. By continuing, you acknowledge our commitment to these standards.
-           </p>
-           <button className="px-12 py-5 rounded-full bg-foreground text-background font-bold hover:bg-foreground/90 transition shadow-xl">
-             Download PDF Version
-           </button>
+          <Gavel className="h-12 w-12 text-primary mx-auto opacity-20" />
+          <h2 className="font-display text-4xl font-medium">Compliance & Ethics</h2>
+          <p className="text-muted-foreground leading-relaxed">
+            Paskin Medicine Supplier operates under strict regulatory guidelines to ensure the
+            safety and efficacy of all pharmaceutical products. By continuing, you acknowledge our
+            commitment to these standards.
+          </p>
+          <button className="px-12 py-5 rounded-full bg-foreground text-background font-bold hover:bg-foreground/90 transition shadow-xl">
+            Download PDF Version
+          </button>
         </div>
       </section>
     </div>

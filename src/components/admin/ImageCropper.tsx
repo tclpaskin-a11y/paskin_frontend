@@ -27,7 +27,7 @@ export default function ImageCropper({
   const offsetStartRef = useRef({ x: 0, y: 0 });
 
   const CROP_CONTAINER_SIZE = 400; // Screen size of crop container area
-  
+
   // Crop area size on screen
   let cropWidth = 320;
   let cropHeight = 320;
@@ -136,7 +136,7 @@ export default function ImageCropper({
     img.src = imageSrc;
     img.onload = () => {
       const canvas = document.createElement("canvas");
-      
+
       const currentW = baseSize.width * zoom;
       const currentH = baseSize.height * zoom;
 
@@ -161,15 +161,19 @@ export default function ImageCropper({
         ctx.imageSmoothingQuality = "high";
         ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
 
-        canvas.toBlob((blob) => {
-          if (blob) {
-            const croppedFile = new File([blob], file.name, {
-              type: file.type || "image/jpeg",
-              lastModified: Date.now(),
-            });
-            onCropComplete(croppedFile);
-          }
-        }, file.type || "image/jpeg", 0.9);
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              const croppedFile = new File([blob], file.name, {
+                type: file.type || "image/jpeg",
+                lastModified: Date.now(),
+              });
+              onCropComplete(croppedFile);
+            }
+          },
+          file.type || "image/jpeg",
+          0.9,
+        );
       }
     };
   };
@@ -177,8 +181,8 @@ export default function ImageCropper({
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-md" onClick={onClose} />
-      
-      <motion.div 
+
+      <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
@@ -192,7 +196,7 @@ export default function ImageCropper({
             </div>
             <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">Crop Image</h3>
           </div>
-          <button 
+          <button
             onClick={onClose}
             className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
           >
@@ -202,12 +206,12 @@ export default function ImageCropper({
 
         {/* Viewport container */}
         <div className="p-8 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950/50">
-          <div 
+          <div
             ref={containerRef}
             className="relative overflow-hidden bg-slate-200 dark:bg-slate-900 rounded-2xl cursor-move shadow-inner select-none flex items-center justify-center"
-            style={{ 
-              width: CROP_CONTAINER_SIZE, 
-              height: CROP_CONTAINER_SIZE 
+            style={{
+              width: CROP_CONTAINER_SIZE,
+              height: CROP_CONTAINER_SIZE,
             }}
             onMouseDown={handleMouseDown}
             onTouchStart={handleTouchStart}
@@ -231,7 +235,7 @@ export default function ImageCropper({
 
             {/* Dark Overlay/Mask outside crop box */}
             <div className="absolute inset-0 pointer-events-none">
-              <div 
+              <div
                 className="absolute border-2 border-white shadow-[0_0_0_9999px_rgba(15,23,42,0.65)] rounded-md"
                 style={{
                   width: `${cropWidth}px`,

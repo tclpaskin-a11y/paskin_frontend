@@ -24,7 +24,7 @@ export async function getAllCategories(): Promise<Category[]> {
   const headers: HeadersInit = {
     "Content-Type": "application/json",
   };
-  
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -39,7 +39,7 @@ export async function getAllCategories(): Promise<Category[]> {
     throw new Error(errorData.message || "Failed to fetch categories");
   }
 
-  const result = await response.json() as CategoryResponse;
+  const result = (await response.json()) as CategoryResponse;
   if (result.success) {
     if (result.data && Array.isArray(result.data)) {
       return result.data;
@@ -57,7 +57,7 @@ export async function getCategory(categoryId: string): Promise<Category> {
   const headers: HeadersInit = {
     "Content-Type": "application/json",
   };
-  
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -72,7 +72,7 @@ export async function getCategory(categoryId: string): Promise<Category> {
     throw new Error(errorData.message || "Failed to fetch category");
   }
 
-  const result = await response.json() as CategoryResponse;
+  const result = (await response.json()) as CategoryResponse;
   if (result.success) {
     if (result.data && !Array.isArray(result.data)) {
       return result.data;
@@ -87,7 +87,7 @@ export async function getCategory(categoryId: string): Promise<Category> {
 // Create category
 export async function createCategory(data: Partial<Category>): Promise<Category> {
   const formData = new FormData();
-  
+
   Object.entries(data).forEach(([key, value]) => {
     if (value !== undefined && value !== null) {
       if (value instanceof File) {
@@ -100,7 +100,7 @@ export async function createCategory(data: Partial<Category>): Promise<Category>
 
   const token = getAccessToken();
   const headers: HeadersInit = {};
-  
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -116,7 +116,7 @@ export async function createCategory(data: Partial<Category>): Promise<Category>
     throw new Error(errorData.message || "Failed to create category");
   }
 
-  const result = await response.json() as CategoryResponse;
+  const result = (await response.json()) as CategoryResponse;
   if (result.success) {
     if (result.data && !Array.isArray(result.data)) {
       return result.data;
@@ -129,9 +129,12 @@ export async function createCategory(data: Partial<Category>): Promise<Category>
 }
 
 // Update category
-export async function updateCategory(categoryId: string, data: Partial<Category>): Promise<Category> {
+export async function updateCategory(
+  categoryId: string,
+  data: Partial<Category>,
+): Promise<Category> {
   const formData = new FormData();
-  
+
   Object.entries(data).forEach(([key, value]) => {
     if (value !== undefined && value !== null) {
       if (value instanceof File) {
@@ -144,7 +147,7 @@ export async function updateCategory(categoryId: string, data: Partial<Category>
 
   const token = getAccessToken();
   const headers: HeadersInit = {};
-  
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -160,7 +163,7 @@ export async function updateCategory(categoryId: string, data: Partial<Category>
     throw new Error(errorData.message || "Failed to update category");
   }
 
-  const result = await response.json() as CategoryResponse;
+  const result = (await response.json()) as CategoryResponse;
   if (result.success) {
     if (result.data && !Array.isArray(result.data)) {
       return result.data;
@@ -178,7 +181,7 @@ export async function deleteCategory(categoryId: string): Promise<void> {
   const headers: HeadersInit = {
     "Content-Type": "application/json",
   };
-  
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -208,7 +211,7 @@ export async function getPublicCategories(): Promise<Category[]> {
     throw new Error(errorData.message || "Failed to fetch categories");
   }
 
-  const result = await response.json() as CategoryResponse;
+  const result = (await response.json()) as CategoryResponse;
   if (result.success) {
     if (result.data && Array.isArray(result.data)) {
       return result.data;
