@@ -104,9 +104,7 @@ export async function verifyRazorpayPayment(
  * and verify the signature upon payment completion.
  * Resolves to the payment/verification payload if successful, or null on cancellation/failure.
  */
-export function handleRazorpayPayment(
-  paymentData: RazorpayPaymentData,
-): Promise<{
+export function handleRazorpayPayment(paymentData: RazorpayPaymentData): Promise<{
   razorpay_payment_id: string;
   razorpay_order_id: string;
   razorpay_signature: string;
@@ -127,19 +125,17 @@ export function handleRazorpayPayment(
       const amountInPaise = Math.round(paymentData.amount * 100);
       const receipt = `rcpt_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
 
-      const orderResponse = await createRazorpayOrder({
+      const order = await createRazorpayOrder({
         amount: amountInPaise,
         currency: "INR",
         receipt,
       });
 
-      if (!orderResponse || !orderResponse.order_id) {
+      if (!order || !order.order_id) {
         toast.error("Failed to initiate payment. Please try again.");
         resolve(null);
         return;
       }
-      // Temporary debugging
-      console.log("Razorpay Key:", import.meta.env.VITE_RAZORPAY_KEY_ID);
 
       const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
       if (!razorpayKey) {
@@ -149,11 +145,11 @@ export function handleRazorpayPayment(
       // 3. Configure Razorpay options
       const options = {
         key: razorpayKey,
-        amount: orderResponse.amount,
-        currency: orderResponse.currency || "INR",
+        order_id: order.order_id,
+        amount: order.amount,
+        currency: order.currency,
         name: "PaskinCare",
         description: "Order Payment",
-        order_id: orderResponse.order_id,
         prefill: {
           name: paymentData.prefill.name,
           email: paymentData.prefill.email,
