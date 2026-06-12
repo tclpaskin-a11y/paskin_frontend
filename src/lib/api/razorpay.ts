@@ -138,18 +138,17 @@ export function handleRazorpayPayment(
         resolve(null);
         return;
       }
+      // Temporary debugging
+      console.log("Razorpay Key:", import.meta.env.VITE_RAZORPAY_KEY_ID);
 
-      const keyId = import.meta.env.VITE_RAZORPAY_KEY_ID;
-      if (!keyId) {
-        console.error("VITE_RAZORPAY_KEY_ID is not set in environment variables.");
-        toast.error("Payment configuration error. Please contact support.");
-        resolve(null);
-        return;
+      const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
+      if (!razorpayKey) {
+        throw new Error("VITE_RAZORPAY_KEY_ID is missing");
       }
 
       // 3. Configure Razorpay options
       const options = {
-        key: keyId,
+        key: razorpayKey,
         amount: orderResponse.amount,
         currency: orderResponse.currency || "INR",
         name: "PaskinCare",
