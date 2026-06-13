@@ -195,6 +195,7 @@ export default function CheckoutPage() {
         }
 
         setLoadingState("Creating Order...");
+        console.log("STEP 4: CREATE ORDER");
         createdOrder = await createOrder({
           contact: {
             name: personalDetails.name,
@@ -203,10 +204,12 @@ export default function CheckoutPage() {
           },
           addressId: selectedAddressId,
           paymentMethod: "UPI",
+          transactionId: paymentResult.razorpay_payment_id,
           razorpayPaymentId: paymentResult.razorpay_payment_id,
           razorpayOrderId: paymentResult.razorpay_order_id,
           razorpaySignature: paymentResult.razorpay_signature,
         });
+        console.log("STEP 5: ORDER CREATED");
 
         const resolved = resolveOrder(createdOrder);
         setCreatedOrderDetails({
