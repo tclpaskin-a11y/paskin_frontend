@@ -169,8 +169,6 @@ export function handleRazorpayPayment(
           // Restore page scroll
           document.body.style.overflow = "";
           try {
-            console.log("STEP 1: PAYMENT SUCCESS");
-            console.log("STEP 2: VERIFY PAYMENT");
             onStatusChange?.("verifying");
             // STEP 4: PAYMENT SUCCESS & VERIFICATION
             const verifyResponse = await verifyRazorpayPayment({
@@ -178,8 +176,6 @@ export function handleRazorpayPayment(
               razorpay_order_id: response.razorpay_order_id,
               razorpay_signature: response.razorpay_signature,
             });
-
-            console.log("STEP 3: VERIFY RESPONSE", verifyResponse);
 
             if (verifyResponse && verifyResponse.success !== false) {
               toast.success("Payment verified successfully!");

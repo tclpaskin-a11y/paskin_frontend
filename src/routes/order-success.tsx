@@ -125,11 +125,11 @@ export default function OrderSuccessPage() {
               </span>
             </div>
 
-            {!isCod && order.razorpayPaymentId && (
+            {!isCod && (order.transactionId || order.razorpayPaymentId) && (
               <div className="flex justify-between items-center py-2 border-b border-slate-100">
                 <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Payment ID</span>
-                <span className="font-mono text-xs font-semibold text-slate-600 truncate max-w-[200px]" title={order.razorpayPaymentId}>
-                  {order.razorpayPaymentId}
+                <span className="font-mono text-xs font-semibold text-slate-600 truncate max-w-[200px]" title={order.transactionId || order.razorpayPaymentId}>
+                  {order.transactionId || order.razorpayPaymentId}
                 </span>
               </div>
             )}

@@ -6,6 +6,8 @@ import { toast } from "sonner";
 
 interface CartItem extends Product {
   quantity: number;
+  isPaused?: boolean;
+  stock?: number;
 }
 
 interface CartContextType {
@@ -55,6 +57,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             quantity: item.quantity || 1,
             category:
               typeof prod.category === "object" ? prod.category.name : prod.category || "Pharma",
+            isPaused: prod.isPaused || false,
+            stock: prod.stock !== undefined ? prod.stock : 99,
           };
         });
       setItems(mappedItems);

@@ -92,18 +92,46 @@ export function getReadableErrorMessage(error: any): string {
     return "An account with this email already exists.";
   }
   if (
-    lowerMsg.includes("out of stock") ||
-    lowerMsg.includes("currently unavailable") ||
-    lowerMsg.includes("product unavailable")
+    lowerMsg.includes("product no longer exists") ||
+    lowerMsg.includes("product not found") ||
+    lowerMsg.includes("item is no longer available")
   ) {
+    return "This item is no longer available.";
+  }
+  if (
+    lowerMsg.includes("paused product") ||
+    lowerMsg.includes("product is temporarily unavailable") ||
+    lowerMsg.includes("product is no longer available") ||
+    lowerMsg.includes("temporarily unavailable")
+  ) {
+    return "This product is temporarily unavailable.";
+  }
+  if (
+    lowerMsg.includes("insufficient stock") ||
+    lowerMsg.includes("out of stock")
+  ) {
+    // Check if the backend error has a specific quantity like "Only 5 items are currently available."
+    const match = message.match(/Only (\d+) items/i);
+    if (match && match[1]) {
+      return `Only ${match[1]} items are currently available.`;
+    }
     return "This product is currently unavailable.";
+  }
+  if (lowerMsg.includes("items are currently available")) {
+    return message; // returns backend-friendly formatted stock error directly
   }
   if (
     lowerMsg.includes("payment verification failed") ||
     lowerMsg.includes("signature verification failed") ||
     lowerMsg.includes("verification failed")
   ) {
-    return "Payment could not be verified. Please contact support if amount was deducted.";
+    return "Payment verification failed. Please contact support if money was deducted.";
+  }
+  if (
+    lowerMsg.includes("order creation failed") ||
+    lowerMsg.includes("payment received but order creation failed")
+  ) {
+    return "Payment received but order creation failed. Our team has been notified.";
   }
   if (
     lowerMsg.includes("internal server error") ||

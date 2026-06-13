@@ -13,6 +13,7 @@ import {
   User,
   X,
   Edit2,
+  AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
@@ -43,6 +44,24 @@ export default function CheckoutPage() {
     amount: number;
     paymentId: string;
     paymentMethod: string;
+  } | null>(null);
+  const [recoveryDetails, setRecoveryDetails] = useState<{
+    paymentId: string;
+    orderId: string;
+    signature: string;
+    amount: number;
+    contact: {
+      name: string;
+      mobile: string;
+      email: string;
+    };
+    addressId: string;
+    items: Array<{
+      productId: string;
+      quantity: number;
+      price: number;
+      name: string;
+    }>;
   } | null>(null);
 
   // Personal details states
@@ -86,6 +105,17 @@ export default function CheckoutPage() {
     document.title = "Checkout — PaskinCare";
     fetchAddresses();
     loadRazorpayScript().catch((err) => console.error("Error preloading Razorpay:", err));
+
+    // Check for pending payment recovery on load
+    const savedRecovery = localStorage.getItem("paskin_payment_recovery");
+    if (savedRecovery) {
+      try {
+        setRecoveryDetails(JSON.parse(savedRecovery));
+      } catch (e) {
+        localStorage.removeItem("paskin_payment_recovery");
+      }
+    }
+
     return () => {
       document.body.style.overflow = "";
     };
@@ -161,6 +191,23 @@ export default function CheckoutPage() {
       return;
     }
 
+    // Validate every cart item before opening Razorpay/placing order
+    for (const item of items) {
+      if (item.isPaused) {
+        toast.error(`"${item.name}" is no longer available. Please remove it from your cart.`);
+        return;
+      }
+      const stock = item.stock !== undefined ? item.stock : 99;
+      if (stock <= 0) {
+        toast.error(`"${item.name}" is out of stock. Please remove it from your cart.`);
+        return;
+      }
+      if (stock < item.quantity) {
+        toast.error(`"${item.name}" has insufficient stock. Only ${stock} units are available.`);
+        return;
+      }
+    }
+
     try {
       setIsProcessingPayment(true);
 
@@ -194,30 +241,55 @@ export default function CheckoutPage() {
           return;
         }
 
-        setLoadingState("Creating Order...");
-        console.log("STEP 4: CREATE ORDER");
-        createdOrder = await createOrder({
-          contact: {
-            name: personalDetails.name,
-            mobile: personalDetails.mobile,
-            email: personalDetails.email,
-          },
-          addressId: selectedAddressId,
-          paymentMethod: "UPI",
-          transactionId: paymentResult.razorpay_payment_id,
-          razorpayPaymentId: paymentResult.razorpay_payment_id,
-          razorpayOrderId: paymentResult.razorpay_order_id,
-          razorpaySignature: paymentResult.razorpay_signature,
-        });
-        console.log("STEP 5: ORDER CREATED");
+        try {
+          setLoadingState("Creating Order...");
+          createdOrder = await createOrder({
+            contact: {
+              name: personalDetails.name,
+              mobile: personalDetails.mobile,
+              email: personalDetails.email,
+            },
+            addressId: selectedAddressId,
+            paymentMethod: "UPI",
+            razorpayPaymentId: paymentResult.razorpay_payment_id,
+            razorpayOrderId: paymentResult.razorpay_order_id,
+            razorpaySignature: paymentResult.razorpay_signature,
+          });
 
-        const resolved = resolveOrder(createdOrder);
-        setCreatedOrderDetails({
-          id: resolved?._id || resolved?.id || "",
-          amount: totalPrice,
-          paymentId: paymentResult.razorpay_payment_id,
-          paymentMethod: "UPI",
-        });
+          const resolved = resolveOrder(createdOrder);
+          setCreatedOrderDetails({
+            id: resolved?._id || resolved?.id || "",
+            amount: totalPrice,
+            paymentId: paymentResult.razorpay_payment_id,
+            paymentMethod: "UPI",
+          });
+        } catch (orderError: any) {
+          console.error("Order creation failed after payment success:", orderError);
+          const recoveryData = {
+            paymentId: paymentResult.razorpay_payment_id,
+            orderId: paymentResult.razorpay_order_id,
+            signature: paymentResult.razorpay_signature,
+            amount: totalPrice,
+            contact: {
+              name: personalDetails.name,
+              mobile: personalDetails.mobile,
+              email: personalDetails.email,
+            },
+            addressId: selectedAddressId,
+            items: items.map(item => ({
+              productId: item.id || (item as any).productId,
+              quantity: item.quantity,
+              price: item.price,
+              name: item.name
+            }))
+          };
+          localStorage.setItem("paskin_payment_recovery", JSON.stringify(recoveryData));
+          setRecoveryDetails(recoveryData);
+          setIsProcessingPayment(false);
+          setLoadingState("");
+          toast.error("Payment received but order creation failed. Our team has been notified.");
+          return;
+        }
       } else {
         setLoadingState("Creating Order...");
         createdOrder = await createOrder({
@@ -695,6 +767,14 @@ export default function CheckoutPage() {
                   #PASKIN-{createdOrderDetails.id ? createdOrderDetails.id.slice(-6).toUpperCase() : "N/A"}
                 </span>
               </div>
+              {createdOrderDetails.paymentMethod !== "COD" && createdOrderDetails.paymentId && (
+                <div className="flex justify-between items-center">
+                  <span className="font-medium text-slate-500">Payment ID:</span>
+                  <span className="font-mono font-bold text-slate-800 text-xs truncate max-w-[200px]" title={createdOrderDetails.paymentId}>
+                    {createdOrderDetails.paymentId}
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between items-center">
                 <span className="font-medium text-slate-500">Payment Status:</span>
                 <span className="font-bold text-emerald-600">
@@ -856,6 +936,106 @@ export default function CheckoutPage() {
                   Cancel
                 </Button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Payment Recovery Modal */}
+      {recoveryDetails && (
+        <div 
+          className="fixed inset-0 z-[200] flex items-center justify-center p-6"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="recovery-modal-title"
+        >
+          <div 
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300"
+            onClick={() => {}} // Block dismissal on backdrop click to ensure they read it
+          />
+          <div className="relative w-full max-w-lg bg-white rounded-[2.5rem] p-8 sm:p-10 text-center shadow-2xl animate-in zoom-in-95 duration-300 border border-amber-100 max-h-[90vh] overflow-y-auto custom-scrollbar">
+            
+            {/* Warning Icon */}
+            <div className="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-6 text-amber-600">
+              <AlertTriangle className="h-10 w-10 stroke-[2.5]" />
+            </div>
+
+            {/* Header */}
+            <h2 id="recovery-modal-title" className="font-display text-2xl font-bold mb-2 text-slate-800">Action Required: Payment Recovery</h2>
+            <p className="text-xs text-muted-foreground mb-6 max-w-sm mx-auto leading-relaxed">
+              Your payment was successful, but we encountered an error creating your order in our database. Please save these details to complete manual setup.
+            </p>
+
+            {/* Details Box */}
+            <div className="bg-slate-50 rounded-2xl p-5 mb-6 text-left space-y-3 border border-slate-100 text-xs">
+              <div className="flex justify-between items-center">
+                <span className="font-medium text-slate-500">Payment ID:</span>
+                <span className="font-mono font-bold text-slate-800 text-xs truncate max-w-[220px]" id="recovery-payment-id">
+                  {recoveryDetails.paymentId}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="font-medium text-slate-500">Razorpay Order ID:</span>
+                <span className="font-mono font-bold text-slate-800 text-xs truncate max-w-[220px]">
+                  {recoveryDetails.orderId}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="font-medium text-slate-500">Amount Paid:</span>
+                <span className="font-bold text-amber-700">
+                  ₹{recoveryDetails.amount.toLocaleString()}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="font-medium text-slate-500">Customer Name:</span>
+                <span className="font-semibold text-slate-700">{recoveryDetails.contact.name}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="font-medium text-slate-500">Mobile:</span>
+                <span className="font-semibold text-slate-700">{recoveryDetails.contact.mobile}</span>
+              </div>
+            </div>
+
+            {/* Items Box */}
+            <div className="bg-slate-50 rounded-2xl p-5 mb-6 text-left space-y-2 border border-slate-100 text-xs max-h-[150px] overflow-y-auto">
+              <p className="font-bold text-slate-600 mb-2 uppercase tracking-wider text-[10px]">Cart Items to Recover</p>
+              {recoveryDetails.items.map((item: any, idx: number) => (
+                <div key={idx} className="flex justify-between items-center text-slate-700 font-medium">
+                  <span className="truncate max-w-[200px]">{item.name}</span>
+                  <span>{item.quantity} x ₹{item.price.toLocaleString()}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Warning Message */}
+            <div className="p-4 rounded-xl bg-amber-50 border border-amber-100 text-left mb-6">
+              <p className="text-[11px] text-amber-800 font-medium leading-relaxed">
+                <strong>Notice:</strong> Please share the Payment ID above with support to have an administrator manually create your order in the system. Do not pay again.
+              </p>
+            </div>
+
+            {/* Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={() => {
+                  const text = `PaskinCare Payment Recovery Details:\nPayment ID: ${recoveryDetails.paymentId}\nRazorpay Order ID: ${recoveryDetails.orderId}\nAmount: ₹${recoveryDetails.amount}\nName: ${recoveryDetails.contact.name}\nPhone: ${recoveryDetails.contact.mobile}`;
+                  navigator.clipboard.writeText(text);
+                  toast.success("Recovery details copied to clipboard!");
+                }}
+                className="flex-1 h-12 bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 rounded-xl flex items-center justify-center font-bold text-sm transition-all"
+              >
+                Copy Reference Info
+              </button>
+              <button
+                onClick={() => {
+                  localStorage.removeItem("paskin_payment_recovery");
+                  setRecoveryDetails(null);
+                  toast.info("Recovery payload dismissed.");
+                }}
+                className="flex-1 h-12 bg-amber-600 text-white hover:bg-amber-700 rounded-xl flex items-center justify-center font-bold text-sm transition-all shadow-md shadow-amber-600/10"
+              >
+                I have contacted support
+              </button>
             </div>
           </div>
         </div>
