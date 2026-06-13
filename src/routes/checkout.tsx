@@ -311,11 +311,18 @@ export default function CheckoutPage() {
         });
       }
 
-      setLoadingState("Finalizing Checkout...");
-      await clearCart(true); // Clear silently
+      // Show success modal immediately
       setOrderSuccess(true);
+
+      // Attempt backend cart cleanup safely
+      try {
+        await clearCart(true); // Clear cart items silently
+      } catch (cartClearError) {
+        console.warn("Non-blocking backend cart cleanup failed:", cartClearError);
+      }
     } catch (error: any) {
       toast.error(getReadableErrorMessage(error));
+    } finally {
       setIsProcessingPayment(false);
       setLoadingState("");
     }
