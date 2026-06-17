@@ -134,57 +134,47 @@ export function FeaturedProducts({ showButtons = true }: { showButtons?: boolean
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {products.map((product, i) => (
               <div
                 key={i}
-                className="bg-white rounded-3xl border border-border/50 p-6 md:p-8 flex flex-col md:flex-row items-center gap-8 shadow-sm hover-lift transition-all duration-500 animate-in fade-in duration-500"
+                className="bg-white rounded-3xl border border-border/50 p-6 flex flex-col justify-between shadow-sm hover-lift transition-all duration-500 animate-in fade-in duration-500 h-full group"
               >
-                <Link
-                  to={`/products/${product.id}`}
-                  className="w-full md:w-1/2 aspect-square rounded-2xl overflow-hidden bg-muted/30"
-                >
-                  <img
-                    src={product.image}
-                    alt={product.title}
-                    className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                  />
-                </Link>
-                <div className="w-full md:w-1/2 text-left">
-                  <Link to={`/products/${product.id}`}>
-                    <h3 className="font-display text-2xl md:text-3xl font-bold text-primary mb-2 hover:text-primary-glow transition-colors">
-                      {product.title}
-                    </h3>
+                <div>
+                  {/* Image Section */}
+                  <Link
+                    to={`/products/${product.id}`}
+                    className="block aspect-square rounded-2xl overflow-hidden bg-muted/30 mb-6"
+                  >
+                    <img
+                      src={product.image}
+                      alt={product.title}
+                      className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                    />
                   </Link>
-                  <p className="text-2xl font-bold text-foreground mb-4">₹{product.price}</p>
-                  <ul className="space-y-3 mb-8">
-                    {product.bullets.map((bullet: string, idx: number) => {
-                      const { title, content } = parseBenefit(bullet);
-                      return (
-                        <li
-                          key={idx}
-                          className="flex items-start gap-3 text-sm md:text-base text-muted-foreground"
-                        >
-                          <div className="h-1.5 w-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
-                          <div>
-                            {title && (
-                              <span className="font-bold text-slate-800 mr-1.5">{title}:</span>
-                            )}
-                            <span>{content}</span>
-                          </div>
-                        </li>
-                      );
-                    })}
-                  </ul>
+
+                  {/* Title & Price Section */}
+                  <div className="text-center space-y-2 mb-6">
+                    <Link to={`/products/${product.id}`} className="block">
+                      <h3 className="font-display text-xl md:text-2xl font-bold text-primary hover:text-primary-glow transition-colors line-clamp-1">
+                        {product.title}
+                      </h3>
+                    </Link>
+                    <p className="text-xl font-bold text-foreground">₹{product.price}</p>
+                  </div>
+                </div>
+
+                {/* Button Section */}
+                <div className="space-y-4">
                   {showButtons && (
-                    <div className="flex flex-wrap gap-3">
+                    <div className="flex gap-3">
                       <button
                         onClick={() => handleAddToCart(product.id)}
                         disabled={product.stock === 0}
-                        className={`flex-1 inline-flex items-center justify-center gap-2 py-4 rounded-full text-sm font-bold transition shadow-lg ${
+                        className={`flex-1 inline-flex items-center justify-center gap-2 py-3.5 rounded-full text-xs font-bold transition shadow-lg ${
                           product.stock === 0
                             ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200"
-                            : "bg-foreground text-background hover:bg-primary"
+                            : "bg-foreground text-background hover:bg-primary hover:text-white"
                         }`}
                       >
                         <ShoppingBag className="h-4 w-4" />
@@ -194,7 +184,7 @@ export function FeaturedProducts({ showButtons = true }: { showButtons?: boolean
                         <Link
                           to="/checkout"
                           onClick={() => handleAddToCart(product.id)}
-                          className="flex-1 inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground py-4 rounded-full text-sm font-bold hover:bg-primary-glow transition shadow-lg"
+                          className="flex-1 inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground py-3.5 rounded-full text-xs font-bold hover:bg-primary-glow transition shadow-lg"
                         >
                           <Zap className="h-4 w-4" />
                           Buy Now
@@ -202,13 +192,13 @@ export function FeaturedProducts({ showButtons = true }: { showButtons?: boolean
                       )}
                     </div>
                   )}
-                  <div className="mt-4">
+                  <div className="text-center mt-2">
                     <Link
                       to={`/products/${product.id}`}
-                      className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-primary-glow transition group"
+                      className="inline-flex items-center gap-2 text-xs font-bold text-primary hover:text-primary-glow transition group"
                     >
                       View Full Details
-                      <Leaf className="h-4 w-4 group-hover:rotate-12 transition-transform" />
+                      <Leaf className="h-3.5 w-3.5 group-hover:rotate-12 transition-transform" />
                     </Link>
                   </div>
                 </div>
