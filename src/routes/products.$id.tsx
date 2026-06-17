@@ -19,6 +19,30 @@ import { ProductCard } from "@/components/site/ProductCard";
 import { getPublicProduct, getPublicProducts } from "@/lib/api";
 import { toast } from "sonner";
 
+// Helper to parse benefits list text
+const parseBenefit = (benefit: string) => {
+  // Strip starting list numbers/dashes/bullets like "1. ", "02) ", "- ", "• "
+  let cleaned = benefit.replace(/^[-•\*\d]+[\.\)]?\s*/, "").trim();
+
+  const colonIndex = cleaned.indexOf(":");
+  if (colonIndex !== -1) {
+    return {
+      title: cleaned.substring(0, colonIndex).trim(),
+      content: cleaned.substring(colonIndex + 1).trim(),
+    };
+  }
+
+  const dashIndex = cleaned.indexOf(" - ");
+  if (dashIndex !== -1) {
+    return {
+      title: cleaned.substring(0, dashIndex).trim(),
+      content: cleaned.substring(dashIndex + 3).trim(),
+    };
+  }
+
+  return { title: "", content: cleaned };
+};
+
 const mapBackendProduct = (p: any): any => {
   const defaultImg = "https://images.unsplash.com/photo-1611073103901-09605d8f6cc9?auto=format&fit=crop&q=80&w=300";
   const imagesList = p.images && p.images.length > 0 ? p.images : [p.images?.[0] || defaultImg];
@@ -228,25 +252,33 @@ export default function ProductDetailsPage() {
                     {product.description}
                   </p>
                 )}
-                {activeTab === "benefits" && (
+                 {activeTab === "benefits" && (
                   <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
                     {(Array.isArray(product.benefits)
                       ? product.benefits
                       : typeof product.benefits === "string" && product.benefits.trim()
                         ? product.benefits
-                            .split(/[,\n]/)
+                            .split("\n") // splitting by newline is cleaner and prevents breaking on commas inside descriptions
                             .map((b) => b.trim())
                             .filter(Boolean)
                         : ["Safe & Effective", "Clinically Proven"]
-                    ).map((b: string, i: number) => (
-                      <li
-                        key={i}
-                        className="flex items-start gap-3 text-sm text-muted-foreground font-medium"
-                      >
-                        <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
-                        <span>{b}</span>
-                      </li>
-                    ))}
+                    ).map((b: string, i: number) => {
+                      const { title, content } = parseBenefit(b);
+                      return (
+                        <li
+                          key={i}
+                          className="flex items-start gap-3 text-sm text-muted-foreground font-medium"
+                        >
+                          <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
+                          <div>
+                            {title && (
+                              <span className="font-bold text-slate-800 mr-1.5">{title}:</span>
+                            )}
+                            <span>{content}</span>
+                          </div>
+                        </li>
+                      );
+                    })}
                   </ul>
                 )}
                 {activeTab === "usage" && (

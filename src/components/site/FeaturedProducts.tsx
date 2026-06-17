@@ -5,6 +5,30 @@ import { useCart } from "@/hooks/use-cart";
 import { getPublicProducts } from "@/lib/api";
 import { toast } from "sonner";
 
+// Helper to parse benefits/bullets list text
+const parseBenefit = (benefit: string) => {
+  // Strip starting list numbers/dashes/bullets like "1. ", "02) ", "- ", "• "
+  let cleaned = benefit.replace(/^[-•\*\d]+[\.\)]?\s*/, "").trim();
+
+  const colonIndex = cleaned.indexOf(":");
+  if (colonIndex !== -1) {
+    return {
+      title: cleaned.substring(0, colonIndex).trim(),
+      content: cleaned.substring(colonIndex + 1).trim(),
+    };
+  }
+
+  const dashIndex = cleaned.indexOf(" - ");
+  if (dashIndex !== -1) {
+    return {
+      title: cleaned.substring(0, dashIndex).trim(),
+      content: cleaned.substring(dashIndex + 3).trim(),
+    };
+  }
+
+  return { title: "", content: cleaned };
+};
+
 // Map backend product to local Product structure
 const mapBackendProduct = (p: any): any => {
   const benefitsArray = Array.isArray(p.benefits)
@@ -134,15 +158,23 @@ export function FeaturedProducts({ showButtons = true }: { showButtons?: boolean
                   </Link>
                   <p className="text-2xl font-bold text-foreground mb-4">₹{product.price}</p>
                   <ul className="space-y-3 mb-8">
-                    {product.bullets.map((bullet: string, idx: number) => (
-                      <li
-                        key={idx}
-                        className="flex items-start gap-3 text-sm md:text-base text-muted-foreground"
-                      >
-                        <div className="h-1.5 w-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
-                        {bullet}
-                      </li>
-                    ))}
+                    {product.bullets.map((bullet: string, idx: number) => {
+                      const { title, content } = parseBenefit(bullet);
+                      return (
+                        <li
+                          key={idx}
+                          className="flex items-start gap-3 text-sm md:text-base text-muted-foreground"
+                        >
+                          <div className="h-1.5 w-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
+                          <div>
+                            {title && (
+                              <span className="font-bold text-slate-800 mr-1.5">{title}:</span>
+                            )}
+                            <span>{content}</span>
+                          </div>
+                        </li>
+                      );
+                    })}
                   </ul>
                   {showButtons && (
                     <div className="flex flex-wrap gap-3">
