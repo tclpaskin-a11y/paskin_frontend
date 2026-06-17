@@ -20,6 +20,8 @@ import { getPublicProduct, getPublicProducts } from "@/lib/api";
 import { toast } from "sonner";
 
 const mapBackendProduct = (p: any): any => {
+  const defaultImg = "https://images.unsplash.com/photo-1611073103901-09605d8f6cc9?auto=format&fit=crop&q=80&w=300";
+  const imagesList = p.images && p.images.length > 0 ? p.images : [p.images?.[0] || defaultImg];
   return {
     id: p._id,
     name: p.name || "",
@@ -27,9 +29,8 @@ const mapBackendProduct = (p: any): any => {
     oldPrice: p.basePrice || undefined,
     rating: p.rating || 4.8,
     reviews: p.reviews || 120,
-    image:
-      p.images?.[0] ||
-      "https://images.unsplash.com/photo-1611073103901-09605d8f6cc9?auto=format&fit=crop&q=80&w=300",
+    image: imagesList[0],
+    images: imagesList,
     badge: p.isPaused ? "Paused" : undefined,
     category: typeof p.category === "object" && p.category ? p.category.name : p.category || "",
     description: p.description || "",
@@ -50,6 +51,7 @@ export default function ProductDetailsPage() {
   const [product, setProduct] = useState<any>(null);
   const [similarProducts, setSimilarProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedImage, setSelectedImage] = useState<string>("");
 
   useEffect(() => {
     async function loadProductDetails() {
@@ -60,6 +62,7 @@ export default function ProductDetailsPage() {
         const data = await getPublicProduct(id);
         const mappedProduct = mapBackendProduct(data);
         setProduct(mappedProduct);
+        setSelectedImage(mappedProduct.image);
 
         // Fetch all products for recommendations
         const allProducts = await getPublicProducts();
@@ -128,25 +131,34 @@ export default function ProductDetailsPage() {
           <div className="space-y-4 lg:sticky lg:top-32 self-start">
             <div className="aspect-square rounded-2xl lg:rounded-[2.5rem] overflow-hidden bg-slate-50 border border-border/50">
               <img
-                src={product.image}
+                src={selectedImage || product.image}
                 alt={product.name}
                 className="w-full h-full object-cover animate-in fade-in duration-700"
               />
             </div>
-            <div className="flex gap-3 overflow-x-auto pb-4 lg:pb-0 hide-scrollbar scroll-smooth">
-              {[1, 2, 3, 4].map((i) => (
-                <div
-                  key={i}
-                  className="aspect-square w-16 h-16 sm:w-24 sm:h-24 flex-shrink-0 rounded-xl lg:rounded-2xl bg-slate-50 border border-border/50 overflow-hidden cursor-pointer hover:border-primary transition-all group"
-                >
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-full object-cover opacity-50 group-hover:opacity-100 transition-opacity"
-                  />
-                </div>
-              ))}
-            </div>
+            {product.images && product.images.length > 1 && (
+              <div className="flex gap-3 overflow-x-auto pb-4 lg:pb-0 hide-scrollbar scroll-smooth">
+                {product.images.map((imgUrl: string, idx: number) => (
+                  <div
+                    key={idx}
+                    onClick={() => setSelectedImage(imgUrl)}
+                    className={cn(
+                      "aspect-square w-16 h-16 sm:w-24 sm:h-24 flex-shrink-0 rounded-xl lg:rounded-2xl bg-slate-50 border transition-all group overflow-hidden cursor-pointer",
+                      selectedImage === imgUrl ? "border-primary ring-2 ring-primary/20" : "border-border/50 hover:border-primary"
+                    )}
+                  >
+                    <img
+                      src={imgUrl}
+                      alt={`${product.name} thumbnail ${idx + 1}`}
+                      className={cn(
+                        "w-full h-full object-cover transition-opacity",
+                        selectedImage === imgUrl ? "opacity-100" : "opacity-50 group-hover:opacity-100"
+                      )}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Details */}
