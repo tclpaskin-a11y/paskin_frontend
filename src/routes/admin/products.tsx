@@ -40,6 +40,7 @@ export default function AdminProducts() {
   const [benefits, setBenefits] = useState("");
   const [usage, setUsage] = useState("");
   const [ingredients, setIngredients] = useState("");
+  const [isFeatured, setIsFeatured] = useState(false);
 
   // Image Upload / Preview States
   const [images, setImages] = useState<string[]>([]); // New uploads previews (ObjectURLs)
@@ -173,6 +174,7 @@ export default function AdminProducts() {
     setBenefits(p.benefits ?? "");
     setUsage(p.usage ?? "");
     setIngredients(p.ingredients ?? "");
+    setIsFeatured(p.isFeatured || false);
     setExistingImages(p.images || []);
     setImages([]);
     setUploadedFiles([]);
@@ -193,6 +195,7 @@ export default function AdminProducts() {
     setBenefits("");
     setUsage("");
     setIngredients("");
+    setIsFeatured(false);
     setExistingImages([]);
     setImages([]);
     setUploadedFiles([]);
@@ -246,6 +249,7 @@ export default function AdminProducts() {
         ingredients,
         color,
         size,
+        isFeatured,
       };
 
       // Multer files uploads goes through 'media' key
@@ -568,6 +572,18 @@ export default function AdminProducts() {
                           placeholder="e.g. 250"
                         />
                       </div>
+                    </div>
+                    <div className="flex items-center gap-2 mt-4 ml-1">
+                      <input
+                        type="checkbox"
+                        id="isFeatured"
+                        checked={isFeatured}
+                        onChange={(e) => setIsFeatured(e.target.checked)}
+                        className="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary cursor-pointer"
+                      />
+                      <label htmlFor="isFeatured" className="text-xs font-bold text-slate-500 uppercase tracking-widest cursor-pointer select-none">
+                        Featured Product
+                      </label>
                     </div>
                   </div>
 

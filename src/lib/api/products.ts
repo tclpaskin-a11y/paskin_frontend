@@ -22,6 +22,7 @@ export interface Product {
   usage?: string;
   ingredients?: string;
   isPaused?: boolean;
+  isFeatured?: boolean;
   createdAt?: string;
   updatedAt?: string;
   __v?: number;
@@ -233,8 +234,12 @@ export async function deleteProduct(productId: string): Promise<void> {
 }
 
 // Get public products (GET)
-export async function getPublicProducts(): Promise<Product[]> {
-  const response = await fetch(`${API_BASE_URL}/products`, {
+export async function getPublicProducts(options?: { featured?: boolean }): Promise<Product[]> {
+  const url = options?.featured
+    ? `${API_BASE_URL}/products?featured=true`
+    : `${API_BASE_URL}/products`;
+
+  const response = await fetch(url, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
